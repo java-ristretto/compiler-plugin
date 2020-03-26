@@ -8,9 +8,9 @@ import static org.hamcrest.Matchers.is;
 class JavacPluginTest {
 
     @Test
-    void test_some_library_method() {
-        JavacPlugin classUnderTest = new JavacPlugin();
+    void has_name() {
+        JavacPlugin plugin = new JavacPlugin();
 
-        assertThat(classUnderTest.someLibraryMethod(), is(true));
+        assertThat(plugin.getName(), is("ristretto"));
     }
 }
