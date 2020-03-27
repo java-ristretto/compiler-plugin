@@ -13,10 +13,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static javax.tools.JavaFileObject.Kind.SOURCE;
 
 final class TestCompiler {
 
@@ -30,51 +35,97 @@ final class TestCompiler {
         return new TestCompiler();
     }
 
-    Result compile(String sourceCode) {
+    Result compile(SourceCode sourceCode) {
         DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
         Writer additionalOutput = new StringWriter();
 
+        FileManager fileManager = new FileManager(compiler.getStandardFileManager(
+            diagnosticCollector,
+            null,
+            StandardCharsets.UTF_8
+        ));
+
         JavaCompiler.CompilationTask task = compiler.getTask(
             additionalOutput,
-            new FileManager(compiler.getStandardFileManager(diagnosticCollector, null, StandardCharsets.UTF_8)),
+            fileManager,
             diagnosticCollector,
             List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME),
             null,
-            List.of(new SourceFile(sourceCode))
+            List.of(sourceCode)
         );
 
         task.call();
 
-        return new Result(diagnosticCollector.getDiagnostics(), additionalOutput.toString());
+        return new Result(
+            diagnosticCollector.getDiagnostics(),
+            additionalOutput.toString(),
+            new LocalClassLoader(fileManager.compiledClasses)
+        );
+    }
+
+    static final class SourceCode extends SimpleJavaFileObject {
+
+        final String content;
+
+        private SourceCode(String packageName, String publicClass, String content) {
+            super(URI.create(String.format("string://%s/%s%s", packageName.replace('.', '/'), publicClass, SOURCE.extension)), SOURCE);
+            this.content = content;
+        }
+
+        static SourceCode of(String packageName, String publicClass, String content) {
+            return new SourceCode(packageName, publicClass, content);
+        }
+
+        @Override
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+            return content;
+        }
     }
 
     static final class Result {
 
         final List<Diagnostic<? extends JavaFileObject>> diagnostics;
         final String additionalOutput;
+        final LocalClassLoader classLoader;
 
-        Result(List<Diagnostic<? extends JavaFileObject>> diagnostics, String additionalOutput) {
+        Result(List<Diagnostic<? extends JavaFileObject>> diagnostics, String additionalOutput, LocalClassLoader classLoader) {
             this.diagnostics = diagnostics;
             this.additionalOutput = additionalOutput;
+            this.classLoader = classLoader;
         }
 
         String diagnostics() {
             return diagnostics.stream().map(Diagnostic::toString).collect(Collectors.joining(System.lineSeparator()));
         }
+
+        public ClassWrapper loadClass(String name) {
+            try {
+                return new ClassWrapper(classLoader.loadClass(name));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    private static final class SourceFile extends SimpleJavaFileObject {
+    static final class ClassWrapper {
 
-        final String content;
+        private final Class<?> aClass;
 
-        SourceFile(String content) {
-            super(URI.create("file://ristretto/test/TestSample.java"), Kind.SOURCE);
-            this.content = content;
+        ClassWrapper(Class<?> aClass) {
+            this.aClass = aClass;
         }
 
-        @Override
-        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-            return content;
+        void invoke(String methodName, String value) {
+            try {
+                aClass.getMethod(methodName, String.class).invoke(null, value);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                if (e.getTargetException() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getTargetException();
+                }
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -91,9 +142,15 @@ final class TestCompiler {
             outputStream = new ByteArrayOutputStream();
             return outputStream;
         }
+
+        byte[] toBytecode() {
+            return outputStream.toByteArray();
+        }
     }
 
     private static final class FileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
+
+        final Map<String, ClassFile> compiledClasses = new HashMap<>();
 
         FileManager(StandardJavaFileManager fileManager) {
             super(fileManager);
@@ -106,7 +163,27 @@ final class TestCompiler {
             JavaFileObject.Kind kind,
             FileObject sibling
         ) {
-            return new ClassFile(className);
+            ClassFile classFile = new ClassFile(className);
+            compiledClasses.put(className, classFile);
+            return classFile;
+        }
+    }
+
+    private static final class LocalClassLoader extends ClassLoader {
+
+        final Map<String, ClassFile> classFilesByName;
+
+        LocalClassLoader(Map<String, ClassFile> classFilesByName) {
+            this.classFilesByName = classFilesByName;
+        }
+
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            if (!classFilesByName.containsKey(name)) {
+                throw new ClassNotFoundException(name);
+            }
+            byte[] bytes = classFilesByName.get(name).toBytecode();
+            return defineClass(name, bytes, 0, bytes.length);
         }
     }
 }
