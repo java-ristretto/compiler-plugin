@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class JavacPluginTest {
 
@@ -74,6 +75,16 @@ class JavacPluginTest {
             var exception = assertThrows(NullPointerException.class, () -> aClass.invoke("hello", null));
 
             assertThat(exception.getMessage(), is("name is null"));
+        }
+
+        @Test
+        void points_to_the_parameter_declaration_line() {
+            fail();
+        }
+
+        @Test
+        void skips_primitive_types() {
+            fail();
         }
 
         @Test
