@@ -61,7 +61,6 @@ class JavacPluginTest {
                 "" +
                 "public class TestSample {" +
                 "  public static String hello(String name) {" +
-                "    if (name == null) throw new NullPointerException(\"name is null\");" +
                 "    return \"hello \" + name;" +
                 "  }" +
                 "}"
