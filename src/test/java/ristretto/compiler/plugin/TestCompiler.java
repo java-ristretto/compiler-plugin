@@ -115,9 +115,10 @@ final class TestCompiler {
             this.aClass = aClass;
         }
 
-        void invoke(String methodName, String value) {
+        @SuppressWarnings("unchecked")
+        <T> T invoke(String methodName, String value) {
             try {
-                aClass.getMethod(methodName, String.class).invoke(null, value);
+                return (T) aClass.getMethod(methodName, String.class).invoke(null, value);
             } catch (NoSuchMethodException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {

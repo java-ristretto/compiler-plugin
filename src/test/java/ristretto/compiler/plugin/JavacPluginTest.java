@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,28 +49,39 @@ class JavacPluginTest {
         assertThat(result.diagnostics(), containsString("TestSample.java:1: error: final parameter name may not be assigned"));
     }
 
-    @Test
-    void enforces_non_private_method_parameters_to_not_be_null() {
-        var singleParameterMethod = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
-            "package ristretto.test;" +
-            "" +
-            "public class TestSample {" +
-            "  public static String hello(String name) {" +
-            "    if (name == null) throw new NullPointerException(\"name is null\");" +
-            "    return \"hello \" + name;" +
-            "  }" +
-            "}"
-        );
+    @Nested
+    class null_check_for_public_method_parameters {
 
-        var exception = assertThrows(
-            NullPointerException.class,
-            () ->
-                compiler
-                    .compile(singleParameterMethod)
-                    .loadClass("ristretto.test.TestSample")
-                    .invoke("hello", null)
-        );
+        TestCompiler.ClassWrapper aClass;
 
-        assertThat(exception.getMessage(), is("name is null"));
+        @BeforeEach
+        void beforeEach() {
+            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
+                "package ristretto.test;" +
+                "" +
+                "public class TestSample {" +
+                "  public static String hello(String name) {" +
+                "    if (name == null) throw new NullPointerException(\"name is null\");" +
+                "    return \"hello \" + name;" +
+                "  }" +
+                "}"
+            );
+
+            aClass = compiler.compile(sourceCode).loadClass("ristretto.test.TestSample");
+        }
+
+        @Test
+        void enforces_non_null_values() {
+            var exception = assertThrows(NullPointerException.class, () -> aClass.invoke("hello", null));
+
+            assertThat(exception.getMessage(), is("name is null"));
+        }
+
+        @Test
+        void keeps_original_behavior() {
+            String result = aClass.invoke("hello", "world");
+
+            assertThat(result, is("hello world"));
+        }
     }
 }
