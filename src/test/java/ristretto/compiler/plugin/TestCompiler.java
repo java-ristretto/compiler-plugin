@@ -72,8 +72,8 @@ final class TestCompiler {
             this.content = content;
         }
 
-        static SourceCode of(String packageName, String publicClass, String content) {
-            return new SourceCode(packageName, publicClass, content);
+        static SourceCode of(String packageName, String publicClass, String... content) {
+            return new SourceCode(packageName, publicClass, String.join(System.lineSeparator(), content));
         }
 
         @Override

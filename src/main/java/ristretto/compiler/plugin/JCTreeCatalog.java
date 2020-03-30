@@ -25,9 +25,10 @@ final class JCTreeCatalog {
      * if (<variable name> == null) throw new NullPointerException("<variable name> is null");
      */
     JCTree.JCIf nullCheck(VariableTree variableTree) {
-        Name variableName = ((JCTree.JCVariableDecl) variableTree).getName();
+        JCTree.JCVariableDecl variableDeclaration = (JCTree.JCVariableDecl) variableTree;
+        Name variableName = variableDeclaration.getName();
 
-        return maker.If(
+        return maker.at(variableDeclaration.pos).If(
             maker.Binary(JCTree.Tag.EQ, maker.Ident(variableName), maker.Literal(TypeTag.BOT, null)),
             maker.Throw(
                 maker.NewClass(

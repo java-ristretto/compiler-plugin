@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class JavacPluginTest {
 
@@ -21,9 +20,9 @@ class JavacPluginTest {
 
     @Test
     void indicates_when_it_is_loaded() {
-        var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
-            "package ristretto.test;" +
-            "" +
+        var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
             "public class TestSample {}"
         );
 
@@ -34,20 +33,20 @@ class JavacPluginTest {
 
     @Test
     void enforces_method_parameters_to_be_final() {
-        var mutableParameter = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
-            "package ristretto.test;" +
-            "" +
-            "public class TestSample {" +
-            "  public static String hello(String name) {" +
-            "    name = \"hello \" + name;" +
-            "    return name;" +
-            "  }" +
+        var mutableParameter = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  public static String hello(String name) {",
+            "    name = \"hello \" + name;",
+            "    return name;",
+            "  }",
             "}"
         );
 
         var result = compiler.compile(mutableParameter);
 
-        assertThat(result.diagnostics(), containsString("TestSample.java:1: error: final parameter name may not be assigned"));
+        assertThat(result.diagnostics(), containsString("TestSample.java:6: error: final parameter name may not be assigned"));
     }
 
     @Nested
@@ -57,16 +56,13 @@ class JavacPluginTest {
 
         @BeforeEach
         void beforeEach() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
-                "package ristretto.test;" +
-                "" +
-                "public class TestSample {" +
-                "  public static String hello(String name) {" +
-                "    return \"hello \" + name;" +
-                "  }" +
-                "  public static int addOne(int value) {" +
-                "    return value + 1;" +
-                "  }" +
+            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+                "package ristretto.test;",
+                "",
+                "public class TestSample {",
+                "  public static String hello(String name) {",
+                "    return \"hello \" + name;",
+                "  }",
                 "}"
             );
 
@@ -82,7 +78,11 @@ class JavacPluginTest {
 
         @Test
         void points_to_the_parameter_declaration_line() {
-            fail();
+            var exception = assertThrows(NullPointerException.class, () -> aClass.invoke("hello", null));
+
+            StackTraceElement[] stackTrace = exception.getStackTrace();
+
+            assertThat(stackTrace[0].getLineNumber(), is(5));
         }
 
         @Test
@@ -94,13 +94,13 @@ class JavacPluginTest {
 
         @Test
         void skips_primitive_types() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
-                "package ristretto.test;" +
-                "" +
-                "public class TestSample {" +
-                "  public static int addOne(int value) {" +
-                "    return value + 1;" +
-                "  }" +
+            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+                "package ristretto.test;",
+                "",
+                "public class TestSample {",
+                "  public static int addOne(int value) {",
+                "    return value + 1;",
+                "  }",
                 "}"
             );
 
