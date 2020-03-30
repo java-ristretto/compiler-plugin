@@ -64,6 +64,9 @@ class JavacPluginTest {
                 "  public static String hello(String name) {" +
                 "    return \"hello \" + name;" +
                 "  }" +
+                "  public static int addOne(int value) {" +
+                "    return value + 1;" +
+                "  }" +
                 "}"
             );
 
@@ -83,15 +86,30 @@ class JavacPluginTest {
         }
 
         @Test
-        void skips_primitive_types() {
-            fail();
-        }
-
-        @Test
         void keeps_original_behavior() {
             String result = aClass.invoke("hello", "world");
 
             assertThat(result, is("hello world"));
+        }
+
+        @Test
+        void skips_primitive_types() {
+            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "" +
+                "package ristretto.test;" +
+                "" +
+                "public class TestSample {" +
+                "  public static int addOne(int value) {" +
+                "    return value + 1;" +
+                "  }" +
+                "}"
+            );
+
+            int result = compiler
+                .compile(sourceCode)
+                .loadClass("ristretto.test.TestSample")
+                .invoke("addOne", 0);
+
+            assertThat(result, is(1));
         }
     }
 }

@@ -115,10 +115,18 @@ final class TestCompiler {
             this.aClass = aClass;
         }
 
-        @SuppressWarnings("unchecked")
         <T> T invoke(String methodName, String value) {
+            return invoke(methodName, String.class, value);
+        }
+
+        <T> T invoke(String methodName, int value) {
+            return invoke(methodName, int.class, value);
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T> T invoke(String methodName, Class<?> type, Object value) {
             try {
-                return (T) aClass.getMethod(methodName, String.class).invoke(null, value);
+                return (T) aClass.getMethod(methodName, type).invoke(null, value);
             } catch (NoSuchMethodException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {
@@ -128,6 +136,7 @@ final class TestCompiler {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
     private static final class ClassFile extends SimpleJavaFileObject {
