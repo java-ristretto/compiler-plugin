@@ -8,6 +8,7 @@ import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
+import ristretto.Mutable;
 
 public final class JavacPlugin implements Plugin {
 
@@ -39,7 +40,7 @@ public final class JavacPlugin implements Plugin {
                 return;
             }
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
-            compilationUnit.accept(MethodParameterFinalModifier.INSTANCE, null);
+            compilationUnit.accept(MethodParameterFinalModifier.INSTANCE, QualifiedClassNameResolver.newResolver(QualifiedClassName.of(QualifiedName.parse(Mutable.class.getName()))));
             compilationUnit.accept(NullCheckForPublicMethodParameter.of(context), null);
         }
     }
