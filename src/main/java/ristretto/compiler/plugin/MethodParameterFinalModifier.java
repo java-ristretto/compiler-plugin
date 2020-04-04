@@ -1,11 +1,12 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.tree.JCTree;
-import ristretto.Mutable;
 
 final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameResolver, QualifiedClassNameResolver> {
 
@@ -16,29 +17,36 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
 
     @Override
     public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
-        resolver.importClass(QualifiedImport.of(QualifiedName.parse(importTree.getQualifiedIdentifier().toString())));
+        resolver.importClass(toQualifiedImport(importTree));
         return super.visitImport(importTree, resolver);
+    }
+
+    private QualifiedImport toQualifiedImport(ImportTree importTree) {
+        return QualifiedImport.of(QualifiedName.parse(importTree.getQualifiedIdentifier().toString()));
     }
 
     @Override
     public QualifiedClassNameResolver visitMethod(MethodTree method, QualifiedClassNameResolver resolver) {
         method.getParameters()
             .stream()
-            .filter(parameter ->
-                parameter.getModifiers()
-                    .getAnnotations()
-                    .stream()
-                    .map(annotation -> QualifiedName.parse(annotation.getAnnotationType().toString()))
-                    .map(resolver::resolve)
-                    .noneMatch(annotationName -> {
-                        QualifiedClassName mutableAnnotation = QualifiedClassName.of(QualifiedName.parse(Mutable.class.getName()));
-                        return mutableAnnotation.equals(annotationName);
-                    })
-            )
+            .filter(parameter -> noMutableAnnotation(resolver, parameter))
             .forEach(parameter -> {
                 JCTree.JCVariableDecl declaration = (JCTree.JCVariableDecl) parameter;
                 declaration.mods.flags |= Flags.FINAL;
             });
         return super.visitMethod(method, resolver);
+    }
+
+    private boolean noMutableAnnotation(QualifiedClassNameResolver resolver, VariableTree parameter) {
+        return parameter.getModifiers()
+            .getAnnotations()
+            .stream()
+            .map(this::toQualifiedName)
+            .map(resolver::resolve)
+            .noneMatch(QualifiedClassName.MUTABLE_ANNOTATION::equals);
+    }
+
+    private QualifiedName toQualifiedName(AnnotationTree annotation) {
+        return QualifiedName.parse(annotation.getAnnotationType().toString());
     }
 }

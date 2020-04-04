@@ -1,9 +1,13 @@
 package ristretto.compiler.plugin;
 
+import ristretto.Mutable;
+
 import java.util.Objects;
 import java.util.Optional;
 
 final class QualifiedClassName {
+
+    static final QualifiedClassName MUTABLE_ANNOTATION = of(QualifiedName.parse(Mutable.class.getName()));
 
     private final QualifiedName qualifiedName;
 
