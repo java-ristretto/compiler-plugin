@@ -5,8 +5,6 @@ import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.tree.JCTree;
 
 final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameResolver, QualifiedClassNameResolver> {
 
@@ -30,10 +28,7 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
         method.getParameters()
             .stream()
             .filter(parameter -> noMutableAnnotation(resolver, parameter))
-            .forEach(parameter -> {
-                JCTree.JCVariableDecl declaration = (JCTree.JCVariableDecl) parameter;
-                declaration.mods.flags |= Flags.FINAL;
-            });
+            .forEach(JCTreeCatalog::addFinalModifier);
         return super.visitMethod(method, resolver);
     }
 

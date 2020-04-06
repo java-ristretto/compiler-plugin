@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
 import com.sun.source.tree.VariableTree;
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -49,5 +50,9 @@ final class JCTreeCatalog {
 
     static boolean notPrimitiveType(VariableTree parameter) {
         return !JCTree.Kind.PRIMITIVE_TYPE.equals(parameter.getType().getKind());
+    }
+
+    static void addFinalModifier(VariableTree parameter) {
+        ((JCTree.JCVariableDecl) parameter).mods.flags |= Flags.FINAL;
     }
 }
