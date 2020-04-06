@@ -9,25 +9,23 @@ final class QualifiedName {
 
     private final Optional<String> packageName;
     private final String simpleName;
-    private final String qualifiedName;
 
-    private QualifiedName(Optional<String> packageName, String simpleName, String qualifiedName) {
+    private QualifiedName(Optional<String> packageName, String simpleName) {
         this.packageName = packageName;
         this.simpleName = simpleName;
-        this.qualifiedName = qualifiedName;
     }
 
     static QualifiedName parse(String qualifiedName) {
         int separatorIndex = qualifiedName.lastIndexOf(SEPARATOR);
 
         if (separatorIndex == -1) {
-            return new QualifiedName(Optional.empty(), qualifiedName, qualifiedName);
+            return new QualifiedName(Optional.empty(), qualifiedName);
         }
 
         String packageName = qualifiedName.substring(0, separatorIndex);
         String simpleName = qualifiedName.substring(separatorIndex + 1);
 
-        return new QualifiedName(Optional.of(packageName), simpleName, qualifiedName);
+        return new QualifiedName(Optional.of(packageName), simpleName);
     }
 
     String simpleName() {
@@ -43,17 +41,18 @@ final class QualifiedName {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         QualifiedName that = (QualifiedName) o;
-        return qualifiedName.equals(that.qualifiedName);
+        return packageName.equals(that.packageName) &&
+            simpleName.equals(that.simpleName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(qualifiedName);
+        return Objects.hash(packageName, simpleName);
     }
 
     @Override
     public String toString() {
-        return qualifiedName;
+        return packageName.map(name -> name + "." + simpleName).orElse(simpleName);
     }
 
 }
