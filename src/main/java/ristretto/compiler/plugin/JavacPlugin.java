@@ -43,7 +43,10 @@ public final class JavacPlugin implements Plugin {
                 MethodParameterFinalModifier.INSTANCE,
                 QualifiedClassNameResolver.newResolver(QualifiedClassName.MUTABLE_ANNOTATION)
             );
-            compilationUnit.accept(NullCheckForPublicMethodParameter.of(context), null);
+            compilationUnit.accept(
+                NullCheckForPublicMethodParameter.of(context),
+                QualifiedClassNameResolver.newResolver(QualifiedClassName.NULLABLE_ANNOTATION)
+            );
         }
     }
 }

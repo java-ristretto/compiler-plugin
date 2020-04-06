@@ -71,4 +71,26 @@ class NullCheckForPublicMethodParameterTest {
 
         assertThat(result, is(1));
     }
+
+    @Test
+    void skips_annotated_parameter() {
+        var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "import ristretto.Nullable;",
+            "",
+            "public class TestSample {",
+            "  public static String hello(@Nullable String name) {",
+            "    return \"hello \" + name;",
+            "  }",
+            "}"
+        );
+
+        String result = compiler
+            .compile(sourceCode)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("hello", null);
+
+        assertThat(result, is("hello null"));
+    }
 }
