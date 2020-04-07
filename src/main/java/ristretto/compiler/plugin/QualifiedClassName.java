@@ -11,43 +11,63 @@ final class QualifiedClassName {
     static final QualifiedClassName MUTABLE_ANNOTATION = of(Mutable.class);
     static final QualifiedClassName NULLABLE_ANNOTATION = of(Nullable.class);
 
-    private final QualifiedName qualifiedName;
+    private static final char SEPARATOR = '.';
 
-    private QualifiedClassName(QualifiedName qualifiedName) {
-        this.qualifiedName = qualifiedName;
+    private final Optional<String> packageName;
+    private final String simpleName;
+
+    private QualifiedClassName(Optional<String> packageName, String simpleName) {
+        this.packageName = packageName;
+        this.simpleName = simpleName;
     }
 
     static QualifiedClassName of(Class<?> aClass) {
-        return new QualifiedClassName(QualifiedName.of(aClass));
+        Optional<String> packageName;
+        if (aClass.getPackageName().isEmpty()) {
+            packageName = Optional.empty();
+        } else {
+            packageName = Optional.of(aClass.getPackageName());
+        }
+        return new QualifiedClassName(packageName, aClass.getSimpleName());
     }
 
     static QualifiedClassName parse(String qualifiedName) {
-        return new QualifiedClassName(QualifiedName.parse(qualifiedName));
+        int separatorIndex = qualifiedName.lastIndexOf(SEPARATOR);
+
+        if (separatorIndex == -1) {
+            return new QualifiedClassName(Optional.empty(), qualifiedName);
+        }
+
+        String packageName = qualifiedName.substring(0, separatorIndex);
+        String simpleName = qualifiedName.substring(separatorIndex + 1);
+
+        return new QualifiedClassName(Optional.of(packageName), simpleName);
     }
 
     String simpleName() {
-        return qualifiedName.simpleName();
+        return simpleName;
     }
 
     Optional<String> packageName() {
-        return qualifiedName.packageName();
+        return packageName;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        QualifiedClassName className = (QualifiedClassName) o;
-        return qualifiedName.equals(className.qualifiedName);
+        QualifiedClassName that = (QualifiedClassName) o;
+        return packageName.equals(that.packageName) &&
+            simpleName.equals(that.simpleName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(qualifiedName);
+        return Objects.hash(packageName, simpleName);
     }
 
     @Override
     public String toString() {
-        return qualifiedName.toString();
+        return packageName.map(name -> name + SEPARATOR + simpleName).orElse(simpleName);
     }
 }

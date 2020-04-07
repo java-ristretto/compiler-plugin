@@ -15,7 +15,7 @@ final class QualifiedImport {
     }
 
     static QualifiedImport parse(String qualifiedImport) {
-        QualifiedName qualifiedName = QualifiedName.parse(qualifiedImport);
+        var qualifiedName = QualifiedClassName.parse(qualifiedImport);
 
         var packageName = qualifiedName.packageName()
             .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName)));
