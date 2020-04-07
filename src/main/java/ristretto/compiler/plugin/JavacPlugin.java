@@ -8,8 +8,6 @@ import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
-import ristretto.Mutable;
-import ristretto.Nullable;
 
 public final class JavacPlugin implements Plugin {
 
@@ -43,11 +41,11 @@ public final class JavacPlugin implements Plugin {
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
             compilationUnit.accept(
                 MethodParameterFinalModifier.INSTANCE,
-                QualifiedClassNameResolver.newResolver(Mutable.class)
+                QualifiedClassNameResolver.newResolver()
             );
             compilationUnit.accept(
                 NullCheckForPublicMethodParameter.of(context),
-                QualifiedClassNameResolver.newResolver(Nullable.class)
+                QualifiedClassNameResolver.newResolver()
             );
         }
     }

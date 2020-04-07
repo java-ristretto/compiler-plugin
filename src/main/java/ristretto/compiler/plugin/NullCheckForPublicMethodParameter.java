@@ -17,14 +17,14 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
         this.context = context;
     }
 
-    @Override
-    public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
-        resolver.importClass(toQualifiedImport(importTree));
-        return super.visitImport(importTree, resolver);
+    static NullCheckForPublicMethodParameter of(Context context) {
+        return new NullCheckForPublicMethodParameter(context);
     }
 
-    private QualifiedImport toQualifiedImport(ImportTree importTree) {
-        return QualifiedImport.parse(importTree.getQualifiedIdentifier().toString());
+    @Override
+    public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
+        resolver.importClass(importTree.getQualifiedIdentifier().toString());
+        return super.visitImport(importTree, resolver);
     }
 
     @Override
@@ -48,17 +48,8 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
         return parameter.getModifiers()
             .getAnnotations()
             .stream()
-            .map(this::toQualifiedName)
-            .map(resolver::resolve)
-            .noneMatch(QualifiedClassName.NULLABLE_ANNOTATION::equals);
+            .map(AnnotationTree::getAnnotationType)
+            .map(Object::toString)
+            .noneMatch(resolver::isNullable);
     }
-
-    private QualifiedClassName toQualifiedName(AnnotationTree annotation) {
-        return QualifiedClassName.parse(annotation.getAnnotationType().toString());
-    }
-
-    static NullCheckForPublicMethodParameter of(Context context) {
-        return new NullCheckForPublicMethodParameter(context);
-    }
-
 }

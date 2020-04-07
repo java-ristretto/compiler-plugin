@@ -15,12 +15,8 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
 
     @Override
     public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
-        resolver.importClass(toQualifiedImport(importTree));
+        resolver.importClass(importTree.getQualifiedIdentifier().toString());
         return super.visitImport(importTree, resolver);
-    }
-
-    private QualifiedImport toQualifiedImport(ImportTree importTree) {
-        return QualifiedImport.parse(importTree.getQualifiedIdentifier().toString());
     }
 
     @Override
@@ -36,12 +32,8 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
         return parameter.getModifiers()
             .getAnnotations()
             .stream()
-            .map(this::toQualifiedName)
-            .map(resolver::resolve)
-            .noneMatch(QualifiedClassName.MUTABLE_ANNOTATION::equals);
-    }
-
-    private QualifiedClassName toQualifiedName(AnnotationTree annotation) {
-        return QualifiedClassName.parse(annotation.getAnnotationType().toString());
+            .map(AnnotationTree::getAnnotationType)
+            .map(Object::toString)
+            .noneMatch(resolver::isMutable);
     }
 }
