@@ -8,8 +8,8 @@ import java.util.Optional;
 
 final class QualifiedClassName {
 
-    static final QualifiedClassName MUTABLE_ANNOTATION = parse(Mutable.class.getName());
-    static final QualifiedClassName NULLABLE_ANNOTATION = parse(Nullable.class.getName());
+    static final QualifiedClassName MUTABLE_ANNOTATION = of(Mutable.class);
+    static final QualifiedClassName NULLABLE_ANNOTATION = of(Nullable.class);
 
     private final QualifiedName qualifiedName;
 
@@ -19,6 +19,10 @@ final class QualifiedClassName {
 
     static QualifiedClassName of(QualifiedName qualifiedName) {
         return new QualifiedClassName(qualifiedName);
+    }
+
+    static QualifiedClassName of(Class<?> aClass) {
+        return new QualifiedClassName(QualifiedName.of(aClass));
     }
 
     static QualifiedClassName parse(String qualifiedName) {

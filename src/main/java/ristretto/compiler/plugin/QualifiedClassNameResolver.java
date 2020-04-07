@@ -31,8 +31,7 @@ final class QualifiedClassNameResolver {
 
         classesOfInterest.getOrDefault(importDeclaration.packageName(), emptyList())
             .stream()
-            .map(Class::getName)
-            .map(QualifiedClassName::parse)
+            .map(QualifiedClassName::of)
             .forEach(this::importClass);
     }
 

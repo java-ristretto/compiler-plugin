@@ -14,10 +14,11 @@ final class QualifiedImport {
         this.qualifiedName = qualifiedName;
     }
 
-    static QualifiedImport of(QualifiedName qualifiedName) {
-        var packageName = qualifiedName.packageName()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName)));
-        return new QualifiedImport(packageName, qualifiedName);
+    static QualifiedImport parse(String qualifiedName) {
+        QualifiedName qualifiedName1 = QualifiedName.parse(qualifiedName);
+        var packageName = qualifiedName1.packageName()
+            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName1)));
+        return new QualifiedImport(packageName, qualifiedName1);
     }
 
     Optional<QualifiedClassName> className() {

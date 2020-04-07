@@ -24,7 +24,7 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
     }
 
     private QualifiedImport toQualifiedImport(ImportTree importTree) {
-        return QualifiedImport.of(QualifiedName.parse(importTree.getQualifiedIdentifier().toString()));
+        return QualifiedImport.parse(importTree.getQualifiedIdentifier().toString());
     }
 
     @Override

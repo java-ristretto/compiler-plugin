@@ -28,6 +28,16 @@ final class QualifiedName {
         return new QualifiedName(Optional.of(packageName), simpleName);
     }
 
+    static QualifiedName of(Class<?> aClass) {
+        Optional<String> packageName;
+        if (aClass.getPackageName().isEmpty()) {
+            packageName = Optional.empty();
+        } else {
+            packageName = Optional.of(aClass.getPackageName());
+        }
+        return new QualifiedName(packageName, aClass.getSimpleName());
+    }
+
     String simpleName() {
         return simpleName;
     }

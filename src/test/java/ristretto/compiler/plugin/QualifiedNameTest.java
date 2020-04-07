@@ -56,6 +56,27 @@ class QualifiedNameTest {
         }
     }
 
+    @Nested
+    class when_based_on_class {
+
+        QualifiedName name;
+
+        @BeforeEach
+        void beforeEach() {
+            name = QualifiedName.of(java.util.List.class);
+        }
+
+        @Test
+        void parses_package_name() {
+            assertThat(name.packageName(), is(Optional.of("java.util")));
+        }
+
+        @Test
+        void parses_simple_name() {
+            assertThat(name.simpleName(), is("List"));
+        }
+    }
+
     @Test
     void has_a_string_representation() {
         var name = QualifiedName.parse("some.package.ClassName");

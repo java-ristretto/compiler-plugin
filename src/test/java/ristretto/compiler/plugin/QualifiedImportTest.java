@@ -19,7 +19,7 @@ class QualifiedImportTest {
 
         @BeforeEach
         void beforeEach() {
-            qualifiedImport = QualifiedImport.of(QualifiedName.parse("some.package.ClassName"));
+            qualifiedImport = QualifiedImport.parse("some.package.ClassName");
         }
 
         @Test
@@ -43,7 +43,7 @@ class QualifiedImportTest {
 
         @BeforeEach
         void beforeEach() {
-            qualifiedImport = QualifiedImport.of(QualifiedName.parse("some.package.*"));
+            qualifiedImport = QualifiedImport.parse("some.package.*");
         }
 
         @Test
@@ -64,7 +64,7 @@ class QualifiedImportTest {
 
     @Test
     void indicates_declaration_is_illegal_when_missing_package() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> QualifiedImport.of(QualifiedName.parse("ClassName")));
+        var exception = assertThrows(IllegalArgumentException.class, () -> QualifiedImport.parse("ClassName"));
 
         assertThat(exception.getMessage(), is("illegal import declaration: 'ClassName'"));
     }

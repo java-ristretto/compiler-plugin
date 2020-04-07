@@ -17,7 +17,7 @@ public class QualifiedClassNameResolverTest {
         @BeforeEach
         void beforeEach() {
             resolver = QualifiedClassNameResolver.newResolver();
-            resolver.importClass(QualifiedImport.of(QualifiedName.parse("some.qualified.ClassName")));
+            resolver.importClass(QualifiedImport.parse("some.qualified.ClassName"));
         }
 
         @Test
@@ -37,7 +37,7 @@ public class QualifiedClassNameResolverTest {
         @BeforeEach
         void beforeEach() {
             resolver = QualifiedClassNameResolver.newResolver(java.util.List.class);
-            resolver.importClass(QualifiedImport.of(QualifiedName.parse("java.util.*")));
+            resolver.importClass(QualifiedImport.parse("java.util.*"));
         }
 
         @Test
