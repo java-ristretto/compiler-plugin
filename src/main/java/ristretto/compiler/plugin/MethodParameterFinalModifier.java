@@ -6,21 +6,21 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameResolver, QualifiedClassNameResolver> {
+final class MethodParameterFinalModifier extends TreeScanner<AnnotationNameResolver, AnnotationNameResolver> {
 
-    static final TreeScanner<QualifiedClassNameResolver, QualifiedClassNameResolver> INSTANCE = new MethodParameterFinalModifier();
+    static final TreeScanner<AnnotationNameResolver, AnnotationNameResolver> INSTANCE = new MethodParameterFinalModifier();
 
     private MethodParameterFinalModifier() {
     }
 
     @Override
-    public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
+    public AnnotationNameResolver visitImport(ImportTree importTree, AnnotationNameResolver resolver) {
         resolver.importClass(importTree.getQualifiedIdentifier().toString());
         return super.visitImport(importTree, resolver);
     }
 
     @Override
-    public QualifiedClassNameResolver visitMethod(MethodTree method, QualifiedClassNameResolver resolver) {
+    public AnnotationNameResolver visitMethod(MethodTree method, AnnotationNameResolver resolver) {
         method.getParameters()
             .stream()
             .filter(parameter -> noMutableAnnotation(resolver, parameter))
@@ -28,7 +28,7 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
         return super.visitMethod(method, resolver);
     }
 
-    private boolean noMutableAnnotation(QualifiedClassNameResolver resolver, VariableTree parameter) {
+    private boolean noMutableAnnotation(AnnotationNameResolver resolver, VariableTree parameter) {
         return parameter.getModifiers()
             .getAnnotations()
             .stream()

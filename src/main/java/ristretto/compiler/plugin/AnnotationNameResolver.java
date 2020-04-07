@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static ristretto.compiler.plugin.QualifiedClassName.MUTABLE_ANNOTATION;
 import static ristretto.compiler.plugin.QualifiedClassName.NULLABLE_ANNOTATION;
 
-final class QualifiedClassNameResolver {
+final class AnnotationNameResolver {
 
     private static final Map<String, List<QualifiedClassName>> CLASSES_OF_INTEREST =
         Stream.of(MUTABLE_ANNOTATION, NULLABLE_ANNOTATION)
@@ -18,11 +18,11 @@ final class QualifiedClassNameResolver {
 
     private final Map<String, QualifiedClassName> importedClasses = new HashMap<>();
 
-    private QualifiedClassNameResolver() {
+    private AnnotationNameResolver() {
     }
 
-    static QualifiedClassNameResolver newResolver() {
-        return new QualifiedClassNameResolver();
+    static AnnotationNameResolver newResolver() {
+        return new AnnotationNameResolver();
     }
 
     void importClass(String importDeclaration) {

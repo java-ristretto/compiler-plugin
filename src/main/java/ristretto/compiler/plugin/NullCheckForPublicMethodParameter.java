@@ -9,7 +9,7 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 
-final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClassNameResolver, QualifiedClassNameResolver> {
+final class NullCheckForPublicMethodParameter extends TreeScanner<AnnotationNameResolver, AnnotationNameResolver> {
 
     private final Context context;
 
@@ -22,13 +22,13 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
     }
 
     @Override
-    public QualifiedClassNameResolver visitImport(ImportTree importTree, QualifiedClassNameResolver resolver) {
+    public AnnotationNameResolver visitImport(ImportTree importTree, AnnotationNameResolver resolver) {
         resolver.importClass(importTree.getQualifiedIdentifier().toString());
         return super.visitImport(importTree, resolver);
     }
 
     @Override
-    public QualifiedClassNameResolver visitMethod(MethodTree method, QualifiedClassNameResolver resolver) {
+    public AnnotationNameResolver visitMethod(MethodTree method, AnnotationNameResolver resolver) {
         JCTreeCatalog catalog = JCTreeCatalog.of(context);
 
         List<JCTree.JCStatement> nullChecks = method.getParameters()
@@ -44,7 +44,7 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
         return super.visitMethod(method, resolver);
     }
 
-    private boolean noNullableAnnotation(QualifiedClassNameResolver resolver, VariableTree parameter) {
+    private boolean noNullableAnnotation(AnnotationNameResolver resolver, VariableTree parameter) {
         return parameter.getModifiers()
             .getAnnotations()
             .stream()

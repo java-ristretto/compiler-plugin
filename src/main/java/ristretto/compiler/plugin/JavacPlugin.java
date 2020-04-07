@@ -41,11 +41,11 @@ public final class JavacPlugin implements Plugin {
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
             compilationUnit.accept(
                 MethodParameterFinalModifier.INSTANCE,
-                QualifiedClassNameResolver.newResolver()
+                AnnotationNameResolver.newResolver()
             );
             compilationUnit.accept(
                 NullCheckForPublicMethodParameter.of(context),
-                QualifiedClassNameResolver.newResolver()
+                AnnotationNameResolver.newResolver()
             );
         }
     }

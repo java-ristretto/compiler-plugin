@@ -9,13 +9,13 @@ import ristretto.Nullable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class QualifiedClassNameResolverTest {
+public class AnnotationNameResolverTest {
 
-    QualifiedClassNameResolver resolver;
+    AnnotationNameResolver resolver;
 
     @BeforeEach
     void beforeEach() {
-        resolver = QualifiedClassNameResolver.newResolver();
+        resolver = AnnotationNameResolver.newResolver();
     }
 
     @Nested
