@@ -17,10 +17,6 @@ final class QualifiedClassName {
         this.qualifiedName = qualifiedName;
     }
 
-    static QualifiedClassName of(QualifiedName qualifiedName) {
-        return new QualifiedClassName(qualifiedName);
-    }
-
     static QualifiedClassName of(Class<?> aClass) {
         return new QualifiedClassName(QualifiedName.of(aClass));
     }
