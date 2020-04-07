@@ -10,19 +10,15 @@ import static java.util.stream.Collectors.groupingBy;
 
 final class QualifiedClassNameResolver {
 
-    private final Map<String, List<QualifiedClassName>> classesOfInterest;
+    private final Map<String, List<Class<?>>> classesOfInterest;
     private final Map<String, QualifiedClassName> importedClasses = new HashMap<>();
 
-    private QualifiedClassNameResolver(QualifiedClassName... classesOfInterest) {
-        this.classesOfInterest = Stream.of(classesOfInterest).collect(groupingBy(this::packageName));
+    private QualifiedClassNameResolver(Class<?>... classesOfInterest) {
+        this.classesOfInterest = Stream.of(classesOfInterest)
+            .collect(groupingBy(Class::getPackageName));
     }
 
-    private String packageName(QualifiedClassName className) {
-        return className.packageName()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal class of interest: '%s'", className)));
-    }
-
-    static QualifiedClassNameResolver newResolver(QualifiedClassName... classesOfInterest) {
+    static QualifiedClassNameResolver newResolver(Class<?>... classesOfInterest) {
         return new QualifiedClassNameResolver(classesOfInterest);
     }
 
@@ -33,7 +29,12 @@ final class QualifiedClassNameResolver {
             return;
         }
 
-        classesOfInterest.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
+        classesOfInterest.getOrDefault(importDeclaration.packageName(), emptyList())
+            .stream()
+            .map(Class::getName)
+            .map(QualifiedName::parse)
+            .map(QualifiedClassName::of)
+            .forEach(this::importClass);
     }
 
     private void importClass(QualifiedClassName qualifiedClassName) {

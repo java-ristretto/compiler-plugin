@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QualifiedClassNameResolverTest {
 
@@ -37,18 +36,18 @@ public class QualifiedClassNameResolverTest {
 
         @BeforeEach
         void beforeEach() {
-            resolver = QualifiedClassNameResolver.newResolver(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName")));
-            resolver.importClass(QualifiedImport.of(QualifiedName.parse("some.qualified.*")));
+            resolver = QualifiedClassNameResolver.newResolver(java.util.List.class);
+            resolver.importClass(QualifiedImport.of(QualifiedName.parse("java.util.*")));
         }
 
         @Test
         void resolves_qualified_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("some.qualified.ClassName")), is(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName"))));
+            assertThat(resolver.resolve(QualifiedName.parse("java.util.List")), is(QualifiedClassName.of(QualifiedName.parse("java.util.List"))));
         }
 
         @Test
         void resolves_simple_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("ClassName")), is(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName"))));
+            assertThat(resolver.resolve(QualifiedName.parse("List")), is(QualifiedClassName.of(QualifiedName.parse("java.util.List"))));
         }
     }
 
@@ -69,12 +68,5 @@ public class QualifiedClassNameResolverTest {
         void resolves_simple_name() {
             assertThat(resolver.resolve(QualifiedName.parse("ClassName")), is(QualifiedClassName.of(QualifiedName.parse("ClassName"))));
         }
-    }
-
-    @Test
-    void indicates_classes_of_interest_must_have_a_package() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> QualifiedClassNameResolver.newResolver(QualifiedClassName.of(QualifiedName.parse("ClassName"))));
-
-        assertThat(exception.getMessage(), is("illegal class of interest: 'ClassName'"));
     }
 }
