@@ -1,15 +1,9 @@
 package ristretto.compiler.plugin;
 
-import ristretto.Mutable;
-import ristretto.Nullable;
-
 import java.util.Objects;
 import java.util.Optional;
 
 final class QualifiedClassName {
-
-    static final QualifiedClassName MUTABLE_ANNOTATION = of(Mutable.class);
-    static final QualifiedClassName NULLABLE_ANNOTATION = of(Nullable.class);
 
     private static final char SEPARATOR = '.';
 
@@ -19,16 +13,6 @@ final class QualifiedClassName {
     private QualifiedClassName(Optional<String> packageName, String simpleName) {
         this.packageName = packageName;
         this.simpleName = simpleName;
-    }
-
-    static QualifiedClassName of(Class<?> aClass) {
-        Optional<String> packageName;
-        if (aClass.getPackageName().isEmpty()) {
-            packageName = Optional.empty();
-        } else {
-            packageName = Optional.of(aClass.getPackageName());
-        }
-        return new QualifiedClassName(packageName, aClass.getSimpleName());
     }
 
     static QualifiedClassName parse(String qualifiedName) {

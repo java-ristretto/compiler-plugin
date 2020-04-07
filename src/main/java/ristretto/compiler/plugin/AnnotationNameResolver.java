@@ -1,5 +1,8 @@
 package ristretto.compiler.plugin;
 
+import ristretto.Mutable;
+import ristretto.Nullable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,13 +10,13 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
-import static ristretto.compiler.plugin.QualifiedClassName.MUTABLE_ANNOTATION;
-import static ristretto.compiler.plugin.QualifiedClassName.NULLABLE_ANNOTATION;
 
 final class AnnotationNameResolver {
 
-    private static final Map<String, List<QualifiedClassName>> CLASSES_OF_INTEREST =
-        Stream.of(MUTABLE_ANNOTATION, NULLABLE_ANNOTATION)
+    private static final QualifiedClassName MUTABLE = QualifiedClassName.parse(Mutable.class.getName());
+    private static final QualifiedClassName NULLABLE = QualifiedClassName.parse(Nullable.class.getName());
+    private static final Map<String, List<QualifiedClassName>> KNOWN_ANNOTATIONS =
+        Stream.of(MUTABLE, NULLABLE)
             .collect(groupingBy(qualifiedClassName -> qualifiedClassName.packageName().orElseThrow()));
 
     private final Map<String, QualifiedClassName> importedClasses = new HashMap<>();
@@ -36,7 +39,7 @@ final class AnnotationNameResolver {
             return;
         }
 
-        CLASSES_OF_INTEREST.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
+        KNOWN_ANNOTATIONS.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
     }
 
     private void importClass(QualifiedClassName qualifiedClassName) {
@@ -44,11 +47,15 @@ final class AnnotationNameResolver {
     }
 
     boolean isMutable(String annotationName) {
-        return MUTABLE_ANNOTATION.equals(resolve(QualifiedClassName.parse(annotationName)));
+        return MUTABLE.equals(resolve(annotationName));
     }
 
     boolean isNullable(String annotationName) {
-        return NULLABLE_ANNOTATION.equals(resolve(QualifiedClassName.parse(annotationName)));
+        return NULLABLE.equals(resolve(annotationName));
+    }
+
+    private QualifiedClassName resolve(String qualifiedClassName) {
+        return resolve(QualifiedClassName.parse(qualifiedClassName));
     }
 
     private QualifiedClassName resolve(QualifiedClassName qualifiedClassName) {
