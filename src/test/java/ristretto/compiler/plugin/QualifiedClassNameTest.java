@@ -57,13 +57,6 @@ class QualifiedClassNameTest {
     }
 
     @Test
-    void has_a_string_representation() {
-        var className = QualifiedClassName.parse("some.package.ClassName");
-
-        assertThat(className.toString(), is("some.package.ClassName"));
-    }
-
-    @Test
     void can_be_used_as_key() {
         var className = QualifiedClassName.parse("some.package.ClassName");
         var sameClassName = QualifiedClassName.parse("some.package.ClassName");

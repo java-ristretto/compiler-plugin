@@ -14,24 +14,25 @@ final class QualifiedImport {
         this.simpleName = simpleName;
     }
 
-    static QualifiedImport parse(String qualifiedImport) {
-        var qualifiedName = QualifiedClassName.parse(qualifiedImport);
+    static QualifiedImport parse(String importDeclaration) {
+        int separatorIndex = importDeclaration.lastIndexOf('.');
 
-        var packageName = qualifiedName.packageName()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName)));
-
-        Optional<String> simpleName;
-        if (WILDCARD.equals(qualifiedName.simpleName())) {
-            simpleName = Optional.empty();
-        } else {
-            simpleName = Optional.of(qualifiedName.simpleName());
+        if (separatorIndex == -1) {
+            throw new IllegalArgumentException(String.format("illegal import declaration: '%s'", importDeclaration));
         }
 
-        return new QualifiedImport(packageName, simpleName);
+        String packageName = importDeclaration.substring(0, separatorIndex);
+        String simpleName = importDeclaration.substring(separatorIndex + 1);
+
+        if (WILDCARD.equals(simpleName)) {
+            return new QualifiedImport(packageName, Optional.empty());
+        }
+
+        return new QualifiedImport(packageName, Optional.of(simpleName));
     }
 
     Optional<QualifiedClassName> className() {
-        return simpleName.map(name -> QualifiedClassName.parse(packageName + "." + name));
+        return simpleName.map(name -> QualifiedClassName.of(packageName, name));
     }
 
     String packageName() {

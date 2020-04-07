@@ -17,7 +17,6 @@ final class QualifiedClassName {
 
     static QualifiedClassName parse(String qualifiedName) {
         int separatorIndex = qualifiedName.lastIndexOf(SEPARATOR);
-
         if (separatorIndex == -1) {
             return new QualifiedClassName(Optional.empty(), qualifiedName);
         }
@@ -25,6 +24,10 @@ final class QualifiedClassName {
         String packageName = qualifiedName.substring(0, separatorIndex);
         String simpleName = qualifiedName.substring(separatorIndex + 1);
 
+        return of(packageName, simpleName);
+    }
+
+    static QualifiedClassName of(String packageName, String simpleName) {
         return new QualifiedClassName(Optional.of(packageName), simpleName);
     }
 
@@ -52,6 +55,9 @@ final class QualifiedClassName {
 
     @Override
     public String toString() {
-        return packageName.map(name -> name + SEPARATOR + simpleName).orElse(simpleName);
+        return "QualifiedClassName{" +
+            "packageName=" + packageName +
+            ", simpleName='" + simpleName + '\'' +
+            '}';
     }
 }
