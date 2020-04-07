@@ -29,7 +29,7 @@ class QualifiedImportTest {
 
         @Test
         void has_class_name() {
-            assertThat(qualifiedImport.className(), is(Optional.of(QualifiedClassName.of(QualifiedName.parse("some.package.ClassName")))));
+            assertThat(qualifiedImport.className(), is(Optional.of(QualifiedClassName.parse("some.package.ClassName"))));
         }
 
         @Test

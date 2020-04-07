@@ -32,8 +32,7 @@ final class QualifiedClassNameResolver {
         classesOfInterest.getOrDefault(importDeclaration.packageName(), emptyList())
             .stream()
             .map(Class::getName)
-            .map(QualifiedName::parse)
-            .map(QualifiedClassName::of)
+            .map(QualifiedClassName::parse)
             .forEach(this::importClass);
     }
 
@@ -41,16 +40,11 @@ final class QualifiedClassNameResolver {
         importedClasses.put(qualifiedClassName.simpleName(), qualifiedClassName);
     }
 
-    QualifiedClassName resolve(QualifiedName qualifiedName) {
-        if (qualifiedName.packageName().isPresent()) {
-            return QualifiedClassName.of(qualifiedName);
+    QualifiedClassName resolve(QualifiedClassName qualifiedClassName) {
+        if (qualifiedClassName.packageName().isPresent()) {
+            return qualifiedClassName;
         }
 
-        var className = importedClasses.get(qualifiedName.simpleName());
-        if (className == null) {
-            return QualifiedClassName.of(qualifiedName);
-        }
-        return className;
+        return importedClasses.getOrDefault(qualifiedClassName.simpleName(), qualifiedClassName);
     }
-
 }

@@ -22,12 +22,12 @@ public class QualifiedClassNameResolverTest {
 
         @Test
         void resolves_qualified_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("some.qualified.ClassName")), is(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("some.qualified.ClassName")), is(QualifiedClassName.parse("some.qualified.ClassName")));
         }
 
         @Test
         void resolves_simple_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("ClassName")), is(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("ClassName")), is(QualifiedClassName.parse("some.qualified.ClassName")));
         }
     }
 
@@ -42,12 +42,12 @@ public class QualifiedClassNameResolverTest {
 
         @Test
         void resolves_qualified_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("java.util.List")), is(QualifiedClassName.of(QualifiedName.parse("java.util.List"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("java.util.List")), is(QualifiedClassName.parse("java.util.List")));
         }
 
         @Test
         void resolves_simple_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("List")), is(QualifiedClassName.of(QualifiedName.parse("java.util.List"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("List")), is(QualifiedClassName.parse("java.util.List")));
         }
     }
 
@@ -61,12 +61,12 @@ public class QualifiedClassNameResolverTest {
 
         @Test
         void resolves_qualified_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("some.qualified.ClassName")), is(QualifiedClassName.of(QualifiedName.parse("some.qualified.ClassName"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("some.qualified.ClassName")), is(QualifiedClassName.parse("some.qualified.ClassName")));
         }
 
         @Test
         void resolves_simple_name() {
-            assertThat(resolver.resolve(QualifiedName.parse("ClassName")), is(QualifiedClassName.of(QualifiedName.parse("ClassName"))));
+            assertThat(resolver.resolve(QualifiedClassName.parse("ClassName")), is(QualifiedClassName.parse("ClassName")));
         }
     }
 }

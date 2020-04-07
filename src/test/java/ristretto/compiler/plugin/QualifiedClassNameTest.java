@@ -21,7 +21,7 @@ class QualifiedClassNameTest {
 
         @BeforeEach
         void beforeEach() {
-            className = QualifiedClassName.of(QualifiedName.parse("some.package.ClassName"));
+            className = QualifiedClassName.parse("some.package.ClassName");
         }
 
         @Test
@@ -42,7 +42,7 @@ class QualifiedClassNameTest {
 
         @BeforeEach
         void beforeEach() {
-            className = QualifiedClassName.of(QualifiedName.parse("ClassName"));
+            className = QualifiedClassName.parse("ClassName");
         }
 
         @Test
@@ -58,16 +58,16 @@ class QualifiedClassNameTest {
 
     @Test
     void has_a_string_representation() {
-        var className = QualifiedClassName.of(QualifiedName.parse("some.package.ClassName"));
+        var className = QualifiedClassName.parse("some.package.ClassName");
 
         assertThat(className.toString(), is("some.package.ClassName"));
     }
 
     @Test
     void can_be_used_as_key() {
-        var className = QualifiedClassName.of(QualifiedName.parse("some.package.ClassName"));
-        var sameClassName = QualifiedClassName.of(QualifiedName.parse("some.package.ClassName"));
-        var anotherClassName = QualifiedClassName.of(QualifiedName.parse("some.package.AnotherClassName"));
+        var className = QualifiedClassName.parse("some.package.ClassName");
+        var sameClassName = QualifiedClassName.parse("some.package.ClassName");
+        var anotherClassName = QualifiedClassName.parse("some.package.AnotherClassName");
 
         Map<QualifiedClassName, String> map = Map.of(className, "value");
 

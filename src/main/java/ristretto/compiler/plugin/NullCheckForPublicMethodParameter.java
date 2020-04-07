@@ -53,8 +53,8 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<QualifiedClass
             .noneMatch(QualifiedClassName.NULLABLE_ANNOTATION::equals);
     }
 
-    private QualifiedName toQualifiedName(AnnotationTree annotation) {
-        return QualifiedName.parse(annotation.getAnnotationType().toString());
+    private QualifiedClassName toQualifiedName(AnnotationTree annotation) {
+        return QualifiedClassName.parse(annotation.getAnnotationType().toString());
     }
 
     static NullCheckForPublicMethodParameter of(Context context) {

@@ -41,7 +41,7 @@ final class MethodParameterFinalModifier extends TreeScanner<QualifiedClassNameR
             .noneMatch(QualifiedClassName.MUTABLE_ANNOTATION::equals);
     }
 
-    private QualifiedName toQualifiedName(AnnotationTree annotation) {
-        return QualifiedName.parse(annotation.getAnnotationType().toString());
+    private QualifiedClassName toQualifiedName(AnnotationTree annotation) {
+        return QualifiedClassName.parse(annotation.getAnnotationType().toString());
     }
 }
