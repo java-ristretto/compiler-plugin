@@ -29,10 +29,10 @@ final class AnnotationNameResolver {
     }
 
     void importClass(String importDeclaration) {
-        importClass(QualifiedImport.parse(importDeclaration));
+        importClass(ImportDeclaration.parse(importDeclaration));
     }
 
-    private void importClass(QualifiedImport importDeclaration) {
+    private void importClass(ImportDeclaration importDeclaration) {
         var className = importDeclaration.className();
         if (className.isPresent()) {
             importClass(className.get());

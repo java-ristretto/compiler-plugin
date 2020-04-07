@@ -10,26 +10,26 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class QualifiedImportTest {
+class ImportDeclarationTest {
 
-    QualifiedImport qualifiedImport;
+    ImportDeclaration importDeclaration;
 
     @Nested
     class when_declaration_includes_class_name {
 
         @BeforeEach
         void beforeEach() {
-            qualifiedImport = QualifiedImport.parse("some.package.ClassName");
+            importDeclaration = ImportDeclaration.parse("some.package.ClassName");
         }
 
         @Test
         void has_package_name() {
-            assertThat(qualifiedImport.packageName(), is("some.package"));
+            assertThat(importDeclaration.packageName(), is("some.package"));
         }
 
         @Test
         void has_class_name() {
-            assertThat(qualifiedImport.className(), is(Optional.of(QualifiedClassName.parse("some.package.ClassName"))));
+            assertThat(importDeclaration.className(), is(Optional.of(QualifiedClassName.parse("some.package.ClassName"))));
         }
     }
 
@@ -38,23 +38,23 @@ class QualifiedImportTest {
 
         @BeforeEach
         void beforeEach() {
-            qualifiedImport = QualifiedImport.parse("some.package.*");
+            importDeclaration = ImportDeclaration.parse("some.package.*");
         }
 
         @Test
         void has_package_name() {
-            assertThat(qualifiedImport.packageName(), is("some.package"));
+            assertThat(importDeclaration.packageName(), is("some.package"));
         }
 
         @Test
         void does_not_have_class_name() {
-            assertThat(qualifiedImport.className(), is(Optional.empty()));
+            assertThat(importDeclaration.className(), is(Optional.empty()));
         }
     }
 
     @Test
     void indicates_declaration_is_illegal_when_missing_package() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> QualifiedImport.parse("ClassName"));
+        var exception = assertThrows(IllegalArgumentException.class, () -> ImportDeclaration.parse("ClassName"));
 
         assertThat(exception.getMessage(), is("illegal import declaration: 'ClassName'"));
     }
