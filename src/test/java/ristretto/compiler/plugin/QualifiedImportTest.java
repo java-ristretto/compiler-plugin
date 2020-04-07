@@ -31,11 +31,6 @@ class QualifiedImportTest {
         void has_class_name() {
             assertThat(qualifiedImport.className(), is(Optional.of(QualifiedClassName.parse("some.package.ClassName"))));
         }
-
-        @Test
-        void has_a_string_representation() {
-            assertThat(qualifiedImport.toString(), is("some.package.ClassName"));
-        }
     }
 
     @Nested
@@ -54,11 +49,6 @@ class QualifiedImportTest {
         @Test
         void does_not_have_class_name() {
             assertThat(qualifiedImport.className(), is(Optional.empty()));
-        }
-
-        @Test
-        void has_a_string_representation() {
-            assertThat(qualifiedImport.toString(), is("some.package.*"));
         }
     }
 

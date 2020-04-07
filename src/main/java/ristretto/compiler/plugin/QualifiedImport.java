@@ -7,33 +7,34 @@ final class QualifiedImport {
     private static final String WILDCARD = "*";
 
     private final String packageName;
-    private final QualifiedName qualifiedName;
+    private final Optional<String> simpleName;
 
-    private QualifiedImport(String packageName, QualifiedName qualifiedName) {
+    private QualifiedImport(String packageName, Optional<String> simpleName) {
         this.packageName = packageName;
-        this.qualifiedName = qualifiedName;
+        this.simpleName = simpleName;
     }
 
-    static QualifiedImport parse(String qualifiedName) {
-        QualifiedName qualifiedName1 = QualifiedName.parse(qualifiedName);
-        var packageName = qualifiedName1.packageName()
-            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName1)));
-        return new QualifiedImport(packageName, qualifiedName1);
+    static QualifiedImport parse(String qualifiedImport) {
+        QualifiedName qualifiedName = QualifiedName.parse(qualifiedImport);
+
+        var packageName = qualifiedName.packageName()
+            .orElseThrow(() -> new IllegalArgumentException(String.format("illegal import declaration: '%s'", qualifiedName)));
+
+        Optional<String> simpleName;
+        if (WILDCARD.equals(qualifiedName.simpleName())) {
+            simpleName = Optional.empty();
+        } else {
+            simpleName = Optional.of(qualifiedName.simpleName());
+        }
+
+        return new QualifiedImport(packageName, simpleName);
     }
 
     Optional<QualifiedClassName> className() {
-        if (WILDCARD.equals(qualifiedName.simpleName())) {
-            return Optional.empty();
-        }
-        return Optional.of(QualifiedClassName.of(qualifiedName));
+        return simpleName.map(name -> QualifiedClassName.parse(packageName + "." + name));
     }
 
     String packageName() {
         return packageName;
-    }
-
-    @Override
-    public String toString() {
-        return qualifiedName.toString();
     }
 }
