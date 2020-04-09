@@ -6,6 +6,7 @@ import ristretto.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
@@ -13,13 +14,13 @@ import static java.util.stream.Collectors.groupingBy;
 
 final class AnnotationNameResolver {
 
-    private static final QualifiedClassName MUTABLE = QualifiedClassName.parse(Mutable.class.getName());
-    private static final QualifiedClassName NULLABLE = QualifiedClassName.parse(Nullable.class.getName());
-    private static final Map<String, List<QualifiedClassName>> KNOWN_ANNOTATIONS =
-        Stream.of(MUTABLE, NULLABLE)
-            .collect(groupingBy(qualifiedClassName -> qualifiedClassName.packageName().orElseThrow()));
+    private static final QualifiedName MUTABLE = QualifiedName.of(Mutable.class);
+    private static final QualifiedName NULLABLE = QualifiedName.of(Nullable.class);
 
-    private final Map<String, QualifiedClassName> importedClasses = new HashMap<>();
+    private static final Map<PackageName, List<QualifiedName>> KNOWN_ANNOTATIONS =
+        Stream.of(MUTABLE, NULLABLE).collect(groupingBy(QualifiedName::packageName));
+
+    private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
 
     private AnnotationNameResolver() {
     }
@@ -33,17 +34,17 @@ final class AnnotationNameResolver {
     }
 
     private void importClass(ImportDeclaration importDeclaration) {
-        var className = importDeclaration.className();
-        if (className.isPresent()) {
-            importClass(className.get());
+        Optional<QualifiedName> qualifiedName = importDeclaration.qualifiedName();
+        if (qualifiedName.isPresent()) {
+            importClass(qualifiedName.get());
             return;
         }
 
         KNOWN_ANNOTATIONS.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
     }
 
-    private void importClass(QualifiedClassName qualifiedClassName) {
-        importedClasses.put(qualifiedClassName.simpleName(), qualifiedClassName);
+    private void importClass(QualifiedName qualifiedName) {
+        importedClasses.put(qualifiedName.simpleName(), qualifiedName);
     }
 
     boolean isMutable(String annotationName) {
@@ -54,15 +55,11 @@ final class AnnotationNameResolver {
         return NULLABLE.equals(resolve(annotationName));
     }
 
-    private QualifiedClassName resolve(String qualifiedClassName) {
-        return resolve(QualifiedClassName.parse(qualifiedClassName));
+    private ClassReference resolve(String classReference) {
+        return resolve(ClassReference.parse(classReference));
     }
 
-    private QualifiedClassName resolve(QualifiedClassName qualifiedClassName) {
-        if (qualifiedClassName.packageName().isPresent()) {
-            return qualifiedClassName;
-        }
-
-        return importedClasses.getOrDefault(qualifiedClassName.simpleName(), qualifiedClassName);
+    private ClassReference resolve(ClassReference classReference) {
+        return importedClasses.getOrDefault(classReference, classReference);
     }
 }

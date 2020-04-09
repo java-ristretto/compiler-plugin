@@ -24,12 +24,12 @@ class ImportDeclarationTest {
 
         @Test
         void has_package_name() {
-            assertThat(importDeclaration.packageName(), is("some.package"));
+            assertThat(importDeclaration.packageName(), is(PackageName.of("some.package")));
         }
 
         @Test
         void has_class_name() {
-            assertThat(importDeclaration.className(), is(Optional.of(QualifiedClassName.parse("some.package.ClassName"))));
+            assertThat(importDeclaration.qualifiedName(), is(Optional.of(ClassReference.parse("some.package.ClassName"))));
         }
     }
 
@@ -43,12 +43,12 @@ class ImportDeclarationTest {
 
         @Test
         void has_package_name() {
-            assertThat(importDeclaration.packageName(), is("some.package"));
+            assertThat(importDeclaration.packageName(), is(PackageName.of("some.package")));
         }
 
         @Test
         void does_not_have_class_name() {
-            assertThat(importDeclaration.className(), is(Optional.empty()));
+            assertThat(importDeclaration.qualifiedName(), is(Optional.empty()));
         }
     }
 
