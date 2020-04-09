@@ -16,6 +16,10 @@ compileJava {
 }
 
 dependencies {
+    implementation(
+        'io.github.tprado:type-alias:0.1.0'
+    )
+
     testImplementation(
         'org.junit.jupiter:junit-jupiter-api:5.6.0',
         'org.hamcrest:hamcrest:2.2',
