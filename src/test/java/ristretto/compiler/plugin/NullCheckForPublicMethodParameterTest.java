@@ -93,4 +93,35 @@ class NullCheckForPublicMethodParameterTest {
 
         assertThat(result, is("hello null"));
     }
+
+    @Test
+    void skips_abstract_method() {
+        var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  static abstract class Base {",
+            "    abstract String hello(String name);",
+            "  }",
+            "  ",
+            "  static class Sample extends Base {",
+            "    String hello(String name) {",
+            "      return \"hello \" + name;",
+            "    }",
+            "  }",
+            "  ",
+            "  public static String hello(String name) {",
+            "      return new Sample().hello(name);",
+            "  }",
+            "}"
+        );
+
+        String result = compiler
+            .compile(sourceCode)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("hello", "world");
+
+        assertThat(result, is("hello world"));
+    }
 }

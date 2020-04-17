@@ -29,6 +29,10 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<AnnotationName
 
     @Override
     public AnnotationNameResolver visitMethod(MethodTree method, AnnotationNameResolver resolver) {
+        if (isAbstractOrNative(method)) {
+            return super.visitMethod(method, resolver);
+        }
+
         JCTreeCatalog catalog = JCTreeCatalog.of(context);
 
         List<JCTree.JCStatement> nullChecks = method.getParameters()
@@ -42,6 +46,10 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<AnnotationName
         body.stats = body.stats.prependList(nullChecks);
 
         return super.visitMethod(method, resolver);
+    }
+
+    private boolean isAbstractOrNative(MethodTree method) {
+        return method.getBody() == null;
     }
 
     private boolean noNullableAnnotation(AnnotationNameResolver resolver, VariableTree parameter) {
