@@ -43,10 +43,15 @@ public final class JavacPlugin implements Plugin {
                 MethodParameterFinalModifier.INSTANCE,
                 AnnotationNameResolver.newResolver()
             );
-            compilationUnit.accept(
-                NullCheckForPublicMethodParameter.of(context),
-                AnnotationNameResolver.newResolver()
-            );
+            try {
+                compilationUnit.accept(
+                    NullCheckForPublicMethodParameter.of(context),
+                    AnnotationNameResolver.newResolver()
+                );
+            } catch (Exception e) {
+                Log.instance(context).printRawLines(Log.WriterKind.ERROR, String.format("Error processing compilation unit %s: %s", e.getMessage(), compilationUnit.getSourceFile().getName()));
+                throw e;
+            }
         }
     }
 }

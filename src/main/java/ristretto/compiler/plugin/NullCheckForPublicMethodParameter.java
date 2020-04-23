@@ -3,6 +3,7 @@ package ristretto.compiler.plugin;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.tree.JCTree;
@@ -43,9 +44,32 @@ final class NullCheckForPublicMethodParameter extends TreeScanner<AnnotationName
             .collect(List.collector());
 
         JCTree.JCBlock body = (JCTree.JCBlock) method.getBody();
+        if (isCallingSuper(body)) {
+            return super.visitMethod(method, resolver);
+        }
+
         body.stats = body.stats.prependList(nullChecks);
 
         return super.visitMethod(method, resolver);
+    }
+
+    private boolean isCallingSuper(JCTree.JCBlock body) {
+        JCTree.JCStatement firstStatement = body.stats.head;
+        if (firstStatement.getKind().equals(Tree.Kind.EXPRESSION_STATEMENT)) {
+            if (firstStatement instanceof JCTree.JCExpressionStatement) {
+                JCTree.JCExpressionStatement expressionStatement = (JCTree.JCExpressionStatement) firstStatement;
+                if (expressionStatement.getExpression() instanceof JCTree.JCMethodInvocation) {
+                    JCTree.JCMethodInvocation methodInvocation = (JCTree.JCMethodInvocation) expressionStatement.getExpression();
+                    JCTree.JCExpression methodSelect = methodInvocation.getMethodSelect();
+                    if (methodSelect.getKind().equals(Tree.Kind.IDENTIFIER)) {
+                        if (((JCTree.JCIdent) methodSelect).getName().contentEquals("super")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isAbstractOrNative(MethodTree method) {

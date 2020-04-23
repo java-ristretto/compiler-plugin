@@ -124,4 +124,47 @@ class NullCheckForPublicMethodParameterTest {
 
         assertThat(result, is("hello world"));
     }
+
+    @Test
+    void skips_constructor_that_calls_super() {
+        var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  static abstract class Base {",
+            "  ",
+            "    final String prefix;",
+            "  ",
+            "    Base(String prefix) {",
+            "      this.prefix = prefix;",
+            "    }",
+            "  ",
+            "    abstract String hello(String name);",
+            "  }",
+            "  ",
+            "  static class Sample extends Base {",
+            "  ",
+            "    Sample(String prefix) {",
+            "      super(prefix);",
+            "    }",
+            "  ",
+            "    String hello(String name) {",
+            "      return prefix + \" \" + name;",
+            "    }",
+            "  }",
+            "  ",
+            "  public static String hello(String name) {",
+            "      return new Sample(\"hello\").hello(name);",
+            "  }",
+            "}"
+        );
+
+        String result = compiler
+            .compile(sourceCode)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("hello", "world");
+
+        assertThat(result, is("hello world"));
+    }
 }
