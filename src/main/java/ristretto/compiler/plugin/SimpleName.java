@@ -1,7 +1,5 @@
 package ristretto.compiler.plugin;
 
-import io.github.tprado.type.alias.StringTypeAlias;
-
 final class SimpleName extends StringTypeAlias implements ClassReference {
 
     private SimpleName(String name) {

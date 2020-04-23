@@ -38,10 +38,6 @@ jar {
 }
 
 dependencies {
-    implementation(
-        files("${System.properties.'user.home'}/.m2/repository/io/github/tprado/type-alias/0.2.0-SNAPSHOT/type-alias-0.2.0-SNAPSHOT.jar"),
-    )
-
     testImplementation(
         'org.junit.jupiter:junit-jupiter-api:5.6.0',
         'org.hamcrest:hamcrest:2.2',

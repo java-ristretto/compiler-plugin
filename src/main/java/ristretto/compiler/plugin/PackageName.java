@@ -1,7 +1,5 @@
 package ristretto.compiler.plugin;
 
-import io.github.tprado.type.alias.StringTypeAlias;
-
 final class PackageName extends StringTypeAlias {
 
     private PackageName(String name) {
