@@ -1,6 +1,14 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+group = 'io.github.tprado'
+version = '0.1.0-SNAPSHOT'
 
 repositories {
     jcenter()
@@ -15,9 +23,23 @@ compileJava {
     ]
 }
 
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    manifest {
+        attributes(
+            'Name': 'ristretto',
+            'Sealed': true
+        )
+    }
+}
+
 dependencies {
     implementation(
-        'io.github.tprado:type-alias:0.1.0'
+        files("${System.properties.'user.home'}/.m2/repository/io/github/tprado/type-alias/0.2.0-SNAPSHOT/type-alias-0.2.0-SNAPSHOT.jar"),
     )
 
     testImplementation(
@@ -32,5 +54,55 @@ test {
     useJUnitPlatform()
 }
 
-sourceCompatibility = JavaVersion.VERSION_13
-targetCompatibility = JavaVersion.VERSION_13
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'ristretto-compiler-plugin'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Ristretto Java Compiler Plugin'
+                description = 'Ristretto Java Compiler Plugin'
+                url = 'https://github.com/tprado/ristretto'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/tprado/ristretto/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tprado'
+                        name = 'Thiago Prado'
+                        email = 'thiago.gozzi.prado@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/tprado/ristrettro.git'
+                    developerConnection = 'scm:git:git@github.com:tprado/ristretto.git'
+                    url = 'https://github.com/tprado/ristretto'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username = ossrhUserName
+                password = ossrhPassword
+            }
+        }
+    }
+}
