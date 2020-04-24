@@ -20,11 +20,17 @@ class JavacPluginTest {
         var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
-            "public class TestSample {}"
+            "public class TestSample {",
+            "",
+            "  public void sampleMethod(String parameter) {",
+            "  }",
+            "",
+            "}"
         );
 
         var result = compiler.compile(anEmptyClass);
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
+        assertThat(result.additionalOutput, containsString("1 parameter(s) inspected (100.00% marked as final | 0.00% skipped)"));
     }
 }

@@ -6,26 +6,34 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-final class MethodParameterFinalModifier extends TreeScanner<AnnotationNameResolver, AnnotationNameResolver> {
+final class MethodParameterFinalModifier extends TreeScanner<MethodParameterFinalModifier.Context, MethodParameterFinalModifier.Context> {
 
-    static final TreeScanner<AnnotationNameResolver, AnnotationNameResolver> INSTANCE = new MethodParameterFinalModifier();
+    static final TreeScanner<Context, Context> INSTANCE = new MethodParameterFinalModifier();
 
     private MethodParameterFinalModifier() {
     }
 
     @Override
-    public AnnotationNameResolver visitImport(ImportTree importTree, AnnotationNameResolver resolver) {
-        resolver.importClass(importTree.getQualifiedIdentifier().toString());
-        return super.visitImport(importTree, resolver);
+    public Context visitImport(ImportTree importTree, Context context) {
+        context.resolver.importClass(importTree.getQualifiedIdentifier().toString());
+        return super.visitImport(importTree, context);
     }
 
     @Override
-    public AnnotationNameResolver visitMethod(MethodTree method, AnnotationNameResolver resolver) {
+    public Context visitMethod(MethodTree method, Context context) {
         method.getParameters()
             .stream()
-            .filter(parameter -> noMutableAnnotation(resolver, parameter))
+            .filter(parameter -> {
+                if (noMutableAnnotation(context.resolver, parameter)) {
+                    context.observer.parameterMarkedAsFinal();
+                    return true;
+                }
+
+                context.observer.parameterSkipped();
+                return false;
+            })
             .forEach(JCTreeCatalog::addFinalModifier);
-        return super.visitMethod(method, resolver);
+        return super.visitMethod(method, context);
     }
 
     private boolean noMutableAnnotation(AnnotationNameResolver resolver, VariableTree parameter) {
@@ -36,4 +44,25 @@ final class MethodParameterFinalModifier extends TreeScanner<AnnotationNameResol
             .map(Object::toString)
             .noneMatch(resolver::isMutable);
     }
+
+    public static final class Context {
+
+        private final AnnotationNameResolver resolver;
+        private final Observer observer;
+
+        private Context(AnnotationNameResolver resolver, Observer observer) {
+            this.resolver = resolver;
+            this.observer = observer;
+        }
+
+        static Context of(Observer observer) {
+            return new Context(AnnotationNameResolver.newResolver(), observer);
+        }
+    }
+
+    public interface Observer {
+        void parameterMarkedAsFinal();
+        void parameterSkipped();
+    }
+
 }
