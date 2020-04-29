@@ -102,6 +102,12 @@ final class TestCompiler {
             try {
                 return new ClassWrapper(classLoader.loadClass(name));
             } catch (ClassNotFoundException e) {
+                System.out.println("plugin output:");
+                System.out.println(additionalOutput);
+                System.out.println();
+                System.out.println("compiler output:");
+                System.out.println(diagnostics());
+
                 throw new RuntimeException(e);
             }
         }

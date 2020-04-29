@@ -1,12 +1,12 @@
 package ristretto.compiler.plugin;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 class MethodParameterFinalModifierTest {
 
@@ -56,7 +56,7 @@ class MethodParameterFinalModifierTest {
                 .loadClass("ristretto.test.TestSample")
                 .invoke("hello", "world");
 
-            assertThat(result, Matchers.is("hello world"));
+            assertThat(result, is("hello world"));
         }
     }
 
@@ -83,7 +83,7 @@ class MethodParameterFinalModifierTest {
                 .loadClass("ristretto.test.TestSample")
                 .invoke("hello", "world");
 
-            assertThat(result, Matchers.is("hello world"));
+            assertThat(result, is("hello world"));
         }
     }
 
@@ -110,7 +110,7 @@ class MethodParameterFinalModifierTest {
                 .loadClass("ristretto.test.TestSample")
                 .invoke("hello", "world");
 
-            assertThat(result, Matchers.is("hello world"));
+            assertThat(result, is("hello world"));
         }
     }
 
@@ -137,7 +137,7 @@ class MethodParameterFinalModifierTest {
                 .loadClass("ristretto.test.TestSample")
                 .invoke("hello", "world");
 
-            assertThat(result, Matchers.is("hello world"));
+            assertThat(result, is("hello world"));
         }
     }
 }
