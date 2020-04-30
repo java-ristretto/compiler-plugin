@@ -91,6 +91,38 @@ class LocalVariableFinalModifierTest {
         assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable msg"));
     }
 
+    @Test
+    void skips_class_variables_in_anonymous_classes() {
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  public static String run(String value) {",
+            "    ",
+            "    java.util.function.Supplier<String> supplier = new java.util.function.Supplier<>() {",
+            "      ",
+            "      String status = \"pending\";",
+            "      ",
+            "      @Override",
+            "      public String get() {",
+            "        status = \"done\";",
+            "        return status;",
+            "      }",
+            "    };",
+            "    return supplier.get();",
+            "  }",
+            "}"
+        );
+
+        var result = compiler
+            .compile(code)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("run", null);
+
+        assertThat(result, is("done"));
+    }
+
     @Nested
     class for_loops {
 

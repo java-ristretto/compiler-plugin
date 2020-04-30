@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
 import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
@@ -16,8 +17,9 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     private LocalVariableFinalModifier() {
     }
 
-    public static Context newContext() {
-        return new Context();
+    @Override
+    public Context visitClass(ClassTree node, Context context) {
+        return super.visitClass(node, new Context());
     }
 
     @Override
