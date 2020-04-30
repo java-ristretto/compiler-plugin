@@ -68,6 +68,29 @@ class LocalVariableFinalModifierTest {
         assertThat(result, is("hello world"));
     }
 
+    @Test
+    void enforces_local_variables_in_anonymous_blocks() {
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  {",
+            "    String msg = \"hello\";",
+            "    msg += \" world\";",
+            "  }",
+            "  ",
+            "  public static void hello() {",
+            "    TestSample sample = new TestSample();",
+            "  }",
+            "}"
+        );
+
+        var result = compiler.compile(code);
+
+        assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable msg"));
+    }
+
     @Nested
     class for_loops {
 

@@ -1,7 +1,7 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ForLoopTree;
-import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
@@ -21,15 +21,10 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     }
 
     @Override
-    public Context visitMethod(MethodTree method, Context context) {
-        System.out.println("method: " + method);
-        context.enterMethod(
-            method.getParameters()
-                .stream()
-                .collect(Collectors.toUnmodifiableSet())
-        );
-        Context result = super.visitMethod(method, context);
-        context.leaveMethod();
+    public Context visitBlock(BlockTree block, Context context) {
+        context.enterBlock();
+        Context result = super.visitBlock(block, context);
+        context.leaveBlock();
         return result;
     }
 
@@ -59,9 +54,8 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
     public static final class Context {
 
-        private final LinkedList<Set<VariableTree>> methodParameters = new LinkedList<>();
         private final LinkedList<Set<VariableTree>> forLoopVariables = new LinkedList<>();
-        private boolean outsideMethod = true;
+        private int blockLevel;
 
         private Context() {
         }
@@ -83,27 +77,16 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
             return false;
         }
 
-        private void enterMethod(Set<VariableTree> variables) {
-            methodParameters.push(variables);
-            outsideMethod = false;
-        }
-
-        private void leaveMethod() {
-            methodParameters.pop();
-            outsideMethod = true;
-        }
-
-        private boolean isMethodParameter(VariableTree variable) {
-            for (Set<VariableTree> variables : methodParameters) {
-                if (variables.contains(variable)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public boolean shouldSkip(VariableTree variable) {
-            return outsideMethod || isMethodParameter(variable) || isDefinedInForLoop(variable);
+            return blockLevel == 0 || isDefinedInForLoop(variable);
+        }
+
+        public void enterBlock() {
+            blockLevel += 1;
+        }
+
+        public void leaveBlock() {
+            blockLevel -= 1;
         }
     }
 }
