@@ -46,7 +46,10 @@ public final class JavacPlugin implements Plugin {
                 MethodParameterFinalModifier.INSTANCE,
                 MethodParameterFinalModifier.Context.of(collector)
             );
-            compilationUnit.accept(LocalVariableFinalModifier.INSTANCE, null);
+            compilationUnit.accept(
+                LocalVariableFinalModifier.INSTANCE,
+                LocalVariableFinalModifier.newContext()
+            );
         }
     }
 

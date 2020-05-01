@@ -1,8 +1,10 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ForLoopTree;
+import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
@@ -17,9 +19,19 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     private LocalVariableFinalModifier() {
     }
 
+    static Context newContext() {
+        return new Context();
+    }
+
+    @Override
+    public Context visitImport(ImportTree importTree, Context context) {
+        context.resolver.importClass(importTree.getQualifiedIdentifier().toString());
+        return super.visitImport(importTree, context);
+    }
+
     @Override
     public Context visitClass(ClassTree node, Context context) {
-        return super.visitClass(node, new Context());
+        return super.visitClass(node, new Context(context.resolver));
     }
 
     @Override
@@ -46,7 +58,7 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
     @Override
     public Context visitVariable(VariableTree variable, Context context) {
-        if (context.shouldSkip(variable)) {
+        if (context.shouldSkip(variable) || hasMutableAnnotation(context.resolver, variable)) {
             return super.visitVariable(variable, context);
         }
 
@@ -54,12 +66,27 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
         return super.visitVariable(variable, context);
     }
 
+    private boolean hasMutableAnnotation(AnnotationNameResolver resolver, VariableTree variable) {
+        return variable.getModifiers()
+            .getAnnotations()
+            .stream()
+            .map(AnnotationTree::getAnnotationType)
+            .map(Object::toString)
+            .anyMatch(resolver::isMutable);
+    }
+
     public static final class Context {
 
+        private final AnnotationNameResolver resolver;
         private final LinkedList<Set<VariableTree>> forLoopVariables = new LinkedList<>();
         private int blockLevel;
 
         private Context() {
+            this(AnnotationNameResolver.newResolver());
+        }
+
+        private Context(AnnotationNameResolver resolver) {
+            this.resolver = resolver;
         }
 
         private void enterForLoop(Set<VariableTree> variables) {

@@ -37,6 +37,30 @@ class LocalVariableFinalModifierTest {
     }
 
     @Test
+    void skips_annotated_local_variable_annotated() {
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "import ristretto.Mutable;",
+            "",
+            "public class TestSample {",
+            "  public static String hello(String name) {",
+            "    @Mutable String result = name;",
+            "    result = \"hello \" + result;",
+            "    return result;",
+            "  }",
+            "}"
+        );
+
+        var result = compiler
+            .compile(code)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("hello", "world");
+
+        assertThat(result, is("hello world"));
+    }
+
+    @Test
     void skips_class_variables() {
         var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
