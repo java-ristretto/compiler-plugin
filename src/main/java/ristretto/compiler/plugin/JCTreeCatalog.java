@@ -1,5 +1,6 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.TypeTag;
@@ -55,4 +56,14 @@ final class JCTreeCatalog {
     static void addFinalModifier(VariableTree parameter) {
         ((JCTree.JCVariableDecl) parameter).mods.flags |= Flags.FINAL;
     }
+
+    static boolean isAnnotatedAsMutable(VariableTree variable, AnnotationNameResolver resolver) {
+        return variable.getModifiers()
+            .getAnnotations()
+            .stream()
+            .map(AnnotationTree::getAnnotationType)
+            .map(Object::toString)
+            .anyMatch(resolver::isMutable);
+    }
+
 }

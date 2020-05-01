@@ -29,22 +29,13 @@ final class MethodParameterFinalModifier extends TreeScanner<MethodParameterFina
     }
 
     private boolean noMutableAnnotation(Context context, VariableTree parameter) {
-        if (noMutableAnnotation(context.resolver, parameter)) {
-            context.observer.parameterMarkedAsFinal();
-            return true;
+        if (JCTreeCatalog.isAnnotatedAsMutable(parameter, context.resolver)) {
+            context.observer.parameterSkipped();
+            return false;
         }
 
-        context.observer.parameterSkipped();
-        return false;
-    }
-
-    private boolean noMutableAnnotation(AnnotationNameResolver resolver, VariableTree parameter) {
-        return parameter.getModifiers()
-            .getAnnotations()
-            .stream()
-            .map(AnnotationTree::getAnnotationType)
-            .map(Object::toString)
-            .noneMatch(resolver::isMutable);
+        context.observer.parameterMarkedAsFinal();
+        return true;
     }
 
     public static final class Context {

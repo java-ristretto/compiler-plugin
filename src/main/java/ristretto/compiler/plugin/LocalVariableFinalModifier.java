@@ -1,6 +1,5 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ForLoopTree;
@@ -9,8 +8,6 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalModifier.Context, LocalVariableFinalModifier.Context> {
 
@@ -31,34 +28,31 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
     @Override
     public Context visitClass(ClassTree node, Context context) {
-        return super.visitClass(node, new Context(context.resolver));
+        context.enterClass();
+        Context result = super.visitClass(node, context);
+        context.leave();
+        return result;
     }
 
     @Override
     public Context visitBlock(BlockTree block, Context context) {
         context.enterBlock();
         Context result = super.visitBlock(block, context);
-        context.leaveBlock();
+        context.leave();
         return result;
     }
 
     @Override
     public Context visitForLoop(ForLoopTree forLoop, Context context) {
-        context.enterForLoop(
-            forLoop.getInitializer()
-                .stream()
-                .filter(statement -> statement instanceof VariableTree)
-                .map(statement -> (VariableTree) statement)
-                .collect(Collectors.toUnmodifiableSet())
-        );
+        context.enterForLoop();
         Context result = super.visitForLoop(forLoop, context);
-        context.leaveForLoop();
+        context.leave();
         return result;
     }
 
     @Override
     public Context visitVariable(VariableTree variable, Context context) {
-        if (context.shouldSkip(variable) || hasMutableAnnotation(context.resolver, variable)) {
+        if (context.isOutsideBlock() || JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
             return super.visitVariable(variable, context);
         }
 
@@ -66,56 +60,37 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
         return super.visitVariable(variable, context);
     }
 
-    private boolean hasMutableAnnotation(AnnotationNameResolver resolver, VariableTree variable) {
-        return variable.getModifiers()
-            .getAnnotations()
-            .stream()
-            .map(AnnotationTree::getAnnotationType)
-            .map(Object::toString)
-            .anyMatch(resolver::isMutable);
+    private enum Scope {
+        BLOCK, CLASS, FOR_LOOP
     }
 
     public static final class Context {
 
         private final AnnotationNameResolver resolver;
-        private final LinkedList<Set<VariableTree>> forLoopVariables = new LinkedList<>();
-        private int blockLevel;
+        private final LinkedList<Scope> scopeStack = new LinkedList<>();
 
         private Context() {
-            this(AnnotationNameResolver.newResolver());
+            this.resolver = AnnotationNameResolver.newResolver();
         }
 
-        private Context(AnnotationNameResolver resolver) {
-            this.resolver = resolver;
+        private void enterClass() {
+            scopeStack.push(Scope.CLASS);
         }
 
-        private void enterForLoop(Set<VariableTree> variables) {
-            forLoopVariables.push(variables);
+        private void enterBlock() {
+            scopeStack.push(Scope.BLOCK);
         }
 
-        private void leaveForLoop() {
-            forLoopVariables.pop();
+        private void enterForLoop() {
+            scopeStack.push(Scope.FOR_LOOP);
         }
 
-        private boolean isDefinedInForLoop(VariableTree variable) {
-            for (Set<VariableTree> variables : forLoopVariables) {
-                if (variables.contains(variable)) {
-                    return true;
-                }
-            }
-            return false;
+        private void leave() {
+            scopeStack.pop();
         }
 
-        public boolean shouldSkip(VariableTree variable) {
-            return blockLevel == 0 || isDefinedInForLoop(variable);
-        }
-
-        public void enterBlock() {
-            blockLevel += 1;
-        }
-
-        public void leaveBlock() {
-            blockLevel -= 1;
+        private boolean isOutsideBlock() {
+            return !Scope.BLOCK.equals(scopeStack.peek());
         }
     }
 }
