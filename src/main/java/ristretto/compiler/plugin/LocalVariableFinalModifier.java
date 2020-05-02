@@ -17,8 +17,8 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     private LocalVariableFinalModifier() {
     }
 
-    static Context newContext() {
-        return new Context();
+    static Context newContext(Observer observer) {
+        return new Context(observer);
     }
 
     @Override
@@ -61,11 +61,17 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
     @Override
     public Context visitVariable(VariableTree variable, Context context) {
-        if (context.isOutsideBlock() || JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
+        if (context.isOutsideBlock()) {
+            return super.visitVariable(variable, context);
+        }
+
+        if (JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
+            context.observer.localVariableSkipped();
             return super.visitVariable(variable, context);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
+        context.observer.localVariableMarkedAsFinal();
         return super.visitVariable(variable, context);
     }
 
@@ -77,8 +83,10 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
         private final AnnotationNameResolver resolver;
         private final LinkedList<Scope> scopeStack = new LinkedList<>();
+        private final Observer observer;
 
-        private Context() {
+        private Context(Observer observer) {
+            this.observer = observer;
             this.resolver = AnnotationNameResolver.newResolver();
         }
 
@@ -101,5 +109,10 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
         private boolean isOutsideBlock() {
             return !Scope.BLOCK.equals(scopeStack.peek());
         }
+    }
+
+    public interface Observer {
+        void localVariableMarkedAsFinal();
+        void localVariableSkipped();
     }
 }

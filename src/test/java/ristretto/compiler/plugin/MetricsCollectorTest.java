@@ -20,17 +20,36 @@ class MetricsCollectorTest {
 
     @Test
     void indicates_when_there_are_no_metrics() {
-        assertThat(collector.calculate(), is(Optional.empty()));
+        assertThat(collector.calculateParameter(), is(Optional.empty()));
     }
 
     @Test
-    void calculates_metrics_when_available() {
+    void calculates_parameter_metrics_when_available() {
         collector.parameterMarkedAsFinal();
         collector.parameterSkipped();
         collector.parameterSkipped();
         collector.parameterSkipped();
 
-        var metrics = collector.calculate().orElseThrow();
+        var metrics = collector.calculateParameter().orElseThrow();
+
+        assertThat(metrics.inspectedCount, is(4));
+        assertThat(metrics.markedAsFinalPercentage, is(new BigDecimal("25.00")));
+        assertThat(metrics.skippedPercentage, is(new BigDecimal("75.00")));
+    }
+
+    @Test
+    void indicates_when_there_are_no_local_variable_metrics() {
+        assertThat(collector.calculateLocalVariable(), is(Optional.empty()));
+    }
+
+    @Test
+    void calculates_local_variable_metrics_when_available() {
+        collector.localVariableMarkedAsFinal();
+        collector.localVariableSkipped();
+        collector.localVariableSkipped();
+        collector.localVariableSkipped();
+
+        var metrics = collector.calculateLocalVariable().orElseThrow();
 
         assertThat(metrics.inspectedCount, is(4));
         assertThat(metrics.markedAsFinalPercentage, is(new BigDecimal("25.00")));

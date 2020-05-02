@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-final class MetricsCollector implements MethodParameterFinalModifier.Observer {
+final class MetricsCollector implements MethodParameterFinalModifier.Observer, LocalVariableFinalModifier.Observer {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private int markedAsFinal;
-    private int skipped;
+    private int parametersMarkedAsFinal;
+    private int parametersSkipped;
+    private int localVariablesMarkedAsFinal;
+    private int localVariablesSkipped;
 
     private MetricsCollector() {
     }
@@ -27,26 +29,30 @@ final class MetricsCollector implements MethodParameterFinalModifier.Observer {
 
     @Override
     public void parameterMarkedAsFinal() {
-        markedAsFinal += 1;
+        parametersMarkedAsFinal += 1;
     }
 
     @Override
     public void parameterSkipped() {
-        skipped += 1;
+        parametersSkipped += 1;
     }
 
-    Optional<Metrics> calculate() {
-        int inspected = markedAsFinal + skipped;
+    Optional<Metrics> calculateParameter() {
+        return Metrics.calculate(parametersMarkedAsFinal, parametersSkipped);
+    }
 
-        if (inspected == 0) {
-            return Optional.empty();
-        }
+    @Override
+    public void localVariableMarkedAsFinal() {
+        localVariablesMarkedAsFinal += 1;
+    }
 
-        return Optional.of(new Metrics(
-            inspected,
-            percentage(markedAsFinal, inspected),
-            percentage(skipped, inspected)
-        ));
+    @Override
+    public void localVariableSkipped() {
+        localVariablesSkipped += 1;
+    }
+
+    Optional<Metrics> calculateLocalVariable() {
+        return Metrics.calculate(localVariablesMarkedAsFinal, localVariablesSkipped);
     }
 
     static final class Metrics {
@@ -59,6 +65,20 @@ final class MetricsCollector implements MethodParameterFinalModifier.Observer {
             this.inspectedCount = inspectedCount;
             this.markedAsFinalPercentage = markedAsFinalPercentage;
             this.skippedPercentage = skippedPercentage;
+        }
+
+        private static Optional<Metrics> calculate(int markedAsFinal, int skipped) {
+            int inspected = markedAsFinal + skipped;
+
+            if (inspected == 0) {
+                return Optional.empty();
+            }
+
+            return Optional.of(new Metrics(
+                inspected,
+                percentage(markedAsFinal, inspected),
+                percentage(skipped, inspected)
+            ));
         }
     }
 }

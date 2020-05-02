@@ -48,7 +48,7 @@ public final class JavacPlugin implements Plugin {
             );
             compilationUnit.accept(
                 LocalVariableFinalModifier.INSTANCE,
-                LocalVariableFinalModifier.newContext()
+                LocalVariableFinalModifier.newContext(collector)
             );
         }
     }
@@ -68,7 +68,8 @@ public final class JavacPlugin implements Plugin {
             if (!TaskEvent.Kind.COMPILATION.equals(event.getKind())) {
                 return;
             }
-            String metricsMsg = collector.calculate()
+
+            String parametersMetrics = collector.calculateParameter()
                 .map(metrics ->
                     String.format(
                         "%s parameter(s) inspected (%s%% marked as final | %s%% skipped)",
@@ -78,7 +79,19 @@ public final class JavacPlugin implements Plugin {
                     )
                 )
                 .orElse("0 parameters inspected");
-            log.notice(metricsMsg);
+            log.notice(parametersMetrics);
+
+            String localVariablesMetrics = collector.calculateLocalVariable()
+                .map(metrics ->
+                    String.format(
+                        "%s local variable(s) inspected (%s%% marked as final | %s%% skipped)",
+                        metrics.inspectedCount,
+                        metrics.markedAsFinalPercentage,
+                        metrics.skippedPercentage
+                    )
+                )
+                .orElse("0 local variables inspected");
+            log.notice(localVariablesMetrics);
         }
     }
 
