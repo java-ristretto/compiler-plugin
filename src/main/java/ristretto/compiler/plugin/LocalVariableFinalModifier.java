@@ -2,6 +2,7 @@ package ristretto.compiler.plugin;
 
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.VariableTree;
@@ -46,6 +47,14 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     public Context visitForLoop(ForLoopTree forLoop, Context context) {
         context.enterForLoop();
         Context result = super.visitForLoop(forLoop, context);
+        context.leave();
+        return result;
+    }
+
+    @Override
+    public Context visitEnhancedForLoop(EnhancedForLoopTree forLoop, Context context) {
+        context.enterForLoop();
+        Context result = super.visitEnhancedForLoop(forLoop, context);
         context.leave();
         return result;
     }

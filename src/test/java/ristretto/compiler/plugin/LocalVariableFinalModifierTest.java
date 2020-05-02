@@ -212,4 +212,52 @@ class LocalVariableFinalModifierTest {
             assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
         }
     }
+
+    @Nested
+    class enhanced_for_loops {
+
+        @Test
+        void skips_variable() {
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+                "package ristretto.test;",
+                "",
+                "public class TestSample {",
+                "  public static String reverse(String s) {",
+                "    StringBuilder builder = new StringBuilder();",
+                "    for (char c : s.toCharArray()) {",
+                "      builder.append(c);",
+                "    }",
+                "    return builder.reverse().toString();",
+                "  }",
+                "}"
+            );
+
+            var result = compiler
+                .compile(code)
+                .loadClass("ristretto.test.TestSample")
+                .invoke("reverse", "hello world");
+
+            assertThat(result, is("dlrow olleh"));
+        }
+
+        @Test
+        void enforces_local_variable_defined_in_the_block() {
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+                "package ristretto.test;",
+                "",
+                "public class TestSample {",
+                "  public static void hello(String s) {",
+                "    for (char c : s.toCharArray()) {",
+                "      String name = \"world\";",
+                "      name = c + name;",
+                "    }",
+                "  }",
+                "}"
+            );
+
+            var result = compiler.compile(code);
+
+            assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
+        }
+    }
 }
