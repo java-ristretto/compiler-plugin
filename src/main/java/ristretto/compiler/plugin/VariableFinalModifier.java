@@ -9,112 +9,73 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-import java.util.LinkedList;
+final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifier.VariableScope> {
 
-final class VariableFinalModifier extends TreeScanner<VariableFinalModifier.Context, VariableFinalModifier.Context> {
+    private final AnnotationNameResolver resolver;
+    private final Observer observer;
 
-    static final TreeScanner<Context, Context> INSTANCE = new VariableFinalModifier();
+    private VariableFinalModifier(AnnotationNameResolver resolver, Observer observer) {
+        this.resolver = resolver;
+        this.observer = observer;
+    }
 
-    private VariableFinalModifier() {
+    static VariableFinalModifier newInstance(Observer observer) {
+        return new VariableFinalModifier(AnnotationNameResolver.newResolver(), observer);
     }
 
     @Override
-    public Context visitImport(ImportTree importTree, Context context) {
-        context.resolver.importClass(importTree.getQualifiedIdentifier().toString());
-        return super.visitImport(importTree, context);
+    public Void visitImport(ImportTree importTree, VariableScope scope) {
+        resolver.importClass(importTree.getQualifiedIdentifier().toString());
+        return super.visitImport(importTree, scope);
     }
 
     @Override
-    public Context visitClass(ClassTree node, Context context) {
-        context.enterClass();
-        Context result = super.visitClass(node, context);
-        context.leave();
-        return result;
+    public Void visitClass(ClassTree aClass, VariableScope scope) {
+        return super.visitClass(aClass, VariableScope.CLASS);
     }
 
     @Override
-    public Context visitMethod(MethodTree method, Context context) {
-        context.enterMethod();
-        Context result = super.visitMethod(method, context);
-        context.leave();
-        return result;
+    public Void visitMethod(MethodTree method, VariableScope scope) {
+        return super.visitMethod(method, VariableScope.METHOD);
     }
 
     @Override
-    public Context visitBlock(BlockTree block, Context context) {
-        context.enterBlock();
-        Context result = super.visitBlock(block, context);
-        context.leave();
-        return result;
+    public Void visitBlock(BlockTree block, VariableScope scope) {
+        return super.visitBlock(block, VariableScope.BLOCK);
     }
 
     @Override
-    public Context visitForLoop(ForLoopTree forLoop, Context context) {
-        context.enterForLoop();
-        Context result = super.visitForLoop(forLoop, context);
-        context.leave();
-        return result;
+    public Void visitForLoop(ForLoopTree forLoop, VariableScope scope) {
+        return super.visitForLoop(forLoop, VariableScope.FOR_LOOP);
     }
 
     @Override
-    public Context visitEnhancedForLoop(EnhancedForLoopTree forLoop, Context context) {
-        context.enterForLoop();
-        Context result = super.visitEnhancedForLoop(forLoop, context);
-        context.leave();
-        return result;
+    public Void visitEnhancedForLoop(EnhancedForLoopTree forLoop, VariableScope scope) {
+        return super.visitEnhancedForLoop(forLoop, VariableScope.FOR_LOOP);
     }
 
     @Override
-    public Context visitVariable(VariableTree variable, Context context) {
-        VariableScope scope = context.variableScopeStack.peek();
-
+    public Void visitVariable(VariableTree variable, VariableScope scope) {
         if (!VariableScope.BLOCK.equals(scope) && !VariableScope.METHOD.equals(scope)) {
-            return super.visitVariable(variable, context);
+            return super.visitVariable(variable, scope);
         }
 
-        if (JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
-            context.observer.skipped(scope);
-            return super.visitVariable(variable, context);
+        if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
+            observer.skipped(scope);
+            return super.visitVariable(variable, scope);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        context.observer.markedAsFinal(scope);
-        return super.visitVariable(variable, context);
+        observer.markedAsFinal(scope);
+        return super.visitVariable(variable, scope);
     }
 
-    public static final class Context {
+    enum VariableScope {
+        BLOCK, CLASS, METHOD, FOR_LOOP
+    }
 
-        private final AnnotationNameResolver resolver;
-        private final VariableFinalMarkerObservable observer;
-        private final LinkedList<VariableScope> variableScopeStack = new LinkedList<>();
-
-        private Context(AnnotationNameResolver resolver, VariableFinalMarkerObservable observer) {
-            this.resolver = resolver;
-            this.observer = observer;
-        }
-
-        static Context of(VariableFinalMarkerObservable observer) {
-            return new Context(AnnotationNameResolver.newResolver(), observer);
-        }
-
-        private void enterClass() {
-            variableScopeStack.push(VariableScope.CLASS);
-        }
-
-        private void enterMethod() {
-            variableScopeStack.push(VariableScope.METHOD);
-        }
-
-        private void enterBlock() {
-            variableScopeStack.push(VariableScope.BLOCK);
-        }
-
-        private void enterForLoop() {
-            variableScopeStack.push(VariableScope.FOR_LOOP);
-        }
-
-        private void leave() {
-            variableScopeStack.pop();
-        }
+    interface Observer {
+        void markedAsFinal(VariableScope scope);
+        void skipped(VariableScope scope);
     }
 }

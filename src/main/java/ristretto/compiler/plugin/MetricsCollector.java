@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-final class MetricsCollector implements VariableFinalMarkerObservable {
+final class MetricsCollector implements VariableFinalModifier.Observer {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
@@ -36,7 +36,7 @@ final class MetricsCollector implements VariableFinalMarkerObservable {
     }
 
     @Override
-    public void markedAsFinal(VariableScope scope) {
+    public void markedAsFinal(VariableFinalModifier.VariableScope scope) {
         switch (scope) {
             case METHOD:
                 parametersMarkedAsFinal += 1;
@@ -50,7 +50,7 @@ final class MetricsCollector implements VariableFinalMarkerObservable {
     }
 
     @Override
-    public void skipped(VariableScope scope) {
+    public void skipped(VariableFinalModifier.VariableScope scope) {
         switch (scope) {
             case METHOD:
                 parametersSkipped += 1;

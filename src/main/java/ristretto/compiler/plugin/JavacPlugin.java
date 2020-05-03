@@ -42,10 +42,7 @@ public final class JavacPlugin implements Plugin {
                 return;
             }
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
-            compilationUnit.accept(
-                VariableFinalModifier.INSTANCE,
-                VariableFinalModifier.Context.of(collector)
-            );
+            compilationUnit.accept(VariableFinalModifier.newInstance(collector), null);
         }
     }
 
