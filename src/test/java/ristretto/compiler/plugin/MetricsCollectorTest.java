@@ -25,10 +25,10 @@ class MetricsCollectorTest {
 
     @Test
     void calculates_parameter_metrics_when_available() {
-        collector.parameterMarkedAsFinal();
-        collector.parameterSkipped();
-        collector.parameterSkipped();
-        collector.parameterSkipped();
+        collector.markedAsFinal(VariableScope.METHOD);
+        collector.skipped(VariableScope.METHOD);
+        collector.skipped(VariableScope.METHOD);
+        collector.skipped(VariableScope.METHOD);
 
         var metrics = collector.calculateParameter().orElseThrow();
 
@@ -44,10 +44,10 @@ class MetricsCollectorTest {
 
     @Test
     void calculates_local_variable_metrics_when_available() {
-        collector.localVariableMarkedAsFinal();
-        collector.localVariableSkipped();
-        collector.localVariableSkipped();
-        collector.localVariableSkipped();
+        collector.markedAsFinal(VariableScope.BLOCK);
+        collector.skipped(VariableScope.BLOCK);
+        collector.skipped(VariableScope.BLOCK);
+        collector.skipped(VariableScope.BLOCK);
 
         var metrics = collector.calculateLocalVariable().orElseThrow();
 

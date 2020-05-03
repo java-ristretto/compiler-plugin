@@ -17,7 +17,7 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     private LocalVariableFinalModifier() {
     }
 
-    static Context newContext(Observer observer) {
+    static Context newContext(VariableFinalMarkerObservable observer) {
         return new Context(observer);
     }
 
@@ -66,40 +66,36 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
         }
 
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
-            context.observer.localVariableSkipped();
+            context.observer.skipped(VariableScope.BLOCK);
             return super.visitVariable(variable, context);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        context.observer.localVariableMarkedAsFinal();
+        context.observer.markedAsFinal(VariableScope.BLOCK);
         return super.visitVariable(variable, context);
-    }
-
-    private enum Scope {
-        BLOCK, CLASS, FOR_LOOP
     }
 
     public static final class Context {
 
         private final AnnotationNameResolver resolver;
-        private final LinkedList<Scope> scopeStack = new LinkedList<>();
-        private final Observer observer;
+        private final LinkedList<VariableScope> scopeStack = new LinkedList<>();
+        private final VariableFinalMarkerObservable observer;
 
-        private Context(Observer observer) {
+        private Context(VariableFinalMarkerObservable observer) {
             this.observer = observer;
             this.resolver = AnnotationNameResolver.newResolver();
         }
 
         private void enterClass() {
-            scopeStack.push(Scope.CLASS);
+            scopeStack.push(VariableScope.CLASS);
         }
 
         private void enterBlock() {
-            scopeStack.push(Scope.BLOCK);
+            scopeStack.push(VariableScope.BLOCK);
         }
 
         private void enterForLoop() {
-            scopeStack.push(Scope.FOR_LOOP);
+            scopeStack.push(VariableScope.FOR_LOOP);
         }
 
         private void leave() {
@@ -107,12 +103,7 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
         }
 
         private boolean isOutsideBlock() {
-            return !Scope.BLOCK.equals(scopeStack.peek());
+            return !VariableScope.BLOCK.equals(scopeStack.peek());
         }
-    }
-
-    public interface Observer {
-        void localVariableMarkedAsFinal();
-        void localVariableSkipped();
     }
 }

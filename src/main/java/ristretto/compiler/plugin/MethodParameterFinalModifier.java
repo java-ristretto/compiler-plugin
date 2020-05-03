@@ -57,40 +57,32 @@ final class MethodParameterFinalModifier extends TreeScanner<MethodParameterFina
 
     @Override
     public Context visitVariable(VariableTree variable, Context context) {
-        if (context.isNotMethod() || !noMutableAnnotation(context, variable)) {
+        if (context.isNotMethod()) {
+            return super.visitVariable(variable, context);
+        }
+
+        if (JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
+            context.observer.skipped(VariableScope.METHOD);
             return super.visitVariable(variable, context);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
+        context.observer.markedAsFinal(VariableScope.METHOD);
         return super.visitVariable(variable, context);
-    }
-
-    private boolean noMutableAnnotation(Context context, VariableTree parameter) {
-        if (JCTreeCatalog.isAnnotatedAsMutable(parameter, context.resolver)) {
-            context.observer.parameterSkipped();
-            return false;
-        }
-
-        context.observer.parameterMarkedAsFinal();
-        return true;
-    }
-
-    private enum VariableScope {
-        BLOCK, CLASS, METHOD, FOR_LOOP
     }
 
     public static final class Context {
 
         private final AnnotationNameResolver resolver;
-        private final Observer observer;
+        private final VariableFinalMarkerObservable observer;
         private final LinkedList<VariableScope> variableScopeStack = new LinkedList<>();
 
-        private Context(AnnotationNameResolver resolver, Observer observer) {
+        private Context(AnnotationNameResolver resolver, VariableFinalMarkerObservable observer) {
             this.resolver = resolver;
             this.observer = observer;
         }
 
-        static Context of(Observer observer) {
+        static Context of(VariableFinalMarkerObservable observer) {
             return new Context(AnnotationNameResolver.newResolver(), observer);
         }
 
@@ -118,10 +110,4 @@ final class MethodParameterFinalModifier extends TreeScanner<MethodParameterFina
             return !VariableScope.METHOD.equals(variableScopeStack.peek());
         }
     }
-
-    public interface Observer {
-        void parameterMarkedAsFinal();
-        void parameterSkipped();
-    }
-
 }

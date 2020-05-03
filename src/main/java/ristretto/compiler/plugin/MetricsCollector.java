@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-final class MetricsCollector implements MethodParameterFinalModifier.Observer, LocalVariableFinalModifier.Observer {
+final class MetricsCollector implements VariableFinalMarkerObservable {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
@@ -27,32 +27,40 @@ final class MetricsCollector implements MethodParameterFinalModifier.Observer, L
             .setScale(2, RoundingMode.FLOOR);
     }
 
-    @Override
-    public void parameterMarkedAsFinal() {
-        parametersMarkedAsFinal += 1;
-    }
-
-    @Override
-    public void parameterSkipped() {
-        parametersSkipped += 1;
-    }
-
     Optional<Metrics> calculateParameter() {
         return Metrics.calculate(parametersMarkedAsFinal, parametersSkipped);
     }
 
-    @Override
-    public void localVariableMarkedAsFinal() {
-        localVariablesMarkedAsFinal += 1;
-    }
-
-    @Override
-    public void localVariableSkipped() {
-        localVariablesSkipped += 1;
-    }
-
     Optional<Metrics> calculateLocalVariable() {
         return Metrics.calculate(localVariablesMarkedAsFinal, localVariablesSkipped);
+    }
+
+    @Override
+    public void markedAsFinal(VariableScope scope) {
+        switch (scope) {
+            case METHOD:
+                parametersMarkedAsFinal += 1;
+                break;
+            case BLOCK:
+                localVariablesMarkedAsFinal += 1;
+                break;
+            default:
+                throw new AssertionError("unexpected scope: " + scope);
+        }
+    }
+
+    @Override
+    public void skipped(VariableScope scope) {
+        switch (scope) {
+            case METHOD:
+                parametersSkipped += 1;
+                break;
+            case BLOCK:
+                localVariablesSkipped += 1;
+                break;
+            default:
+                throw new AssertionError("unexpected scope: " + scope);
+        }
     }
 
     static final class Metrics {
