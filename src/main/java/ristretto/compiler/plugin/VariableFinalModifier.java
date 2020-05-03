@@ -5,20 +5,17 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.ImportTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
 import java.util.LinkedList;
 
-final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalModifier.Context, LocalVariableFinalModifier.Context> {
+final class VariableFinalModifier extends TreeScanner<VariableFinalModifier.Context, VariableFinalModifier.Context> {
 
-    static final TreeScanner<Context, Context> INSTANCE = new LocalVariableFinalModifier();
+    static final TreeScanner<Context, Context> INSTANCE = new VariableFinalModifier();
 
-    private LocalVariableFinalModifier() {
-    }
-
-    static Context newContext(VariableFinalMarkerObservable observer) {
-        return new Context(observer);
+    private VariableFinalModifier() {
     }
 
     @Override
@@ -31,6 +28,14 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
     public Context visitClass(ClassTree node, Context context) {
         context.enterClass();
         Context result = super.visitClass(node, context);
+        context.leave();
+        return result;
+    }
+
+    @Override
+    public Context visitMethod(MethodTree method, Context context) {
+        context.enterMethod();
+        Context result = super.visitMethod(method, context);
         context.leave();
         return result;
     }
@@ -61,49 +66,55 @@ final class LocalVariableFinalModifier extends TreeScanner<LocalVariableFinalMod
 
     @Override
     public Context visitVariable(VariableTree variable, Context context) {
-        if (context.isOutsideBlock()) {
+        VariableScope scope = context.variableScopeStack.peek();
+
+        if (!VariableScope.BLOCK.equals(scope) && !VariableScope.METHOD.equals(scope)) {
             return super.visitVariable(variable, context);
         }
 
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, context.resolver)) {
-            context.observer.skipped(VariableScope.BLOCK);
+            context.observer.skipped(scope);
             return super.visitVariable(variable, context);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        context.observer.markedAsFinal(VariableScope.BLOCK);
+        context.observer.markedAsFinal(scope);
         return super.visitVariable(variable, context);
     }
 
     public static final class Context {
 
         private final AnnotationNameResolver resolver;
-        private final LinkedList<VariableScope> scopeStack = new LinkedList<>();
         private final VariableFinalMarkerObservable observer;
+        private final LinkedList<VariableScope> variableScopeStack = new LinkedList<>();
 
-        private Context(VariableFinalMarkerObservable observer) {
+        private Context(AnnotationNameResolver resolver, VariableFinalMarkerObservable observer) {
+            this.resolver = resolver;
             this.observer = observer;
-            this.resolver = AnnotationNameResolver.newResolver();
+        }
+
+        static Context of(VariableFinalMarkerObservable observer) {
+            return new Context(AnnotationNameResolver.newResolver(), observer);
         }
 
         private void enterClass() {
-            scopeStack.push(VariableScope.CLASS);
+            variableScopeStack.push(VariableScope.CLASS);
+        }
+
+        private void enterMethod() {
+            variableScopeStack.push(VariableScope.METHOD);
         }
 
         private void enterBlock() {
-            scopeStack.push(VariableScope.BLOCK);
+            variableScopeStack.push(VariableScope.BLOCK);
         }
 
         private void enterForLoop() {
-            scopeStack.push(VariableScope.FOR_LOOP);
+            variableScopeStack.push(VariableScope.FOR_LOOP);
         }
 
         private void leave() {
-            scopeStack.pop();
-        }
-
-        private boolean isOutsideBlock() {
-            return !VariableScope.BLOCK.equals(scopeStack.peek());
+            variableScopeStack.pop();
         }
     }
 }

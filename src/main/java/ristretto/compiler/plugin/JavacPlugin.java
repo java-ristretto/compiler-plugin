@@ -43,12 +43,8 @@ public final class JavacPlugin implements Plugin {
             }
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
             compilationUnit.accept(
-                MethodParameterFinalModifier.INSTANCE,
-                MethodParameterFinalModifier.Context.of(collector)
-            );
-            compilationUnit.accept(
-                LocalVariableFinalModifier.INSTANCE,
-                LocalVariableFinalModifier.newContext(collector)
+                VariableFinalModifier.INSTANCE,
+                VariableFinalModifier.Context.of(collector)
             );
         }
     }
