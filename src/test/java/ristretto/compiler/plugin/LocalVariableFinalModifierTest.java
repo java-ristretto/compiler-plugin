@@ -61,38 +61,6 @@ class LocalVariableFinalModifierTest {
     }
 
     @Test
-    void skips_class_variables() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
-            "package ristretto.test;",
-            "",
-            "public class TestSample {",
-            "  ",
-            "  String msg;",
-            "  ",
-            "  public static String hello(String value) {",
-            "    TestSample sample = new TestSample();",
-            "    sample.msg = value;",
-            "    return sample.getMsg();",
-            "  }",
-            "  ",
-            "  String getMsg() {",
-            "    return msg;",
-            "  }",
-            "}"
-        );
-
-        TestCompiler.Result compilation = compiler
-            .compile(code);
-        assertThat(compilation.diagnostics(), is(""));
-
-        var result = compilation
-            .loadClass("ristretto.test.TestSample")
-            .invoke("hello", "hello world");
-
-        assertThat(result, is("hello world"));
-    }
-
-    @Test
     void enforces_local_variables_in_anonymous_blocks() {
         var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
@@ -113,38 +81,6 @@ class LocalVariableFinalModifierTest {
         var result = compiler.compile(code);
 
         assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable msg"));
-    }
-
-    @Test
-    void skips_class_variables_in_anonymous_classes() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
-            "package ristretto.test;",
-            "",
-            "public class TestSample {",
-            "  ",
-            "  public static String run(String value) {",
-            "    ",
-            "    java.util.function.Supplier<String> supplier = new java.util.function.Supplier<>() {",
-            "      ",
-            "      String status = \"pending\";",
-            "      ",
-            "      @Override",
-            "      public String get() {",
-            "        status = \"done\";",
-            "        return status;",
-            "      }",
-            "    };",
-            "    return supplier.get();",
-            "  }",
-            "}"
-        );
-
-        var result = compiler
-            .compile(code)
-            .loadClass("ristretto.test.TestSample")
-            .invoke("run", null);
-
-        assertThat(result, is("done"));
     }
 
     @Nested

@@ -22,6 +22,8 @@ class JavacPluginTest {
             "",
             "public class TestSample {",
             "",
+            "  String field;",
+            "",
             "  public void sampleMethod(String parameter) {",
             "    String s = parameter;",
             "  }",
@@ -34,5 +36,6 @@ class JavacPluginTest {
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
         assertThat(result.additionalOutput, containsString("1 parameter(s) inspected (100.00% marked as final | 0.00% skipped)"));
         assertThat(result.additionalOutput, containsString("1 local variable(s) inspected (100.00% marked as final | 0.00% skipped)"));
+        assertThat(result.additionalOutput, containsString("1 field(s) inspected (100.00% marked as final | 0.00% skipped)"));
     }
 }

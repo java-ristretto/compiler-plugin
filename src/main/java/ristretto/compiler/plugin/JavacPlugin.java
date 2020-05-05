@@ -7,6 +7,7 @@ import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.util.Log;
+import ristretto.compiler.plugin.VariableFinalModifier.VariableScope;
 
 public final class JavacPlugin implements Plugin {
 
@@ -62,29 +63,34 @@ public final class JavacPlugin implements Plugin {
                 return;
             }
 
-            String parametersMetrics = collector.calculateParameter()
-                .map(metrics ->
-                    String.format(
-                        "%s parameter(s) inspected (%s%% marked as final | %s%% skipped)",
-                        metrics.inspectedCount,
-                        metrics.markedAsFinalPercentage,
-                        metrics.skippedPercentage
-                    )
-                )
-                .orElse("0 parameters inspected");
-            log.notice(parametersMetrics);
+            log.notice(formatMetrics(
+                VariableScope.METHOD,
+                "%s parameter(s) inspected (%s%% marked as final | %s%% skipped)",
+                "0 parameters inspected"
+            ));
+            log.notice(formatMetrics(
+                VariableScope.BLOCK,
+                "%s local variable(s) inspected (%s%% marked as final | %s%% skipped)",
+                "0 local variables inspected"
+            ));
+            log.notice(formatMetrics(
+                VariableScope.CLASS,
+                "%s field(s) inspected (%s%% marked as final | %s%% skipped)",
+                "0 fields inspected"
+            ));
+        }
 
-            String localVariablesMetrics = collector.calculateLocalVariable()
+        private String formatMetrics(VariableScope scope, String whenPresent, String whenAbsent) {
+            return collector.calculate(scope)
                 .map(metrics ->
                     String.format(
-                        "%s local variable(s) inspected (%s%% marked as final | %s%% skipped)",
+                        whenPresent,
                         metrics.inspectedCount,
                         metrics.markedAsFinalPercentage,
                         metrics.skippedPercentage
                     )
                 )
-                .orElse("0 local variables inspected");
-            log.notice(localVariablesMetrics);
+                .orElse(whenAbsent);
         }
     }
 

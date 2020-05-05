@@ -1,23 +1,38 @@
 package ristretto.compiler.plugin;
 
+import ristretto.compiler.plugin.VariableFinalModifier.VariableScope;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 final class MetricsCollector implements VariableFinalModifier.Observer {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private int parametersMarkedAsFinal;
-    private int parametersSkipped;
-    private int localVariablesMarkedAsFinal;
-    private int localVariablesSkipped;
+    private final Map<VariableScope, AtomicInteger> markedAsFinalCount = new HashMap<>();
+    private final Map<VariableScope, AtomicInteger> skippedCount = new HashMap<>();
 
     private MetricsCollector() {
     }
 
     static MetricsCollector newCollector() {
         return new MetricsCollector();
+    }
+
+    private static int count(Map<VariableScope, AtomicInteger> countByScope, VariableScope scope) {
+        AtomicInteger count = countByScope.get(scope);
+        if (count == null) {
+            return 0;
+        }
+        return count.get();
+    }
+
+    private static void increment(Map<VariableScope, AtomicInteger> countByScope, VariableScope scope) {
+        countByScope.computeIfAbsent(scope, newScope -> new AtomicInteger(0)).incrementAndGet();
     }
 
     private static BigDecimal percentage(int count, int total) {
@@ -27,40 +42,18 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
             .setScale(2, RoundingMode.FLOOR);
     }
 
-    Optional<Metrics> calculateParameter() {
-        return Metrics.calculate(parametersMarkedAsFinal, parametersSkipped);
-    }
-
-    Optional<Metrics> calculateLocalVariable() {
-        return Metrics.calculate(localVariablesMarkedAsFinal, localVariablesSkipped);
+    Optional<Metrics> calculate(VariableScope scope) {
+        return Metrics.calculate(count(markedAsFinalCount, scope), count(skippedCount, scope));
     }
 
     @Override
-    public void markedAsFinal(VariableFinalModifier.VariableScope scope) {
-        switch (scope) {
-            case METHOD:
-                parametersMarkedAsFinal += 1;
-                break;
-            case BLOCK:
-                localVariablesMarkedAsFinal += 1;
-                break;
-            default:
-                throw new AssertionError("unexpected scope: " + scope);
-        }
+    public void markedAsFinal(VariableScope scope) {
+        increment(markedAsFinalCount, scope);
     }
 
     @Override
-    public void skipped(VariableFinalModifier.VariableScope scope) {
-        switch (scope) {
-            case METHOD:
-                parametersSkipped += 1;
-                break;
-            case BLOCK:
-                localVariablesSkipped += 1;
-                break;
-            default:
-                throw new AssertionError("unexpected scope: " + scope);
-        }
+    public void skipped(VariableScope scope) {
+        increment(skippedCount, scope);
     }
 
     static final class Metrics {

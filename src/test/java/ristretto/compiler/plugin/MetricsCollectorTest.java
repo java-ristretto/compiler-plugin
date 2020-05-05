@@ -20,7 +20,7 @@ class MetricsCollectorTest {
 
     @Test
     void indicates_when_there_are_no_metrics() {
-        assertThat(collector.calculateParameter(), is(Optional.empty()));
+        assertThat(collector.calculate(VariableFinalModifier.VariableScope.METHOD), is(Optional.empty()));
     }
 
     @Test
@@ -30,26 +30,7 @@ class MetricsCollectorTest {
         collector.skipped(VariableFinalModifier.VariableScope.METHOD);
         collector.skipped(VariableFinalModifier.VariableScope.METHOD);
 
-        var metrics = collector.calculateParameter().orElseThrow();
-
-        assertThat(metrics.inspectedCount, is(4));
-        assertThat(metrics.markedAsFinalPercentage, is(new BigDecimal("25.00")));
-        assertThat(metrics.skippedPercentage, is(new BigDecimal("75.00")));
-    }
-
-    @Test
-    void indicates_when_there_are_no_local_variable_metrics() {
-        assertThat(collector.calculateLocalVariable(), is(Optional.empty()));
-    }
-
-    @Test
-    void calculates_local_variable_metrics_when_available() {
-        collector.markedAsFinal(VariableFinalModifier.VariableScope.BLOCK);
-        collector.skipped(VariableFinalModifier.VariableScope.BLOCK);
-        collector.skipped(VariableFinalModifier.VariableScope.BLOCK);
-        collector.skipped(VariableFinalModifier.VariableScope.BLOCK);
-
-        var metrics = collector.calculateLocalVariable().orElseThrow();
+        var metrics = collector.calculate(VariableFinalModifier.VariableScope.METHOD).orElseThrow();
 
         assertThat(metrics.inspectedCount, is(4));
         assertThat(metrics.markedAsFinalPercentage, is(new BigDecimal("25.00")));

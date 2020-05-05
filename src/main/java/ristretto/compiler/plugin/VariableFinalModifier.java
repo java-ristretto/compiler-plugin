@@ -56,7 +56,7 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
 
     @Override
     public Void visitVariable(VariableTree variable, VariableScope scope) {
-        if (!VariableScope.BLOCK.equals(scope) && !VariableScope.METHOD.equals(scope)) {
+        if (VariableScope.FOR_LOOP.equals(scope)) {
             return super.visitVariable(variable, scope);
         }
 
