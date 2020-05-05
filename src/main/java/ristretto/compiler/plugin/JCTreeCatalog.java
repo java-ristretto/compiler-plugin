@@ -54,7 +54,11 @@ final class JCTreeCatalog {
     }
 
     static void addFinalModifier(VariableTree parameter) {
-        ((JCTree.JCVariableDecl) parameter).mods.flags |= Flags.FINAL;
+        JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) parameter).mods;
+        if ((modifiers.flags & Flags.VOLATILE) != 0) {
+            return;
+        }
+        modifiers.flags |= Flags.FINAL;
     }
 
     static boolean isAnnotatedAsMutable(VariableTree variable, AnnotationNameResolver resolver) {

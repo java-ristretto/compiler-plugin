@@ -74,4 +74,35 @@ class FieldFinalModifierTest {
 
         assertThat(result, is("hello world"));
     }
+
+    @Test
+    void skips_volatile_fields() {
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "import ristretto.Mutable;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  volatile long counter;",
+            "  ",
+            "  public static String hello(String value) {",
+            "    TestSample sample = new TestSample();",
+            "    sample.counter = Long.parseLong(value) + 1;",
+            "    return String.valueOf(sample.get());",
+            "  }",
+            "  ",
+            "  long get() {",
+            "    return counter;",
+            "  }",
+            "}"
+        );
+
+        var result = compiler
+            .compile(code)
+            .loadClass("ristretto.test.TestSample")
+            .invoke("hello", "10");
+
+        assertThat(result, is("11"));
+    }
 }
