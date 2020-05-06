@@ -63,20 +63,23 @@ public final class JavacPlugin implements Plugin {
                 return;
             }
 
+            log.notice("immutable by default summary:");
+            log.notice("| var type  | inspected   | final   | skipped |");
+            log.notice("|-----------|-------------|---------|---------|");
             log.notice(formatMetrics(
-                VariableScope.METHOD,
-                "%s parameter(s) inspected (%s%% marked as final | %s%% skipped)",
-                "0 parameters inspected"
+                VariableScope.CLASS,
+                "| field     | %,11d | %6.2f%% | %6.2f%% |",
+                "| field     |           0 |       - |       - |"
             ));
             log.notice(formatMetrics(
                 VariableScope.BLOCK,
-                "%s local variable(s) inspected (%s%% marked as final | %s%% skipped)",
-                "0 local variables inspected"
+                "| local     | %,11d | %6.2f%% | %6.2f%% |",
+                "| local     |           0 |       - |       - |"
             ));
             log.notice(formatMetrics(
-                VariableScope.CLASS,
-                "%s field(s) inspected (%s%% marked as final | %s%% skipped)",
-                "0 fields inspected"
+                VariableScope.METHOD,
+                "| parameter | %,11d | %6.2f%% | %6.2f%% |",
+                "| parameter |           0 |       - |       - |"
             ));
         }
 

@@ -34,8 +34,11 @@ class JavacPluginTest {
         var result = compiler.compile(anEmptyClass);
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
-        assertThat(result.additionalOutput, containsString("1 parameter(s) inspected (100.00% marked as final | 0.00% skipped)"));
-        assertThat(result.additionalOutput, containsString("1 local variable(s) inspected (100.00% marked as final | 0.00% skipped)"));
-        assertThat(result.additionalOutput, containsString("1 field(s) inspected (100.00% marked as final | 0.00% skipped)"));
+        assertThat(result.additionalOutput, containsString("immutable by default summary:"));
+        assertThat(result.additionalOutput, containsString("| var type  | inspected   | final   | skipped |"));
+        assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|"));
+        assertThat(result.additionalOutput, containsString("| field     |           1 | 100.00% |   0.00% |"));
+        assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |"));
+        assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |"));
     }
 }
