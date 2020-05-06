@@ -15,6 +15,7 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
 
     private final Map<VariableScope, AtomicInteger> finalModifierAddedCount = new HashMap<>();
     private final Map<VariableScope, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
+    private final Map<VariableScope, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
 
     private MetricsCollector() {
     }
@@ -43,7 +44,11 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
     }
 
     Optional<Metrics> calculate(VariableScope scope) {
-        return Metrics.calculate(count(finalModifierAddedCount, scope), count(annotatedAsMutableCount, scope));
+        return Metrics.calculate(
+            count(finalModifierAddedCount, scope),
+            count(annotatedAsMutableCount, scope),
+            count(finalModifierAlreadyPresentCount, scope)
+        );
     }
 
     @Override
@@ -56,20 +61,36 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
         increment(annotatedAsMutableCount, scope);
     }
 
+    @Override
+    public void finalModifierAlreadyPresent(VariableScope scope) {
+        increment(finalModifierAlreadyPresentCount, scope);
+    }
+
     static final class Metrics {
 
         final int inspectedCount;
         final BigDecimal finalModifierAddedPercentage;
         final BigDecimal annotatedAsMutablePercentage;
+        final BigDecimal finalModifierAlreadyPresentPercentage;
 
-        private Metrics(int inspectedCount, BigDecimal finalModifierAddedPercentage, BigDecimal annotatedAsMutablePercentage) {
+        private Metrics(
+            int inspectedCount,
+            BigDecimal finalModifierAddedPercentage,
+            BigDecimal annotatedAsMutablePercentage,
+            BigDecimal finalModifierAlreadyPresentPercentage
+        ) {
             this.inspectedCount = inspectedCount;
             this.finalModifierAddedPercentage = finalModifierAddedPercentage;
             this.annotatedAsMutablePercentage = annotatedAsMutablePercentage;
+            this.finalModifierAlreadyPresentPercentage = finalModifierAlreadyPresentPercentage;
         }
 
-        private static Optional<Metrics> calculate(int finalModifierAdded, int annotatedAsMutable) {
-            int inspected = finalModifierAdded + annotatedAsMutable;
+        private static Optional<Metrics> calculate(
+            int finalModifierAdded,
+            int annotatedAsMutable,
+            int finalModifierAlreadyPresent
+        ) {
+            int inspected = finalModifierAdded + finalModifierAlreadyPresent + annotatedAsMutable;
 
             if (inspected == 0) {
                 return Optional.empty();
@@ -78,7 +99,8 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
             return Optional.of(new Metrics(
                 inspected,
                 percentage(finalModifierAdded, inspected),
-                percentage(annotatedAsMutable, inspected)
+                percentage(annotatedAsMutable, inspected),
+                percentage(finalModifierAlreadyPresent, inspected)
             ));
         }
     }

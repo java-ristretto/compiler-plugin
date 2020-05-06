@@ -53,6 +53,11 @@ final class JCTreeCatalog {
         return !JCTree.Kind.PRIMITIVE_TYPE.equals(parameter.getType().getKind());
     }
 
+    static boolean hasFinalModifier(VariableTree parameter) {
+        JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) parameter).mods;
+        return (modifiers.flags & Flags.FINAL) != 0;
+    }
+
     static void addFinalModifier(VariableTree parameter) {
         JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) parameter).mods;
         if ((modifiers.flags & Flags.VOLATILE) != 0) {

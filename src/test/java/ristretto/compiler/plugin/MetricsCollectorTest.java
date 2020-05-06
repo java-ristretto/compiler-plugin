@@ -26,14 +26,17 @@ class MetricsCollectorTest {
     @Test
     void calculates_parameter_metrics_when_available() {
         collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
+        collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
+        collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
         collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
         collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
-        collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
+        collector.finalModifierAlreadyPresent(VariableFinalModifier.VariableScope.METHOD);
 
         var metrics = collector.calculate(VariableFinalModifier.VariableScope.METHOD).orElseThrow();
 
-        assertThat(metrics.inspectedCount, is(4));
-        assertThat(metrics.finalModifierAddedPercentage, is(new BigDecimal("25.00")));
-        assertThat(metrics.annotatedAsMutablePercentage, is(new BigDecimal("75.00")));
+        assertThat(metrics.inspectedCount, is(6));
+        assertThat(metrics.finalModifierAddedPercentage, is(new BigDecimal("50.00")));
+        assertThat(metrics.finalModifierAlreadyPresentPercentage, is(new BigDecimal("16.66")));
+        assertThat(metrics.annotatedAsMutablePercentage, is(new BigDecimal("33.33")));
     }
 }

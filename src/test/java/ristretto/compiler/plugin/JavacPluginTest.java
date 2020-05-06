@@ -22,7 +22,8 @@ class JavacPluginTest {
             "",
             "public class TestSample {",
             "",
-            "  String field;",
+            "  String field1;",
+            "  final String field2;",
             "",
             "  public void sampleMethod(String parameter) {",
             "    String s = parameter;",
@@ -35,10 +36,10 @@ class JavacPluginTest {
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
         assertThat(result.additionalOutput, containsString("immutable by default summary:"));
-        assertThat(result.additionalOutput, containsString("| var type  | inspected   | final   | skipped |"));
-        assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|"));
-        assertThat(result.additionalOutput, containsString("| field     |           1 | 100.00% |   0.00% |"));
-        assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |"));
-        assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |"));
+        assertThat(result.additionalOutput, containsString("| var type  | inspected   | final   | skipped | annotated |"));
+        assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));
+        assertThat(result.additionalOutput, containsString("| field     |           2 |  50.00% |  50.00% |     0.00% |"));
+        assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |     0.00% |"));
+        assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |     0.00% |"));
     }
 }

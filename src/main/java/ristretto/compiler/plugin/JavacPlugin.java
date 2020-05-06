@@ -64,36 +64,39 @@ public final class JavacPlugin implements Plugin {
             }
 
             log.notice("immutable by default summary:");
-            log.notice("| var type  | inspected   | final   | skipped |");
-            log.notice("|-----------|-------------|---------|---------|");
-            log.notice(formatMetrics(
-                VariableScope.CLASS,
-                "| field     | %,11d | %6.2f%% | %6.2f%% |",
-                "| field     |           0 |       - |       - |"
-            ));
-            log.notice(formatMetrics(
-                VariableScope.BLOCK,
-                "| local     | %,11d | %6.2f%% | %6.2f%% |",
-                "| local     |           0 |       - |       - |"
-            ));
-            log.notice(formatMetrics(
-                VariableScope.METHOD,
-                "| parameter | %,11d | %6.2f%% | %6.2f%% |",
-                "| parameter |           0 |       - |       - |"
-            ));
+            log.notice("| var type  | inspected   | final   | skipped | annotated |");
+            log.notice("|-----------|-------------|---------|---------|-----------|");
+            log.notice(formatMetrics(VariableScope.CLASS));
+            log.notice(formatMetrics(VariableScope.BLOCK));
+            log.notice(formatMetrics(VariableScope.METHOD));
         }
 
-        private String formatMetrics(VariableScope scope, String whenPresent, String whenAbsent) {
+        private String formatMetrics(VariableScope scope) {
             return collector.calculate(scope)
                 .map(metrics ->
                     String.format(
-                        whenPresent,
+                        "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
+                        describe(scope),
                         metrics.inspectedCount,
                         metrics.finalModifierAddedPercentage,
+                        metrics.finalModifierAlreadyPresentPercentage,
                         metrics.annotatedAsMutablePercentage
                     )
                 )
-                .orElse(whenAbsent);
+                .orElse("| %-9s |           0 |       - |       - |         - |");
+        }
+
+        private static String describe(VariableScope scope) {
+            switch (scope) {
+                case CLASS:
+                    return "field";
+                case BLOCK:
+                    return "local";
+                case METHOD:
+                    return "parameter";
+                default:
+                    throw new AssertionError("unknown scope " + scope);
+            }
         }
     }
 
