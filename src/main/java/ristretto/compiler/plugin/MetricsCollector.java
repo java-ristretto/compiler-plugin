@@ -13,8 +13,8 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final Map<VariableScope, AtomicInteger> markedAsFinalCount = new HashMap<>();
-    private final Map<VariableScope, AtomicInteger> skippedCount = new HashMap<>();
+    private final Map<VariableScope, AtomicInteger> finalModifierAddedCount = new HashMap<>();
+    private final Map<VariableScope, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
 
     private MetricsCollector() {
     }
@@ -43,33 +43,33 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
     }
 
     Optional<Metrics> calculate(VariableScope scope) {
-        return Metrics.calculate(count(markedAsFinalCount, scope), count(skippedCount, scope));
+        return Metrics.calculate(count(finalModifierAddedCount, scope), count(annotatedAsMutableCount, scope));
     }
 
     @Override
-    public void markedAsFinal(VariableScope scope) {
-        increment(markedAsFinalCount, scope);
+    public void finalModifierAdded(VariableScope scope) {
+        increment(finalModifierAddedCount, scope);
     }
 
     @Override
-    public void skipped(VariableScope scope) {
-        increment(skippedCount, scope);
+    public void annotatedAsMutable(VariableScope scope) {
+        increment(annotatedAsMutableCount, scope);
     }
 
     static final class Metrics {
 
         final int inspectedCount;
-        final BigDecimal markedAsFinalPercentage;
-        final BigDecimal skippedPercentage;
+        final BigDecimal finalModifierAddedPercentage;
+        final BigDecimal annotatedAsMutablePercentage;
 
-        private Metrics(int inspectedCount, BigDecimal markedAsFinalPercentage, BigDecimal skippedPercentage) {
+        private Metrics(int inspectedCount, BigDecimal finalModifierAddedPercentage, BigDecimal annotatedAsMutablePercentage) {
             this.inspectedCount = inspectedCount;
-            this.markedAsFinalPercentage = markedAsFinalPercentage;
-            this.skippedPercentage = skippedPercentage;
+            this.finalModifierAddedPercentage = finalModifierAddedPercentage;
+            this.annotatedAsMutablePercentage = annotatedAsMutablePercentage;
         }
 
-        private static Optional<Metrics> calculate(int markedAsFinal, int skipped) {
-            int inspected = markedAsFinal + skipped;
+        private static Optional<Metrics> calculate(int finalModifierAdded, int annotatedAsMutable) {
+            int inspected = finalModifierAdded + annotatedAsMutable;
 
             if (inspected == 0) {
                 return Optional.empty();
@@ -77,8 +77,8 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
 
             return Optional.of(new Metrics(
                 inspected,
-                percentage(markedAsFinal, inspected),
-                percentage(skipped, inspected)
+                percentage(finalModifierAdded, inspected),
+                percentage(annotatedAsMutable, inspected)
             ));
         }
     }

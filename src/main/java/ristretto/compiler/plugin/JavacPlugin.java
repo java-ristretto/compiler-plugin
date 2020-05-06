@@ -89,8 +89,8 @@ public final class JavacPlugin implements Plugin {
                     String.format(
                         whenPresent,
                         metrics.inspectedCount,
-                        metrics.markedAsFinalPercentage,
-                        metrics.skippedPercentage
+                        metrics.finalModifierAddedPercentage,
+                        metrics.annotatedAsMutablePercentage
                     )
                 )
                 .orElse(whenAbsent);

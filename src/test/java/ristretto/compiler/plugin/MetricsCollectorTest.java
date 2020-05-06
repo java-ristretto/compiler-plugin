@@ -25,15 +25,15 @@ class MetricsCollectorTest {
 
     @Test
     void calculates_parameter_metrics_when_available() {
-        collector.markedAsFinal(VariableFinalModifier.VariableScope.METHOD);
-        collector.skipped(VariableFinalModifier.VariableScope.METHOD);
-        collector.skipped(VariableFinalModifier.VariableScope.METHOD);
-        collector.skipped(VariableFinalModifier.VariableScope.METHOD);
+        collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
+        collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
+        collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
+        collector.annotatedAsMutable(VariableFinalModifier.VariableScope.METHOD);
 
         var metrics = collector.calculate(VariableFinalModifier.VariableScope.METHOD).orElseThrow();
 
         assertThat(metrics.inspectedCount, is(4));
-        assertThat(metrics.markedAsFinalPercentage, is(new BigDecimal("25.00")));
-        assertThat(metrics.skippedPercentage, is(new BigDecimal("75.00")));
+        assertThat(metrics.finalModifierAddedPercentage, is(new BigDecimal("25.00")));
+        assertThat(metrics.annotatedAsMutablePercentage, is(new BigDecimal("75.00")));
     }
 }

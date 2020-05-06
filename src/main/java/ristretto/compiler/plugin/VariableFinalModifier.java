@@ -61,12 +61,12 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
         }
 
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
-            observer.skipped(scope);
+            observer.annotatedAsMutable(scope);
             return super.visitVariable(variable, scope);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        observer.markedAsFinal(scope);
+        observer.finalModifierAdded(scope);
         return super.visitVariable(variable, scope);
     }
 
@@ -75,7 +75,7 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
     }
 
     interface Observer {
-        void markedAsFinal(VariableScope scope);
-        void skipped(VariableScope scope);
+        void finalModifierAdded(VariableScope scope);
+        void annotatedAsMutable(VariableScope scope);
     }
 }
