@@ -12,9 +12,9 @@ class QualifiedNameTest {
 
     @Test
     void can_be_used_as_key() {
-        var packageName = PackageName.of("some.package");
-        var simpleName = SimpleName.of("ClassName");
-        var anotherSimpleName = SimpleName.of("AnotherClassName");
+        var packageName = new PackageName("some.package");
+        var simpleName = new SimpleName("ClassName");
+        var anotherSimpleName = new SimpleName("AnotherClassName");
 
         Map<QualifiedName, String> map = Map.of(packageName.qualify(simpleName), "value");
 

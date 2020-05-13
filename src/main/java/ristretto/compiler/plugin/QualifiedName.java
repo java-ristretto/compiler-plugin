@@ -13,7 +13,7 @@ final class QualifiedName implements ClassReference {
     }
 
     static QualifiedName of(Class<?> aClass) {
-        return new QualifiedName(PackageName.of(aClass), SimpleName.of(aClass));
+        return new QualifiedName(new PackageName(aClass), new SimpleName(aClass));
     }
 
     PackageName packageName() {

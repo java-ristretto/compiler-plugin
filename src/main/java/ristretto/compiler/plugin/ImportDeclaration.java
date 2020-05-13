@@ -22,9 +22,9 @@ final class ImportDeclaration {
         String simpleName = declaration.substring(separatorIndex + 1);
 
         if ("*".equals(simpleName)) {
-            return new ImportDeclaration(PackageName.of(packageName), Optional.empty());
+            return new ImportDeclaration(new PackageName(packageName), Optional.empty());
         }
-        return new ImportDeclaration(PackageName.of(packageName), Optional.of(SimpleName.of(simpleName)));
+        return new ImportDeclaration(new PackageName(packageName), Optional.of(new SimpleName(simpleName)));
     }
 
     PackageName packageName() {

@@ -21,7 +21,7 @@ class ClassReferenceTest {
 
         @Test
         void parses_class_reference_into_qualified_name() {
-            assertThat(classReference, is(new QualifiedName(PackageName.of("some.package"), SimpleName.of("ClassName"))));
+            assertThat(classReference, is(new QualifiedName(new PackageName("some.package"), new SimpleName("ClassName"))));
         }
     }
 
@@ -35,7 +35,7 @@ class ClassReferenceTest {
 
         @Test
         void parses_class_reference_into_simple_name() {
-            assertThat(classReference, is(SimpleName.of("ClassName")));
+            assertThat(classReference, is(new SimpleName("ClassName")));
         }
     }
 }

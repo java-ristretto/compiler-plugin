@@ -24,7 +24,7 @@ class ImportDeclarationTest {
 
         @Test
         void has_package_name() {
-            assertThat(importDeclaration.packageName(), is(PackageName.of("some.package")));
+            assertThat(importDeclaration.packageName(), is(new PackageName("some.package")));
         }
 
         @Test
@@ -43,7 +43,7 @@ class ImportDeclarationTest {
 
         @Test
         void has_package_name() {
-            assertThat(importDeclaration.packageName(), is(PackageName.of("some.package")));
+            assertThat(importDeclaration.packageName(), is(new PackageName("some.package")));
         }
 
         @Test

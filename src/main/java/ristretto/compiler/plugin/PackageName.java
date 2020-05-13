@@ -2,19 +2,15 @@ package ristretto.compiler.plugin;
 
 final class PackageName extends StringTypeAlias {
 
-    private PackageName(String name) {
+    PackageName(String name) {
         super(name);
+    }
+
+    PackageName(Class<?> aClass) {
+        this(aClass.getPackageName());
     }
 
     QualifiedName qualify(SimpleName simpleName) {
         return new QualifiedName(this, simpleName);
-    }
-
-    static PackageName of(Class<?> aClass) {
-        return of(aClass.getPackageName());
-    }
-
-    static PackageName of(String name) {
-        return new PackageName(name);
     }
 }
