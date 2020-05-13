@@ -49,7 +49,7 @@ final class TestCompiler {
             additionalOutput,
             fileManager,
             diagnosticCollector,
-            List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME),
+            List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME + " --output=stderr"),
             null,
             List.of(sourceCode)
         );

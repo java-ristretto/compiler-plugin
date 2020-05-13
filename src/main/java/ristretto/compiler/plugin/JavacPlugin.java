@@ -6,8 +6,8 @@ import com.sun.source.util.Plugin;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.BasicJavacTask;
+import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
-import ristretto.compiler.plugin.VariableFinalModifier.VariableScope;
 
 public final class JavacPlugin implements Plugin {
 
@@ -20,21 +20,27 @@ public final class JavacPlugin implements Plugin {
 
     @Override
     public void init(JavacTask task, String... args) {
-        LogWrapper log = new LogWrapper(Log.instance(((BasicJavacTask) task).getContext()));
-        MetricsCollector metrics = MetricsCollector.newCollector();
+        DiagnosticsReport diagnosticsReport;
 
-        task.addTaskListener(new OnParseFinished(metrics));
-        task.addTaskListener(new OnCompilationFinished(metrics, log));
+        if (args.length > 0 && "--output=stderr".equals(args[0])) {
+            Context context = ((BasicJavacTask) task).getContext();
+            diagnosticsReport = new DiagnosticsReport(RistrettoLogger.stderr(Log.instance(context)));
+        } else {
+            diagnosticsReport = new DiagnosticsReport(RistrettoLogger.javaUtilLogging());
+        }
 
-        log.notice(String.format("%s plugin loaded", NAME));
+        task.addTaskListener(new OnParseFinished(diagnosticsReport));
+        task.addTaskListener(new OnCompilationFinished(diagnosticsReport));
+
+        diagnosticsReport.pluginLoaded();
     }
 
     private static final class OnParseFinished implements TaskListener {
 
-        final MetricsCollector collector;
+        final DiagnosticsReport report;
 
-        OnParseFinished(MetricsCollector collector) {
-            this.collector = collector;
+        OnParseFinished(DiagnosticsReport report) {
+            this.report = report;
         }
 
         @Override
@@ -43,18 +49,16 @@ public final class JavacPlugin implements Plugin {
                 return;
             }
             CompilationUnitTree compilationUnit = event.getCompilationUnit();
-            compilationUnit.accept(VariableFinalModifier.newInstance(collector), null);
+            compilationUnit.accept(new VariableFinalModifier(report.withJavaFile(compilationUnit.getSourceFile())), null);
         }
     }
 
     private static final class OnCompilationFinished implements TaskListener {
 
-        final MetricsCollector collector;
-        final LogWrapper log;
+        final DiagnosticsReport report;
 
-        OnCompilationFinished(MetricsCollector collector, LogWrapper log) {
-            this.collector = collector;
-            this.log = log;
+        OnCompilationFinished(DiagnosticsReport report) {
+            this.report = report;
         }
 
         @Override
@@ -62,54 +66,7 @@ public final class JavacPlugin implements Plugin {
             if (!TaskEvent.Kind.COMPILATION.equals(event.getKind())) {
                 return;
             }
-
-            log.notice("immutable by default summary:");
-            log.notice("| var type  | inspected   | final   | skipped | annotated |");
-            log.notice("|-----------|-------------|---------|---------|-----------|");
-            log.notice(formatMetrics(VariableScope.CLASS));
-            log.notice(formatMetrics(VariableScope.BLOCK));
-            log.notice(formatMetrics(VariableScope.METHOD));
-        }
-
-        private String formatMetrics(VariableScope scope) {
-            return collector.calculate(scope)
-                .map(metrics ->
-                    String.format(
-                        "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
-                        describe(scope),
-                        metrics.inspectedCount,
-                        metrics.finalModifierAddedPercentage,
-                        metrics.finalModifierAlreadyPresentPercentage,
-                        metrics.annotatedAsMutablePercentage
-                    )
-                )
-                .orElse("| %-9s |           0 |       - |       - |         - |");
-        }
-
-        private static String describe(VariableScope scope) {
-            switch (scope) {
-                case CLASS:
-                    return "field";
-                case BLOCK:
-                    return "local";
-                case METHOD:
-                    return "parameter";
-                default:
-                    throw new AssertionError("unknown scope " + scope);
-            }
-        }
-    }
-
-    private static final class LogWrapper {
-
-        final Log log;
-
-        private LogWrapper(Log log) {
-            this.log = log;
-        }
-
-        void notice(String msg) {
-            log.printRawLines(Log.WriterKind.NOTICE, msg);
+            report.pluginFinished();
         }
     }
 }

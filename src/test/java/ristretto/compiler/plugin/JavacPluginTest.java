@@ -35,6 +35,7 @@ class JavacPluginTest {
         var result = compiler.compile(anEmptyClass);
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
+        assertThat(result.additionalOutput, containsString("/test/TestSample.java:7 variable field2 has unnecessary final modifier"));
         assertThat(result.additionalOutput, containsString("immutable by default summary:"));
         assertThat(result.additionalOutput, containsString("| var type  | inspected   | final   | skipped | annotated |"));
         assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));

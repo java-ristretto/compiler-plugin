@@ -15,7 +15,7 @@ class MetricsCollectorTest {
 
     @BeforeEach
     void beforeEach() {
-        collector = MetricsCollector.newCollector();
+        collector = new MetricsCollector();
     }
 
     @Test

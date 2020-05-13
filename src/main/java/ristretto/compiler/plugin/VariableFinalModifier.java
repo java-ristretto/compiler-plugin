@@ -14,13 +14,9 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
     private final AnnotationNameResolver resolver;
     private final Observer observer;
 
-    private VariableFinalModifier(AnnotationNameResolver resolver, Observer observer) {
-        this.resolver = resolver;
+    VariableFinalModifier(Observer observer) {
+        this.resolver = new AnnotationNameResolver();
         this.observer = observer;
-    }
-
-    static VariableFinalModifier newInstance(Observer observer) {
-        return new VariableFinalModifier(AnnotationNameResolver.newResolver(), observer);
     }
 
     @Override
@@ -66,7 +62,7 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            observer.finalModifierAlreadyPresent(scope);
+            observer.finalModifierAlreadyPresent(variable, scope);
             return super.visitVariable(variable, scope);
         }
 
@@ -81,7 +77,7 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
 
     interface Observer {
         void finalModifierAdded(VariableScope scope);
-        void finalModifierAlreadyPresent(VariableScope scope);
+        void finalModifierAlreadyPresent(VariableTree variable, VariableScope scope);
         void annotatedAsMutable(VariableScope scope);
     }
 }

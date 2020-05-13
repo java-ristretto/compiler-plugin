@@ -20,13 +20,6 @@ final class AnnotationNameResolver {
 
     private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
 
-    private AnnotationNameResolver() {
-    }
-
-    static AnnotationNameResolver newResolver() {
-        return new AnnotationNameResolver();
-    }
-
     void importClass(String importDeclaration) {
         importClass(ImportDeclaration.parse(importDeclaration));
     }

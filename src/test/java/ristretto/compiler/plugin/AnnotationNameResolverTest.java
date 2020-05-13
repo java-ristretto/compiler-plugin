@@ -14,7 +14,7 @@ public class AnnotationNameResolverTest {
 
     @BeforeEach
     void beforeEach() {
-        resolver = AnnotationNameResolver.newResolver();
+        resolver = new AnnotationNameResolver();
     }
 
     @Nested

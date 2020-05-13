@@ -9,20 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class MetricsCollector implements VariableFinalModifier.Observer {
+final class MetricsCollector {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     private final Map<VariableScope, AtomicInteger> finalModifierAddedCount = new HashMap<>();
     private final Map<VariableScope, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
     private final Map<VariableScope, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
-
-    private MetricsCollector() {
-    }
-
-    static MetricsCollector newCollector() {
-        return new MetricsCollector();
-    }
 
     private static int count(Map<VariableScope, AtomicInteger> countByScope, VariableScope scope) {
         AtomicInteger count = countByScope.get(scope);
@@ -51,18 +44,15 @@ final class MetricsCollector implements VariableFinalModifier.Observer {
         );
     }
 
-    @Override
-    public void finalModifierAdded(VariableScope scope) {
+    void finalModifierAdded(VariableScope scope) {
         increment(finalModifierAddedCount, scope);
     }
 
-    @Override
-    public void annotatedAsMutable(VariableScope scope) {
+    void annotatedAsMutable(VariableScope scope) {
         increment(annotatedAsMutableCount, scope);
     }
 
-    @Override
-    public void finalModifierAlreadyPresent(VariableScope scope) {
+    void finalModifierAlreadyPresent(VariableScope scope) {
         increment(finalModifierAlreadyPresentCount, scope);
     }
 
