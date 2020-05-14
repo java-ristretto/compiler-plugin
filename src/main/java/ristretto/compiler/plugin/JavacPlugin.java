@@ -20,9 +20,10 @@ public final class JavacPlugin implements Plugin {
 
     @Override
     public void init(JavacTask task, String... args) {
+        RistrettoOptions options = RistrettoOptions.parse(args);
         DiagnosticsReport diagnosticsReport;
 
-        if (args.length > 0 && "--output=stderr".equals(args[0])) {
+        if (options.isStandardErrorOutputEnabled()) {
             Context context = ((BasicJavacTask) task).getContext();
             diagnosticsReport = new DiagnosticsReport(RistrettoLogger.stderr(Log.instance(context)));
         } else {
