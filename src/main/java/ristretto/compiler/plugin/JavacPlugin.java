@@ -4,10 +4,11 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
 import com.sun.source.util.TaskEvent;
-import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
+
+import static ristretto.compiler.plugin.TaskListeners.whenEventKindIs;
 
 public final class JavacPlugin implements Plugin {
 
@@ -30,44 +31,20 @@ public final class JavacPlugin implements Plugin {
             diagnosticsReport = new DiagnosticsReport(RistrettoLogger.javaUtilLogging());
         }
 
-        task.addTaskListener(new OnParseFinished(diagnosticsReport));
-        task.addTaskListener(new OnCompilationFinished(diagnosticsReport));
+        task.addTaskListener(TaskListeners.onFinished(
+            whenEventKindIs(TaskEvent.Kind.PARSE),
+            event -> {
+                CompilationUnitTree compilationUnit = event.getCompilationUnit();
+                DiagnosticsReport report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
+                compilationUnit.accept(new VariableFinalModifier(report), null);
+            }
+        ));
+
+        task.addTaskListener(TaskListeners.onFinished(
+            whenEventKindIs(TaskEvent.Kind.COMPILATION),
+            diagnosticsReport::pluginFinished
+        ));
 
         diagnosticsReport.pluginLoaded();
-    }
-
-    private static final class OnParseFinished implements TaskListener {
-
-        final DiagnosticsReport report;
-
-        OnParseFinished(DiagnosticsReport report) {
-            this.report = report;
-        }
-
-        @Override
-        public void finished(TaskEvent event) {
-            if (!TaskEvent.Kind.PARSE.equals(event.getKind())) {
-                return;
-            }
-            CompilationUnitTree compilationUnit = event.getCompilationUnit();
-            compilationUnit.accept(new VariableFinalModifier(report.withJavaFile(compilationUnit.getSourceFile())), null);
-        }
-    }
-
-    private static final class OnCompilationFinished implements TaskListener {
-
-        final DiagnosticsReport report;
-
-        OnCompilationFinished(DiagnosticsReport report) {
-            this.report = report;
-        }
-
-        @Override
-        public void finished(TaskEvent event) {
-            if (!TaskEvent.Kind.COMPILATION.equals(event.getKind())) {
-                return;
-            }
-            report.pluginFinished();
-        }
     }
 }
