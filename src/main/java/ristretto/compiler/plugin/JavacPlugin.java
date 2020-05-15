@@ -9,6 +9,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 
 import static ristretto.compiler.plugin.TaskListeners.whenEventKindIs;
+import static ristretto.compiler.plugin.TaskListeners.whenPackageName;
 
 public final class JavacPlugin implements Plugin {
 
@@ -32,7 +33,7 @@ public final class JavacPlugin implements Plugin {
         }
 
         task.addTaskListener(TaskListeners.onFinished(
-            whenEventKindIs(TaskEvent.Kind.PARSE),
+            whenEventKindIs(TaskEvent.Kind.PARSE).and(whenPackageName(options::isIncluded)),
             event -> {
                 CompilationUnitTree compilationUnit = event.getCompilationUnit();
                 DiagnosticsReport report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());

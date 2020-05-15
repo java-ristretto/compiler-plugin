@@ -16,10 +16,12 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.tools.JavaFileObject.Kind.SOURCE;
 
@@ -35,7 +37,7 @@ final class TestCompiler {
         return new TestCompiler();
     }
 
-    Result compile(SourceCode sourceCode) {
+    Result compile(SourceCode sourceCode, String... pluginArgs) {
         DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
         Writer additionalOutput = new StringWriter();
 
@@ -49,7 +51,7 @@ final class TestCompiler {
             additionalOutput,
             fileManager,
             diagnosticCollector,
-            List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME + " --output=stderr"),
+            List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME + " --output=stderr " + String.join(" ", pluginArgs)),
             null,
             List.of(sourceCode)
         );

@@ -20,4 +20,13 @@ class RistrettoOptionsTest {
 
         assertThat(options.isStandardErrorOutputEnabled(), is(false));
     }
+
+    @Test
+    void indicates_when_packages_are_included() {
+        RistrettoOptions options = RistrettoOptions.parse("--ignore-packages=some.package.name1,some.package.name2");
+
+        assertThat(options.isIncluded(new PackageName("some.package.name1")), is(false));
+        assertThat(options.isIncluded(new PackageName("some.package.name2")), is(false));
+        assertThat(options.isIncluded(new PackageName("some.package.name3")), is(true));
+    }
 }

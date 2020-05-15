@@ -37,4 +37,7 @@ final class TaskListeners {
         return event -> kind.equals(event.getKind());
     }
 
+    static Predicate<TaskEvent> whenPackageName(Predicate<PackageName> predicate) {
+        return event -> predicate.test(new PackageName(event.getCompilationUnit()));
+    }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 class JavacPluginTest {
 
@@ -42,5 +43,28 @@ class JavacPluginTest {
         assertThat(result.additionalOutput, containsString("| field     |           2 |  50.00% |  50.00% |     0.00% |"));
         assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |     0.00% |"));
         assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |     0.00% |"));
+    }
+
+    @Test
+    void ignores_specified_package() {
+        var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "",
+            "  public static String test(String parameter) {",
+            "    parameter += \":value\";",
+            "    return parameter;",
+            "  }",
+            "",
+            "}"
+        );
+
+        var result = compiler
+            .compile(anEmptyClass, "--ignore-packages=ristretto.test")
+            .loadClass("ristretto.test.TestSample")
+            .invoke("test", "value");
+
+        assertThat(result, is("value:value"));
     }
 }

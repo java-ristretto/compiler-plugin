@@ -1,5 +1,7 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.CompilationUnitTree;
+
 final class PackageName extends StringTypeAlias {
 
     PackageName(String name) {
@@ -8,6 +10,10 @@ final class PackageName extends StringTypeAlias {
 
     PackageName(Class<?> aClass) {
         this(aClass.getPackageName());
+    }
+
+    PackageName(CompilationUnitTree compilationUnit) {
+        this(compilationUnit.getPackageName().toString());
     }
 
     QualifiedName qualify(SimpleName simpleName) {
