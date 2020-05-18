@@ -35,12 +35,12 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
 
     @Override
     public void finalModifierAdded(VariableFinalModifier.VariableScope scope) {
-        metrics.finalModifierAdded(scope);
+        metrics.finalModifierAdded(toVariableType(scope));
     }
 
     @Override
     public void finalModifierAlreadyPresent(VariableTree variable, VariableFinalModifier.VariableScope scope) {
-        metrics.finalModifierAlreadyPresent(scope);
+        metrics.finalModifierAlreadyPresent(toVariableType(scope));
 
         logger.diagnostic(
             String.format(
@@ -67,24 +67,24 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
 
     @Override
     public void annotatedAsMutable(VariableFinalModifier.VariableScope scope) {
-        metrics.annotatedAsMutable(scope);
+        metrics.annotatedAsMutable(toVariableType(scope));
     }
 
     void pluginFinished() {
         logger.summary("immutable by default summary:");
         logger.summary("| var type  | inspected   | final   | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(VariableFinalModifier.VariableScope.CLASS)); // TODO: count VariableScope.ENUM
-        logger.summary(formatMetrics(VariableFinalModifier.VariableScope.BLOCK));
-        logger.summary(formatMetrics(VariableFinalModifier.VariableScope.METHOD));
+        logger.summary(formatMetrics(MetricsCollector.VariableType.FIELD));
+        logger.summary(formatMetrics(MetricsCollector.VariableType.LOCAL));
+        logger.summary(formatMetrics(MetricsCollector.VariableType.PARAMETER));
     }
 
-    private String formatMetrics(VariableFinalModifier.VariableScope scope) {
-        return metrics.calculate(scope)
+    private String formatMetrics(MetricsCollector.VariableType type) {
+        return metrics.calculate(type)
             .map(metricsForScope ->
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
-                    describe(scope),
+                    type.name().toLowerCase(),
                     metricsForScope.inspectedCount,
                     metricsForScope.finalModifierAddedPercentage,
                     metricsForScope.finalModifierAlreadyPresentPercentage,
@@ -94,16 +94,17 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
             .orElse("| %-9s |           0 |       - |       - |         - |");
     }
 
-    private static String describe(VariableFinalModifier.VariableScope scope) {
+    private static MetricsCollector.VariableType toVariableType(VariableFinalModifier.VariableScope scope) {
         switch (scope) {
-            case CLASS:
-                return "field";
             case BLOCK:
-                return "local";
+                return MetricsCollector.VariableType.LOCAL;
+            case CLASS:
+            case ENUM:
+                return MetricsCollector.VariableType.FIELD;
             case METHOD:
-                return "parameter";
+                return MetricsCollector.VariableType.PARAMETER;
             default:
-                throw new AssertionError("unexpected scope " + scope);
+                throw new AssertionError("cannot handle variable scope " + scope);
         }
     }
 }

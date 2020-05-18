@@ -1,7 +1,5 @@
 package ristretto.compiler.plugin;
 
-import ristretto.compiler.plugin.VariableFinalModifier.VariableScope;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -13,20 +11,20 @@ final class MetricsCollector {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final Map<VariableScope, AtomicInteger> finalModifierAddedCount = new HashMap<>();
-    private final Map<VariableScope, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
-    private final Map<VariableScope, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
+    private final Map<VariableType, AtomicInteger> finalModifierAddedCount = new HashMap<>();
+    private final Map<VariableType, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
+    private final Map<VariableType, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
 
-    private static int count(Map<VariableScope, AtomicInteger> countByScope, VariableScope scope) {
-        AtomicInteger count = countByScope.get(scope);
+    private static <T> int count(Map<T, AtomicInteger> countByScope, T key) {
+        AtomicInteger count = countByScope.get(key);
         if (count == null) {
             return 0;
         }
         return count.get();
     }
 
-    private static void increment(Map<VariableScope, AtomicInteger> countByScope, VariableScope scope) {
-        countByScope.computeIfAbsent(scope, newScope -> new AtomicInteger(0)).incrementAndGet();
+    private static <T> void increment(Map<T, AtomicInteger> countByScope, T key) {
+        countByScope.computeIfAbsent(key, newScope -> new AtomicInteger(0)).incrementAndGet();
     }
 
     private static BigDecimal percentage(int count, int total) {
@@ -36,24 +34,28 @@ final class MetricsCollector {
             .setScale(2, RoundingMode.FLOOR);
     }
 
-    Optional<Metrics> calculate(VariableScope scope) {
+    Optional<Metrics> calculate(VariableType type) {
         return Metrics.calculate(
-            count(finalModifierAddedCount, scope),
-            count(annotatedAsMutableCount, scope),
-            count(finalModifierAlreadyPresentCount, scope)
+            count(finalModifierAddedCount, type),
+            count(annotatedAsMutableCount, type),
+            count(finalModifierAlreadyPresentCount, type)
         );
     }
 
-    void finalModifierAdded(VariableScope scope) {
-        increment(finalModifierAddedCount, scope);
+    void finalModifierAdded(VariableType type) {
+        increment(finalModifierAddedCount, type);
     }
 
-    void annotatedAsMutable(VariableScope scope) {
-        increment(annotatedAsMutableCount, scope);
+    void annotatedAsMutable(VariableType type) {
+        increment(annotatedAsMutableCount, type);
     }
 
-    void finalModifierAlreadyPresent(VariableScope scope) {
-        increment(finalModifierAlreadyPresentCount, scope);
+    void finalModifierAlreadyPresent(VariableType type) {
+        increment(finalModifierAlreadyPresentCount, type);
+    }
+
+    enum VariableType {
+        LOCAL, FIELD, PARAMETER
     }
 
     static final class Metrics {
