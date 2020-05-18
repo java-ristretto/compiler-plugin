@@ -74,7 +74,7 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
         logger.summary("immutable by default summary:");
         logger.summary("| var type  | inspected   | final   | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(VariableFinalModifier.VariableScope.CLASS));
+        logger.summary(formatMetrics(VariableFinalModifier.VariableScope.CLASS)); // TODO: count VariableScope.ENUM
         logger.summary(formatMetrics(VariableFinalModifier.VariableScope.BLOCK));
         logger.summary(formatMetrics(VariableFinalModifier.VariableScope.METHOD));
     }

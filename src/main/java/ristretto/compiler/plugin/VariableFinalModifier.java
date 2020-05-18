@@ -6,6 +6,7 @@ import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
@@ -27,6 +28,9 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
 
     @Override
     public Void visitClass(ClassTree aClass, VariableScope scope) {
+        if (aClass.getKind().equals(Tree.Kind.ENUM)) {
+            return super.visitClass(aClass, VariableScope.ENUM);
+        }
         return super.visitClass(aClass, VariableScope.CLASS);
     }
 
@@ -62,7 +66,9 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            observer.finalModifierAlreadyPresent(variable, scope);
+            if (!VariableScope.ENUM.equals(scope) || !JCTreeCatalog.hasStaticModifier(variable)) {
+                observer.finalModifierAlreadyPresent(variable, scope);
+            }
             return super.visitVariable(variable, scope);
         }
 
@@ -72,7 +78,7 @@ final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifie
     }
 
     enum VariableScope {
-        BLOCK, CLASS, METHOD, FOR_LOOP
+        BLOCK, CLASS, METHOD, ENUM, FOR_LOOP
     }
 
     interface Observer {

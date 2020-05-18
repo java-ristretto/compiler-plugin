@@ -11,6 +11,8 @@ import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
+import javax.lang.model.element.Modifier;
+
 final class JCTreeCatalog {
 
     private final TreeMaker maker;
@@ -53,9 +55,12 @@ final class JCTreeCatalog {
         return !JCTree.Kind.PRIMITIVE_TYPE.equals(parameter.getType().getKind());
     }
 
-    static boolean hasFinalModifier(VariableTree parameter) {
-        JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) parameter).mods;
-        return (modifiers.flags & Flags.FINAL) != 0;
+    static boolean hasFinalModifier(VariableTree variable) {
+        return variable.getModifiers().getFlags().contains(Modifier.FINAL);
+    }
+
+    static boolean hasStaticModifier(VariableTree variable) {
+        return variable.getModifiers().getFlags().contains(Modifier.STATIC);
     }
 
     static void addFinalModifier(VariableTree parameter) {

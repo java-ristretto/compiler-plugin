@@ -14,7 +14,7 @@ class LocalVariableFinalModifierTest {
 
     @BeforeEach
     void beforeEach() {
-        compiler = TestCompiler.newInstance();
+        compiler = new TestCompiler();
     }
 
     @Test

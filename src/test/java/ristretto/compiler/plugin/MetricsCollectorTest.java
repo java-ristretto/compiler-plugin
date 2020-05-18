@@ -24,7 +24,7 @@ class MetricsCollectorTest {
     }
 
     @Test
-    void calculates_parameter_metrics_when_available() {
+    void calculates_metrics_when_available() {
         collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
         collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);
         collector.finalModifierAdded(VariableFinalModifier.VariableScope.METHOD);

@@ -14,7 +14,7 @@ class MethodParameterFinalModifierTest {
 
     @BeforeEach
     void beforeEach() {
-        compiler = TestCompiler.newInstance();
+        compiler = new TestCompiler();
     }
 
     @Test
