@@ -37,7 +37,7 @@ public final class JavacPlugin implements Plugin {
             event -> {
                 CompilationUnitTree compilationUnit = event.getCompilationUnit();
                 DiagnosticsReport report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
-                compilationUnit.accept(new VariableFinalModifier(report), null);
+                compilationUnit.accept(new DefaultImmutabilityRule(report), null);
             }
         ));
 

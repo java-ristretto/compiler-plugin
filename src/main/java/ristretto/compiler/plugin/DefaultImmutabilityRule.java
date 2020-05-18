@@ -10,12 +10,12 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-final class VariableFinalModifier extends TreeScanner<Void, VariableFinalModifier.VariableScope> {
+final class DefaultImmutabilityRule extends TreeScanner<Void, DefaultImmutabilityRule.VariableScope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
 
-    VariableFinalModifier(Observer observer) {
+    DefaultImmutabilityRule(Observer observer) {
         this.resolver = new AnnotationNameResolver();
         this.observer = observer;
     }

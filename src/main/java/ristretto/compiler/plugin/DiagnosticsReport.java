@@ -9,7 +9,7 @@ import javax.tools.JavaFileObject;
 import java.net.URI;
 import java.util.Optional;
 
-final class DiagnosticsReport implements VariableFinalModifier.Observer {
+final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
 
     private final MetricsCollector metrics;
     private final RistrettoLogger logger;
@@ -34,12 +34,12 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
     }
 
     @Override
-    public void finalModifierAdded(VariableFinalModifier.VariableScope scope) {
+    public void finalModifierAdded(DefaultImmutabilityRule.VariableScope scope) {
         metrics.finalModifierAdded(toVariableType(scope));
     }
 
     @Override
-    public void finalModifierAlreadyPresent(VariableTree variable, VariableFinalModifier.VariableScope scope) {
+    public void finalModifierAlreadyPresent(VariableTree variable, DefaultImmutabilityRule.VariableScope scope) {
         metrics.finalModifierAlreadyPresent(toVariableType(scope));
 
         logger.diagnostic(
@@ -66,7 +66,7 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
     }
 
     @Override
-    public void annotatedAsMutable(VariableFinalModifier.VariableScope scope) {
+    public void annotatedAsMutable(DefaultImmutabilityRule.VariableScope scope) {
         metrics.annotatedAsMutable(toVariableType(scope));
     }
 
@@ -94,7 +94,7 @@ final class DiagnosticsReport implements VariableFinalModifier.Observer {
             .orElse("| %-9s |           0 |       - |       - |         - |");
     }
 
-    private static MetricsCollector.VariableType toVariableType(VariableFinalModifier.VariableScope scope) {
+    private static MetricsCollector.VariableType toVariableType(DefaultImmutabilityRule.VariableScope scope) {
         switch (scope) {
             case BLOCK:
                 return MetricsCollector.VariableType.LOCAL;

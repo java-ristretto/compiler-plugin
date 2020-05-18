@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-class FieldFinalModifierTest {
+class ImmutableFieldTest {
 
     private TestCompiler compiler;
 
