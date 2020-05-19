@@ -1,6 +1,5 @@
 package ristretto.compiler.plugin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -8,14 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class ImmutableLocalVariableTest {
-
-    private TestCompiler compiler;
-
-    @BeforeEach
-    void beforeEach() {
-        compiler = new TestCompiler();
-    }
+class ImmutableLocalVariableTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_local_variable_to_be_final() {
@@ -31,7 +23,7 @@ class ImmutableLocalVariableTest {
             "}"
         );
 
-        var result = compiler.compile(code);
+        var result = compile(code);
 
         assertThat(result.diagnostics(), containsString("TestSample.java:7: error: cannot assign a value to final variable name"));
     }
@@ -52,10 +44,7 @@ class ImmutableLocalVariableTest {
             "}"
         );
 
-        var result = compiler
-            .compile(code)
-            .loadClass("ristretto.test.TestSample")
-            .invoke("hello", "world");
+        var result = compile(code).invoke("ristretto.test.TestSample", "hello", "world");
 
         assertThat(result, is("hello world"));
     }
@@ -78,7 +67,7 @@ class ImmutableLocalVariableTest {
             "}"
         );
 
-        var result = compiler.compile(code);
+        var result = compile(code);
 
         assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable msg"));
     }
@@ -102,10 +91,7 @@ class ImmutableLocalVariableTest {
                 "}"
             );
 
-            var result = compiler
-                .compile(code)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("reverse", "hello world");
+            var result = compile(code).invoke("ristretto.test.TestSample", "reverse", "hello world");
 
             assertThat(result, is("dlrow olleh"));
         }
@@ -123,7 +109,7 @@ class ImmutableLocalVariableTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.diagnostics(), containsString("TestSample.java:7: error: variable i might already have been assigned"));
         }
@@ -143,7 +129,7 @@ class ImmutableLocalVariableTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
         }
@@ -168,10 +154,7 @@ class ImmutableLocalVariableTest {
                 "}"
             );
 
-            var result = compiler
-                .compile(code)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("reverse", "hello world");
+            var result = compile(code).invoke("ristretto.test.TestSample", "reverse", "hello world");
 
             assertThat(result, is("dlrow olleh"));
         }
@@ -191,7 +174,7 @@ class ImmutableLocalVariableTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
         }

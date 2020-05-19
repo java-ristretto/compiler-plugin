@@ -1,24 +1,16 @@
 package ristretto.compiler.plugin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class JavacPluginTest {
-
-    private TestCompiler compiler;
-
-    @BeforeEach
-    void beforeEach() {
-        compiler = new TestCompiler();
-    }
+class JavacPluginTest extends JavacPluginBaseTest {
 
     @Test
     void indicates_when_it_is_loaded() {
-        var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -33,7 +25,7 @@ class JavacPluginTest {
             "}"
         );
 
-        var result = compiler.compile(anEmptyClass);
+        var result = compile(code);
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
         assertThat(result.additionalOutput, containsString("/test/TestSample.java:7 variable field2 has unnecessary final modifier"));
@@ -47,7 +39,7 @@ class JavacPluginTest {
 
     @Test
     void ignores_specified_package() {
-        var anEmptyClass = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -60,10 +52,7 @@ class JavacPluginTest {
             "}"
         );
 
-        var result = compiler
-            .compile(anEmptyClass, "--ignore-packages=ristretto.test")
-            .loadClass("ristretto.test.TestSample")
-            .invoke("test", "value");
+        var result = compile(code, "--ignore-packages=ristretto.test").invoke("ristretto.test.TestSample", "test", "value");
 
         assertThat(result, is("value:value"));
     }

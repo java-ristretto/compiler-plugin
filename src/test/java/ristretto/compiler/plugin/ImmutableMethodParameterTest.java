@@ -1,6 +1,5 @@
 package ristretto.compiler.plugin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -8,18 +7,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class ImmutableMethodParameterTest {
-
-    private TestCompiler compiler;
-
-    @BeforeEach
-    void beforeEach() {
-        compiler = new TestCompiler();
-    }
+class ImmutableMethodParameterTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_method_parameters_to_be_final() {
-        var mutableParameter = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -30,7 +22,7 @@ class ImmutableMethodParameterTest {
             "}"
         );
 
-        var result = compiler.compile(mutableParameter);
+        var result = compile(code);
 
         assertThat(result.diagnostics(), containsString("TestSample.java:6: error: final parameter name may not be assigned"));
     }
@@ -40,7 +32,7 @@ class ImmutableMethodParameterTest {
 
         @Test
         void skips_parameter() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -51,10 +43,7 @@ class ImmutableMethodParameterTest {
                 "}"
             );
 
-            String result = compiler
-                .compile(sourceCode)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "world");
+            String result = compile(code).invoke("ristretto.test.TestSample", "hello", "world");
 
             assertThat(result, is("hello world"));
         }
@@ -65,7 +54,7 @@ class ImmutableMethodParameterTest {
 
         @Test
         void skips_parameter() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -78,10 +67,7 @@ class ImmutableMethodParameterTest {
                 "}"
             );
 
-            String result = compiler
-                .compile(sourceCode)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "world");
+            String result = compile(code).invoke("ristretto.test.TestSample", "hello", "world");
 
             assertThat(result, is("hello world"));
         }
@@ -92,7 +78,7 @@ class ImmutableMethodParameterTest {
 
         @Test
         void skips_parameter() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -105,10 +91,7 @@ class ImmutableMethodParameterTest {
                 "}"
             );
 
-            String result = compiler
-                .compile(sourceCode)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "world");
+            String result = compile(code).invoke("ristretto.test.TestSample", "hello", "world");
 
             assertThat(result, is("hello world"));
         }
@@ -119,7 +102,7 @@ class ImmutableMethodParameterTest {
 
         @Test
         void skips_parameter() {
-            var sourceCode = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
                 "package ristretto.test;",
                 "",
                 "import ristretto.*;",
@@ -132,10 +115,7 @@ class ImmutableMethodParameterTest {
                 "}"
             );
 
-            String result = compiler
-                .compile(sourceCode)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "world");
+            String result = compile(code).invoke("ristretto.test.TestSample", "hello", "world");
 
             assertThat(result, is("hello world"));
         }

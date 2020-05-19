@@ -94,7 +94,11 @@ final class TestCompiler {
             return diagnostics.stream().map(Diagnostic::toString).collect(Collectors.joining(System.lineSeparator()));
         }
 
-        public ClassWrapper loadClass(String name) {
+        <T> T invoke(String className, String methodName, String value) {
+            return loadClass(className).invoke(methodName, String.class, value);
+        }
+
+        private ClassWrapper loadClass(String name) {
             try {
                 return new ClassWrapper(classLoader.loadClass(name));
             } catch (ClassNotFoundException e) {
@@ -109,20 +113,12 @@ final class TestCompiler {
         }
     }
 
-    static final class ClassWrapper {
+    private static final class ClassWrapper {
 
         private final Class<?> aClass;
 
         ClassWrapper(Class<?> aClass) {
             this.aClass = aClass;
-        }
-
-        <T> T invoke(String methodName, String value) {
-            return invoke(methodName, String.class, value);
-        }
-
-        <T> T invoke(String methodName, int value) {
-            return invoke(methodName, int.class, value);
         }
 
         @SuppressWarnings("unchecked")

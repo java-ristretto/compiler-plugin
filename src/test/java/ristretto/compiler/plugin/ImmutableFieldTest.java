@@ -1,6 +1,5 @@
 package ristretto.compiler.plugin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -9,14 +8,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-class ImmutableFieldTest {
-
-    private TestCompiler compiler;
-
-    @BeforeEach
-    void beforeEach() {
-        compiler = new TestCompiler();
-    }
+class ImmutableFieldTest extends JavacPluginBaseTest {
 
     @Nested
     class classes {
@@ -42,8 +34,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            TestCompiler.Result result = compiler
-                .compile(code);
+            TestCompiler.Result result = compile(code);
 
             assertThat(result.diagnostics(), containsString("TestSample.java:10: error: cannot assign a value to final variable msg"));
         }
@@ -72,10 +63,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            var result = compiler
-                .compile(code)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "hello world");
+            var result = compile(code).invoke("ristretto.test.TestSample", "hello", "hello world");
 
             assertThat(result, is("hello world"));
         }
@@ -103,10 +91,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            var result = compiler
-                .compile(code)
-                .loadClass("ristretto.test.TestSample")
-                .invoke("hello", "10");
+            var result = compile(code).invoke("ristretto.test.TestSample", "hello", "10");
 
             assertThat(result, is("11"));
         }
@@ -129,7 +114,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.diagnostics(), containsString("TestSample.java:8: error: variable value not initialized in the default constructor"));
         }
@@ -147,7 +132,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.additionalOutput, containsString("warn"));
         }
@@ -164,7 +149,7 @@ class ImmutableFieldTest {
                 "}"
             );
 
-            var result = compiler.compile(code);
+            var result = compile(code);
 
             assertThat(result.additionalOutput, not(containsString("warn")));
         }
