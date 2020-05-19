@@ -32,6 +32,10 @@ final class TestCompiler {
     }
 
     Result compile(SourceCode sourceCode, String... pluginArgs) {
+        return compile(List.of(sourceCode), pluginArgs);
+    }
+
+    Result compile(List<SourceCode> sourceCode, String... pluginArgs) {
         DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
         Writer additionalOutput = new StringWriter();
 
@@ -47,7 +51,7 @@ final class TestCompiler {
             diagnosticCollector,
             List.of("-classpath", System.getProperty("java.class.path"), "-Xplugin:" + JavacPlugin.NAME + " --output=stderr " + String.join(" ", pluginArgs)),
             null,
-            List.of(sourceCode)
+            sourceCode
         );
 
         task.call();

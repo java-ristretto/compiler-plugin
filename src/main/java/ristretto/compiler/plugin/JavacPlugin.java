@@ -38,6 +38,7 @@ public final class JavacPlugin implements Plugin {
                 CompilationUnitTree compilationUnit = event.getCompilationUnit();
                 DiagnosticsReport report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
                 compilationUnit.accept(new DefaultImmutabilityRule(report), null);
+                compilationUnit.accept(new DefaultPrivateAccessRule(), null);
             }
         ));
 

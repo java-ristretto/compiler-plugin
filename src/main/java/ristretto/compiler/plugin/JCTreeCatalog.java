@@ -71,6 +71,11 @@ final class JCTreeCatalog {
         modifiers.flags |= Flags.FINAL;
     }
 
+    static void setPrivateModifier(VariableTree variable) {
+        JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) variable).mods;
+        modifiers.flags |= Flags.PRIVATE;
+    }
+
     static boolean isAnnotatedAsMutable(VariableTree variable, AnnotationNameResolver resolver) {
         return variable.getModifiers()
             .getAnnotations()
