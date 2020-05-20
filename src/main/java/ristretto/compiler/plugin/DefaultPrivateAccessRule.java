@@ -12,6 +12,15 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
 
     @Override
     public Void visitClass(ClassTree aClass, VariableScope scope) {
+        if (aClass.getModifiers().getFlags().contains(Modifier.PUBLIC)) {
+            return super.visitClass(aClass, VariableScope.CLASS);
+        }
+
+        if (aClass.getModifiers().getFlags().contains(Modifier.PROTECTED)) {
+            return super.visitClass(aClass, VariableScope.CLASS);
+        }
+
+        JCTreeCatalog.setPrivateModifier(aClass);
         return super.visitClass(aClass, VariableScope.CLASS);
     }
 

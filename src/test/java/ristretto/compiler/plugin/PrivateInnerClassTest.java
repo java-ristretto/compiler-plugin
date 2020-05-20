@@ -9,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class PrivateMethodTest extends JavacPluginBaseTest {
+class PrivateInnerClassTest extends JavacPluginBaseTest {
 
     TestCompiler.SourceCode anotherClass;
 
@@ -21,8 +21,8 @@ class PrivateMethodTest extends JavacPluginBaseTest {
             "public class AnotherClass {",
             "  ",
             "  public static String test(String value) {",
-            "    TestSample sample = new TestSample(value);",
-            "    return sample.getMsg();",
+            "    TestSample.InnerClass sample = TestSample.newInnerClass(value);",
+            "    return sample.msg;",
             "  }",
             "  ",
             "}"
@@ -30,20 +30,23 @@ class PrivateMethodTest extends JavacPluginBaseTest {
     }
 
     @Test
-    void sets_method_as_private_when_no_access_modifier_is_present() {
+    void sets_inner_class_as_private_when_no_access_modifier_is_present() {
         var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
             "  ",
-            "  String msg;",
-            "  ",
-            "  public TestSample(String msg) {",
-            "    this.msg = msg;",
+            "  static class InnerClass {",
+            "    ",
+            "    public String msg;",
+            "    ",
+            "    InnerClass(String msg) {",
+            "      this.msg = msg;",
+            "    }",
             "  }",
             "  ",
-            "  private String getMsg() {",
-            "    return msg;",
+            "  public static InnerClass newInnerClass(String msg) {",
+            "    return new InnerClass(msg);",
             "  }",
             "  ",
             "}"
@@ -51,24 +54,27 @@ class PrivateMethodTest extends JavacPluginBaseTest {
 
         TestCompiler.Result result = compile(List.of(classWithField, anotherClass));
 
-        assertThat(result.diagnostics(), containsString("AnotherClass.java:8: error: getMsg() has private access in ristretto.test.TestSample"));
+        assertThat(result.diagnostics(), containsString("AnotherClass.java:7: error: ristretto.test.TestSample.InnerClass has private access in ristretto.test.TestSample"));
     }
 
     @Test
-    void skips_public_methods() {
+    void skips_public_inner_classes() {
         var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
             "  ",
-            "  public String msg;",
-            "  ",
-            "  public TestSample(String msg) {",
-            "    this.msg = msg;",
+            "  public static class InnerClass {",
+            "    ",
+            "    public String msg;",
+            "    ",
+            "    InnerClass(String msg) {",
+            "      this.msg = msg;",
+            "    }",
             "  }",
             "  ",
-            "  public String getMsg() {",
-            "    return msg;",
+            "  public static InnerClass newInnerClass(String msg) {",
+            "    return new InnerClass(msg);",
             "  }",
             "  ",
             "}"
@@ -80,20 +86,23 @@ class PrivateMethodTest extends JavacPluginBaseTest {
     }
 
     @Test
-    void skips_protected_methods() {
+    void skips_protected_inner_classes() {
         var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
             "public class TestSample {",
             "  ",
-            "  protected String msg;",
-            "  ",
-            "  public TestSample(String msg) {",
-            "    this.msg = msg;",
+            "  protected static class InnerClass {",
+            "    ",
+            "    public String msg;",
+            "    ",
+            "    InnerClass(String msg) {",
+            "      this.msg = msg;",
+            "    }",
             "  }",
             "  ",
-            "  protected String getMsg() {",
-            "    return msg;",
+            "  public static InnerClass newInnerClass(String msg) {",
+            "    return new InnerClass(msg);",
             "  }",
             "  ",
             "}"
