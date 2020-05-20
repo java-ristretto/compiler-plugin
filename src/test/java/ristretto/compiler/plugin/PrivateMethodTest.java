@@ -9,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class PrivateFieldTest extends JavacPluginBaseTest {
+class PrivateMethodTest extends JavacPluginBaseTest {
 
     TestCompiler.SourceCode anotherClass;
 
@@ -22,7 +22,7 @@ class PrivateFieldTest extends JavacPluginBaseTest {
             "  ",
             "  public static String test(String value) {",
             "    TestSample sample = new TestSample(value);",
-            "    return sample.msg;",
+            "    return sample.getMsg();",
             "  }",
             "  ",
             "}"
@@ -30,7 +30,7 @@ class PrivateFieldTest extends JavacPluginBaseTest {
     }
 
     @Test
-    void sets_field_as_private_when_no_access_modifier_is_present() {
+    void sets_method_as_private_when_no_access_modifier_is_present() {
         var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
@@ -42,12 +42,16 @@ class PrivateFieldTest extends JavacPluginBaseTest {
             "    this.msg = msg;",
             "  }",
             "  ",
+            "  private String getMsg() {",
+            "    return msg;",
+            "  }",
+            "  ",
             "}"
         );
 
         TestCompiler.Result result = compile(List.of(classWithField, anotherClass));
 
-        assertThat(result.diagnostics(), containsString("AnotherClass.java:8: error: msg has private access in ristretto.test.TestSample"));
+        assertThat(result.diagnostics(), containsString("AnotherClass.java:8: error: getMsg() has private access in ristretto.test.TestSample"));
     }
 
     @Test
@@ -61,6 +65,10 @@ class PrivateFieldTest extends JavacPluginBaseTest {
             "  ",
             "  public TestSample(String msg) {",
             "    this.msg = msg;",
+            "  }",
+            "  ",
+            "  public String getMsg() {",
+            "    return msg;",
             "  }",
             "  ",
             "}"
@@ -82,6 +90,10 @@ class PrivateFieldTest extends JavacPluginBaseTest {
             "  ",
             "  public TestSample(String msg) {",
             "    this.msg = msg;",
+            "  }",
+            "  ",
+            "  protected String getMsg() {",
+            "    return msg;",
             "  }",
             "  ",
             "}"

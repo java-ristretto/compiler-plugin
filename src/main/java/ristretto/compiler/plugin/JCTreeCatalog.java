@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
 import com.sun.source.tree.AnnotationTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.TypeTag;
@@ -73,6 +74,11 @@ final class JCTreeCatalog {
 
     static void setPrivateModifier(VariableTree variable) {
         JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) variable).mods;
+        modifiers.flags |= Flags.PRIVATE;
+    }
+
+    static void setPrivateModifier(MethodTree method) {
+        JCTree.JCModifiers modifiers = ((JCTree.JCMethodDecl) method).mods;
         modifiers.flags |= Flags.PRIVATE;
     }
 
