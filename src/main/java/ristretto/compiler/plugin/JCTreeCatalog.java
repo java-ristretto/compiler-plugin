@@ -97,4 +97,13 @@ final class JCTreeCatalog {
             .anyMatch(resolver::isMutable);
     }
 
+    static boolean isAnnotatedAsPackagePrivate(VariableTree variable, AnnotationNameResolver resolver) {
+        return variable.getModifiers()
+            .getAnnotations()
+            .stream()
+            .map(AnnotationTree::getAnnotationType)
+            .map(Object::toString)
+            .anyMatch(resolver::isPackagePrivate);
+    }
+
 }

@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
 import ristretto.Mutable;
+import ristretto.PackagePrivate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +15,10 @@ import static java.util.stream.Collectors.groupingBy;
 final class AnnotationNameResolver {
 
     private static final QualifiedName MUTABLE = QualifiedName.of(Mutable.class);
+    private static final QualifiedName PACKAGE_PRIVATE = QualifiedName.of(PackagePrivate.class);
 
     private static final Map<PackageName, List<QualifiedName>> KNOWN_ANNOTATIONS =
-        Stream.of(MUTABLE).collect(groupingBy(QualifiedName::packageName));
+        Stream.of(MUTABLE, PACKAGE_PRIVATE).collect(groupingBy(QualifiedName::packageName));
 
     private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
 
@@ -40,6 +42,10 @@ final class AnnotationNameResolver {
 
     boolean isMutable(String annotationName) {
         return MUTABLE.equals(resolve(annotationName));
+    }
+
+    boolean isPackagePrivate(String annotationName) {
+        return PACKAGE_PRIVATE.equals(resolve(annotationName));
     }
 
     private ClassReference resolve(String classReference) {

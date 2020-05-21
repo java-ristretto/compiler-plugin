@@ -12,6 +12,12 @@ import java.util.Set;
 
 final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAccessRule.VariableScope> {
 
+    private final AnnotationNameResolver resolver;
+
+    DefaultPrivateAccessRule(AnnotationNameResolver resolver) {
+        this.resolver = resolver;
+    }
+
     private static boolean hasExplicitAccessModifier(ModifiersTree modifiers) {
         Set<Modifier> flags = modifiers.getFlags();
         return flags.contains(Modifier.PUBLIC) || flags.contains(Modifier.PROTECTED);
@@ -49,6 +55,10 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         }
 
         if (hasExplicitAccessModifier(variable.getModifiers())) {
+            return super.visitVariable(variable, scope);
+        }
+
+        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(variable, resolver)) {
             return super.visitVariable(variable, scope);
         }
 
