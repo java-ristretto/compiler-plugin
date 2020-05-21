@@ -1,7 +1,5 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.ImportTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
 import com.sun.source.util.TaskEvent;
@@ -36,17 +34,11 @@ public final class JavacPlugin implements Plugin {
         task.addTaskListener(TaskListeners.onFinished(
             whenEventKindIs(TaskEvent.Kind.PARSE).and(whenPackageName(options::isIncluded)),
             event -> {
-                CompilationUnitTree compilationUnit = event.getCompilationUnit();
-                DiagnosticsReport report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
+                var compilationUnit = event.getCompilationUnit();
+                var report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
+                var nameResolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
 
-                AnnotationNameResolver nameResolver = new AnnotationNameResolver();
-
-                compilationUnit.getImports().stream()
-                    .map(ImportTree::getQualifiedIdentifier)
-                    .map(Object::toString)
-                    .forEach(nameResolver::importClass);
-
-                compilationUnit.accept(new DefaultImmutabilityRule(report), null);
+                compilationUnit.accept(new DefaultImmutabilityRule(nameResolver, report), null);
                 compilationUnit.accept(new DefaultPrivateAccessRule(nameResolver), null);
             }
         ));

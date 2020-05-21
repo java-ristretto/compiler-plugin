@@ -1,6 +1,11 @@
 package ristretto.compiler.plugin;
 
+import com.sun.source.tree.ImportTree;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 final class ImportDeclaration {
 
@@ -10,6 +15,14 @@ final class ImportDeclaration {
     private ImportDeclaration(PackageName packageName, Optional<SimpleName> simpleName) {
         this.packageName = packageName;
         this.simpleName = simpleName;
+    }
+
+    static Set<ImportDeclaration> of(List<? extends ImportTree> imports) {
+        return imports.stream()
+            .map(ImportTree::getQualifiedIdentifier)
+            .map(Object::toString)
+            .map(ImportDeclaration::parse)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     static ImportDeclaration parse(String declaration) {

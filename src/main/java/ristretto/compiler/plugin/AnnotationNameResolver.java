@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
@@ -22,6 +23,15 @@ final class AnnotationNameResolver {
 
     private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
 
+    AnnotationNameResolver(Set<ImportDeclaration> importDeclarations) {
+        importDeclarations.forEach(this::importClass);
+    }
+
+    // TODO: remove
+    AnnotationNameResolver() {
+    }
+
+    // TODO: remove
     void importClass(String importDeclaration) {
         importClass(ImportDeclaration.parse(importDeclaration));
     }

@@ -15,15 +15,9 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, DefaultImmutabilit
     private final AnnotationNameResolver resolver;
     private final Observer observer;
 
-    DefaultImmutabilityRule(Observer observer) {
-        this.resolver = new AnnotationNameResolver();
+    DefaultImmutabilityRule(AnnotationNameResolver resolver, Observer observer) {
+        this.resolver = resolver;
         this.observer = observer;
-    }
-
-    @Override
-    public Void visitImport(ImportTree importTree, VariableScope scope) {
-        resolver.importClass(importTree.getQualifiedIdentifier().toString());
-        return super.visitImport(importTree, scope);
     }
 
     @Override
