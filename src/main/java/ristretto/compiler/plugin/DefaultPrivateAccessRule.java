@@ -3,20 +3,23 @@ package ristretto.compiler.plugin;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
 import javax.lang.model.element.Modifier;
+import java.util.Set;
 
 final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAccessRule.VariableScope> {
 
+    private static boolean hasExplicitAccessModifier(ModifiersTree modifiers) {
+        Set<Modifier> flags = modifiers.getFlags();
+        return flags.contains(Modifier.PUBLIC) || flags.contains(Modifier.PROTECTED);
+    }
+
     @Override
     public Void visitClass(ClassTree aClass, VariableScope scope) {
-        if (aClass.getModifiers().getFlags().contains(Modifier.PUBLIC)) {
-            return super.visitClass(aClass, VariableScope.CLASS);
-        }
-
-        if (aClass.getModifiers().getFlags().contains(Modifier.PROTECTED)) {
+        if (hasExplicitAccessModifier(aClass.getModifiers())) {
             return super.visitClass(aClass, VariableScope.CLASS);
         }
 
@@ -26,11 +29,7 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
 
     @Override
     public Void visitMethod(MethodTree method, VariableScope scope) {
-        if (method.getModifiers().getFlags().contains(Modifier.PUBLIC)) {
-            return super.visitMethod(method, VariableScope.METHOD);
-        }
-
-        if (method.getModifiers().getFlags().contains(Modifier.PROTECTED)) {
+        if (hasExplicitAccessModifier(method.getModifiers())) {
             return super.visitMethod(method, VariableScope.METHOD);
         }
 
@@ -49,11 +48,7 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
             return super.visitVariable(variable, scope);
         }
 
-        if (variable.getModifiers().getFlags().contains(Modifier.PUBLIC)) {
-            return super.visitVariable(variable, scope);
-        }
-
-        if (variable.getModifiers().getFlags().contains(Modifier.PROTECTED)) {
+        if (hasExplicitAccessModifier(variable.getModifiers())) {
             return super.visitVariable(variable, scope);
         }
 
