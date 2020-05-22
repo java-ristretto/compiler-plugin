@@ -11,18 +11,18 @@ import java.util.Optional;
 
 final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultPrivateAccessRule.Observer {
 
-    private final MetricsCollector immutabilityMetrics;
-    private final MetricsCollector privateAccessMetrics;
+    private final MetricsCollector<VariableType> immutabilityMetrics;
+    private final MetricsCollector<VariableType> privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
     DiagnosticsReport(RistrettoLogger logger) {
-        this(new MetricsCollector(), new MetricsCollector(), logger, null);
+        this(new MetricsCollector<>(), new MetricsCollector<>(), logger, null);
     }
 
     private DiagnosticsReport(
-        MetricsCollector immutabilityMetrics,
-        MetricsCollector privateAccessMetrics,
+        MetricsCollector<VariableType> immutabilityMetrics,
+        MetricsCollector<VariableType> privateAccessMetrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
@@ -81,12 +81,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         logger.summary("immutable by default summary:");
         logger.summary("| var type  | inspected   | final   | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(MetricsCollector.VariableType.FIELD));
-        logger.summary(formatMetrics(MetricsCollector.VariableType.LOCAL));
-        logger.summary(formatMetrics(MetricsCollector.VariableType.PARAMETER));
+        logger.summary(formatMetrics(VariableType.FIELD));
+        logger.summary(formatMetrics(VariableType.LOCAL));
+        logger.summary(formatMetrics(VariableType.PARAMETER));
     }
 
-    private String formatMetrics(MetricsCollector.VariableType type) {
+    private String formatMetrics(VariableType type) {
         return immutabilityMetrics.calculate(type)
             .map(metricsForScope ->
                 String.format(
@@ -101,15 +101,19 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
             .orElse("| %-9s |           0 |       - |       - |         - |");
     }
 
-    private static MetricsCollector.VariableType toVariableType(DefaultImmutabilityRule.VariableScope scope) {
+    private enum VariableType {
+        LOCAL, FIELD, PARAMETER
+    }
+
+    private static VariableType toVariableType(DefaultImmutabilityRule.VariableScope scope) {
         switch (scope) {
             case BLOCK:
-                return MetricsCollector.VariableType.LOCAL;
+                return VariableType.LOCAL;
             case CLASS:
             case ENUM:
-                return MetricsCollector.VariableType.FIELD;
+                return VariableType.FIELD;
             case METHOD:
-                return MetricsCollector.VariableType.PARAMETER;
+                return VariableType.PARAMETER;
             default:
                 throw new AssertionError("cannot handle variable scope " + scope);
         }

@@ -7,24 +7,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class MetricsCollector {
+final class MetricsCollector<S> {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final Map<VariableType, AtomicInteger> finalModifierAddedCount = new HashMap<>();
-    private final Map<VariableType, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
-    private final Map<VariableType, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
+    private final Map<S, AtomicInteger> finalModifierAddedCount = new HashMap<>();
+    private final Map<S, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
+    private final Map<S, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
 
-    private static <T> int count(Map<T, AtomicInteger> countByScope, T key) {
-        AtomicInteger count = countByScope.get(key);
+    private static <T> int count(Map<T, AtomicInteger> countByKey, T key) {
+        AtomicInteger count = countByKey.get(key);
         if (count == null) {
             return 0;
         }
         return count.get();
     }
 
-    private static <T> void increment(Map<T, AtomicInteger> countByScope, T key) {
-        countByScope.computeIfAbsent(key, newScope -> new AtomicInteger(0)).incrementAndGet();
+    private static <T> void increment(Map<T, AtomicInteger> countByKey, T key) {
+        countByKey.computeIfAbsent(key, newScope -> new AtomicInteger(0)).incrementAndGet();
     }
 
     private static BigDecimal percentage(int count, int total) {
@@ -34,28 +34,24 @@ final class MetricsCollector {
             .setScale(2, RoundingMode.FLOOR);
     }
 
-    Optional<Metrics> calculate(VariableType type) {
+    Optional<Metrics> calculate(S eventSource) {
         return Metrics.calculate(
-            count(finalModifierAddedCount, type),
-            count(annotatedAsMutableCount, type),
-            count(finalModifierAlreadyPresentCount, type)
+            count(finalModifierAddedCount, eventSource),
+            count(annotatedAsMutableCount, eventSource),
+            count(finalModifierAlreadyPresentCount, eventSource)
         );
     }
 
-    void finalModifierAdded(VariableType type) {
-        increment(finalModifierAddedCount, type);
+    void finalModifierAdded(S eventSource) {
+        increment(finalModifierAddedCount, eventSource);
     }
 
-    void annotatedAsMutable(VariableType type) {
-        increment(annotatedAsMutableCount, type);
+    void annotatedAsMutable(S eventSource) {
+        increment(annotatedAsMutableCount, eventSource);
     }
 
-    void finalModifierAlreadyPresent(VariableType type) {
-        increment(finalModifierAlreadyPresentCount, type);
-    }
-
-    enum VariableType {
-        LOCAL, FIELD, PARAMETER
+    void finalModifierAlreadyPresent(S eventSource) {
+        increment(finalModifierAlreadyPresentCount, eventSource);
     }
 
     static final class Metrics {

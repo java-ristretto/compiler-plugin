@@ -11,28 +11,28 @@ import static org.hamcrest.Matchers.is;
 
 class MetricsCollectorTest {
 
-    MetricsCollector collector;
+    MetricsCollector<String> collector;
 
     @BeforeEach
     void beforeEach() {
-        collector = new MetricsCollector();
+        collector = new MetricsCollector<>();
     }
 
     @Test
     void indicates_when_there_are_no_metrics() {
-        assertThat(collector.calculate(MetricsCollector.VariableType.PARAMETER), is(Optional.empty()));
+        assertThat(collector.calculate("parameter"), is(Optional.empty()));
     }
 
     @Test
     void calculates_metrics_when_available() {
-        collector.finalModifierAdded(MetricsCollector.VariableType.PARAMETER);
-        collector.finalModifierAdded(MetricsCollector.VariableType.PARAMETER);
-        collector.finalModifierAdded(MetricsCollector.VariableType.PARAMETER);
-        collector.annotatedAsMutable(MetricsCollector.VariableType.PARAMETER);
-        collector.annotatedAsMutable(MetricsCollector.VariableType.PARAMETER);
-        collector.finalModifierAlreadyPresent(MetricsCollector.VariableType.PARAMETER);
+        collector.finalModifierAdded("parameter");
+        collector.finalModifierAdded("parameter");
+        collector.finalModifierAdded("parameter");
+        collector.annotatedAsMutable("parameter");
+        collector.annotatedAsMutable("parameter");
+        collector.finalModifierAlreadyPresent("parameter");
 
-        var metrics = collector.calculate(MetricsCollector.VariableType.PARAMETER).orElseThrow();
+        var metrics = collector.calculate("parameter").orElseThrow();
 
         assertThat(metrics.inspectedCount, is(6));
         assertThat(metrics.finalModifierAddedPercentage, is(new BigDecimal("50.00")));
