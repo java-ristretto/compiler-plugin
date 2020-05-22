@@ -106,6 +106,10 @@ final class JCTreeCatalog {
         return isAnnotatedAsPackagePrivate(aClass.getModifiers(), resolver);
     }
 
+    static boolean isAnnotatedAsPackagePrivate(MethodTree method, AnnotationNameResolver resolver) {
+        return isAnnotatedAsPackagePrivate(method.getModifiers(), resolver);
+    }
+
     private static boolean isAnnotatedAsPackagePrivate(ModifiersTree modifiers, AnnotationNameResolver resolver) {
         return modifiers
             .getAnnotations()

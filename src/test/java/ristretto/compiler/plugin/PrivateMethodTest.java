@@ -104,4 +104,31 @@ class PrivateMethodTest extends JavacPluginBaseTest {
         assertThat(result, is("hello world"));
     }
 
+    @Test
+    void skips_annotated_methods() {
+        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "import ristretto.PackagePrivate;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  String msg;",
+            "  ",
+            "  public TestSample(String msg) {",
+            "    this.msg = msg;",
+            "  }",
+            "  ",
+            "  @PackagePrivate String getMsg() {",
+            "    return msg;",
+            "  }",
+            "  ",
+            "}"
+        );
+
+        String result = compile(List.of(classWithField, anotherClass)).invoke("ristretto.test.AnotherClass", "test", "hello world");
+
+        assertThat(result, is("hello world"));
+    }
+
 }

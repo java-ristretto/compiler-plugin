@@ -43,6 +43,10 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
             return super.visitMethod(method, VariableScope.METHOD);
         }
 
+        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(method, resolver)) {
+            return super.visitMethod(method, VariableScope.METHOD);
+        }
+
         JCTreeCatalog.setPrivateModifier(method);
         return super.visitMethod(method, VariableScope.METHOD);
     }
