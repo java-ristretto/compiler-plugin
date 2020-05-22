@@ -9,24 +9,31 @@ import javax.tools.JavaFileObject;
 import java.net.URI;
 import java.util.Optional;
 
-final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
+final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultPrivateAccessRule.Observer {
 
-    private final MetricsCollector metrics;
+    private final MetricsCollector immutabilityMetrics;
+    private final MetricsCollector privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
     DiagnosticsReport(RistrettoLogger logger) {
-        this(new MetricsCollector(), logger, null);
+        this(new MetricsCollector(), new MetricsCollector(), logger, null);
     }
 
-    private DiagnosticsReport(MetricsCollector metrics, RistrettoLogger logger, JavaFileObject javaFile) {
-        this.metrics = metrics;
+    private DiagnosticsReport(
+        MetricsCollector immutabilityMetrics,
+        MetricsCollector privateAccessMetrics,
+        RistrettoLogger logger,
+        JavaFileObject javaFile
+    ) {
+        this.immutabilityMetrics = immutabilityMetrics;
+        this.privateAccessMetrics = privateAccessMetrics;
         this.logger = logger;
         this.javaFile = Optional.ofNullable(javaFile);
     }
 
     DiagnosticsReport withJavaFile(JavaFileObject javaFile) {
-        return new DiagnosticsReport(metrics, logger, javaFile);
+        return new DiagnosticsReport(immutabilityMetrics, privateAccessMetrics, logger, javaFile);
     }
 
     void pluginLoaded() {
@@ -35,12 +42,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
 
     @Override
     public void finalModifierAdded(DefaultImmutabilityRule.VariableScope scope) {
-        metrics.finalModifierAdded(toVariableType(scope));
+        immutabilityMetrics.finalModifierAdded(toVariableType(scope));
     }
 
     @Override
     public void finalModifierAlreadyPresent(VariableTree variable, DefaultImmutabilityRule.VariableScope scope) {
-        metrics.finalModifierAlreadyPresent(toVariableType(scope));
+        immutabilityMetrics.finalModifierAlreadyPresent(toVariableType(scope));
 
         logger.diagnostic(
             String.format(
@@ -67,7 +74,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
 
     @Override
     public void annotatedAsMutable(DefaultImmutabilityRule.VariableScope scope) {
-        metrics.annotatedAsMutable(toVariableType(scope));
+        immutabilityMetrics.annotatedAsMutable(toVariableType(scope));
     }
 
     void pluginFinished() {
@@ -80,7 +87,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
     }
 
     private String formatMetrics(MetricsCollector.VariableType type) {
-        return metrics.calculate(type)
+        return immutabilityMetrics.calculate(type)
             .map(metricsForScope ->
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
@@ -106,5 +113,35 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer {
             default:
                 throw new AssertionError("cannot handle variable scope " + scope);
         }
+    }
+
+    @Override
+    public void fieldMarkedAsPrivate() {
+
+    }
+
+    @Override
+    public void fieldAnnotatedAsPackagePrivate() {
+
+    }
+
+    @Override
+    public void methodMarkedAsPrivate() {
+
+    }
+
+    @Override
+    public void methodAnnotatedAsPackagePrivate() {
+
+    }
+
+    @Override
+    public void typeMarkedAsPrivate() {
+
+    }
+
+    @Override
+    public void typeAnnotatedAsPackagePrivate() {
+
     }
 }

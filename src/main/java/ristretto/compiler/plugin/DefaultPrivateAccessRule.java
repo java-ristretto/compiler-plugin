@@ -13,9 +13,11 @@ import java.util.Set;
 final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAccessRule.VariableScope> {
 
     private final AnnotationNameResolver resolver;
+    private final Observer observer;
 
-    DefaultPrivateAccessRule(AnnotationNameResolver resolver) {
+    DefaultPrivateAccessRule(AnnotationNameResolver resolver, Observer observer) {
         this.resolver = resolver;
+        this.observer = observer;
     }
 
     private static boolean hasExplicitAccessModifier(ModifiersTree modifiers) {
@@ -30,10 +32,12 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(aClass, resolver)) {
+            observer.typeAnnotatedAsPackagePrivate();
             return super.visitClass(aClass, VariableScope.CLASS);
         }
 
         JCTreeCatalog.setPrivateModifier(aClass);
+        observer.typeMarkedAsPrivate();
         return super.visitClass(aClass, VariableScope.CLASS);
     }
 
@@ -44,10 +48,12 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(method, resolver)) {
+            observer.methodAnnotatedAsPackagePrivate();
             return super.visitMethod(method, VariableScope.METHOD);
         }
 
         JCTreeCatalog.setPrivateModifier(method);
+        observer.methodMarkedAsPrivate();
         return super.visitMethod(method, VariableScope.METHOD);
     }
 
@@ -67,10 +73,12 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(variable, resolver)) {
+            observer.fieldAnnotatedAsPackagePrivate();
             return super.visitVariable(variable, scope);
         }
 
         JCTreeCatalog.setPrivateModifier(variable);
+        observer.fieldMarkedAsPrivate();
         return super.visitVariable(variable, scope);
     }
 
@@ -78,4 +86,14 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         BLOCK, METHOD, CLASS
     }
 
+    interface Observer {
+        void fieldMarkedAsPrivate();
+        void fieldAnnotatedAsPackagePrivate();
+
+        void methodMarkedAsPrivate();
+        void methodAnnotatedAsPackagePrivate();
+
+        void typeMarkedAsPrivate();
+        void typeAnnotatedAsPackagePrivate();
+    }
 }
