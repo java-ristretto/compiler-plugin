@@ -5,26 +5,25 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class MetricsCollector<S> {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final Map<S, AtomicInteger> finalModifierAddedCount = new HashMap<>();
-    private final Map<S, AtomicInteger> annotatedAsMutableCount = new HashMap<>();
-    private final Map<S, AtomicInteger> finalModifierAlreadyPresentCount = new HashMap<>();
+    private final Map<S, ValueHolder> finalModifierAddedCount = new HashMap<>();
+    private final Map<S, ValueHolder> annotatedAsMutableCount = new HashMap<>();
+    private final Map<S, ValueHolder> finalModifierAlreadyPresentCount = new HashMap<>();
 
-    private static <T> int count(Map<T, AtomicInteger> countByKey, T key) {
-        AtomicInteger count = countByKey.get(key);
+    private static <T> int count(Map<T, ValueHolder> countByKey, T key) {
+        ValueHolder count = countByKey.get(key);
         if (count == null) {
             return 0;
         }
-        return count.get();
+        return count.value;
     }
 
-    private static <T> void increment(Map<T, AtomicInteger> countByKey, T key) {
-        countByKey.computeIfAbsent(key, newScope -> new AtomicInteger(0)).incrementAndGet();
+    private static <T> void increment(Map<T, ValueHolder> countByKey, T key) {
+        countByKey.computeIfAbsent(key, newKey -> new ValueHolder()).value += 1;
     }
 
     private static BigDecimal percentage(int count, int total) {
@@ -91,5 +90,9 @@ final class MetricsCollector<S> {
                 percentage(finalModifierAlreadyPresent, inspected)
             ));
         }
+    }
+
+    private static final class ValueHolder {
+        int value;
     }
 }
