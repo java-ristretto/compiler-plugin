@@ -3,6 +3,7 @@ package ristretto.compiler.plugin;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.TypeTag;
@@ -98,7 +99,15 @@ final class JCTreeCatalog {
     }
 
     static boolean isAnnotatedAsPackagePrivate(VariableTree variable, AnnotationNameResolver resolver) {
-        return variable.getModifiers()
+        return isAnnotatedAsPackagePrivate(variable.getModifiers(), resolver);
+    }
+
+    static boolean isAnnotatedAsPackagePrivate(ClassTree aClass, AnnotationNameResolver resolver) {
+        return isAnnotatedAsPackagePrivate(aClass.getModifiers(), resolver);
+    }
+
+    private static boolean isAnnotatedAsPackagePrivate(ModifiersTree modifiers, AnnotationNameResolver resolver) {
+        return modifiers
             .getAnnotations()
             .stream()
             .map(AnnotationTree::getAnnotationType)

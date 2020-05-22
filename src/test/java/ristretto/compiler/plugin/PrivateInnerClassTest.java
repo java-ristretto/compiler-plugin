@@ -113,4 +113,34 @@ class PrivateInnerClassTest extends JavacPluginBaseTest {
         assertThat(result, is("hello world"));
     }
 
+    @Test
+    void skips_annotated_inner_classes() {
+        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            "package ristretto.test;",
+            "",
+            "import ristretto.PackagePrivate;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  @PackagePrivate static class InnerClass {",
+            "    ",
+            "    public String msg;",
+            "    ",
+            "    InnerClass(String msg) {",
+            "      this.msg = msg;",
+            "    }",
+            "  }",
+            "  ",
+            "  public static InnerClass newInnerClass(String msg) {",
+            "    return new InnerClass(msg);",
+            "  }",
+            "  ",
+            "}"
+        );
+
+        String result = compile(List.of(classWithField, anotherClass)).invoke("ristretto.test.AnotherClass", "test", "hello world");
+
+        assertThat(result, is("hello world"));
+    }
+
 }
