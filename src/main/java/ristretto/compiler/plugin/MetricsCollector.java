@@ -2,6 +2,7 @@ package ristretto.compiler.plugin;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,9 +11,11 @@ final class MetricsCollector<S> {
 
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final Map<S, ValueHolder> finalModifierAddedCount = new HashMap<>();
-    private final Map<S, ValueHolder> annotatedAsMutableCount = new HashMap<>();
-    private final Map<S, ValueHolder> finalModifierAlreadyPresentCount = new HashMap<>();
+    private final Map<EventType, Map<S, ValueHolder>> eventCount = new HashMap<>();
+
+    private static final class ValueHolder {
+        int value;
+    }
 
     private static <T> int count(Map<T, ValueHolder> countByKey, T key) {
         ValueHolder count = countByKey.get(key);
@@ -35,22 +38,32 @@ final class MetricsCollector<S> {
 
     Optional<Metrics> calculate(S eventSource) {
         return Metrics.calculate(
-            count(finalModifierAddedCount, eventSource),
-            count(annotatedAsMutableCount, eventSource),
-            count(finalModifierAlreadyPresentCount, eventSource)
+            count(eventCount.getOrDefault(EventType.FINAL_MODIFIER_ADDED, Collections.emptyMap()), eventSource),
+            count(eventCount.getOrDefault(EventType.ANNOTATED_AS_MUTABLE, Collections.emptyMap()), eventSource),
+            count(eventCount.getOrDefault(EventType.FINAL_MODIFIER_ALREADY_PRESENT, Collections.emptyMap()), eventSource)
         );
     }
 
     void finalModifierAdded(S eventSource) {
-        increment(finalModifierAddedCount, eventSource);
+        increment(EventType.FINAL_MODIFIER_ADDED, eventSource);
     }
 
     void annotatedAsMutable(S eventSource) {
-        increment(annotatedAsMutableCount, eventSource);
+        increment(EventType.ANNOTATED_AS_MUTABLE, eventSource);
     }
 
     void finalModifierAlreadyPresent(S eventSource) {
-        increment(finalModifierAlreadyPresentCount, eventSource);
+        increment(EventType.FINAL_MODIFIER_ALREADY_PRESENT, eventSource);
+    }
+
+    void increment(EventType eventType, S eventSource) {
+        increment(eventCount.computeIfAbsent(eventType, newEventType -> new HashMap<>()), eventSource);
+    }
+
+    enum EventType {
+        FINAL_MODIFIER_ADDED,
+        FINAL_MODIFIER_ALREADY_PRESENT,
+        ANNOTATED_AS_MUTABLE
     }
 
     static final class Metrics {
@@ -90,9 +103,5 @@ final class MetricsCollector<S> {
                 percentage(finalModifierAlreadyPresent, inspected)
             ));
         }
-    }
-
-    private static final class ValueHolder {
-        int value;
     }
 }
