@@ -11,8 +11,8 @@ import java.util.Optional;
 
 final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultPrivateAccessRule.Observer {
 
-    private final MetricsCollector<VariableType> immutabilityMetrics;
-    private final MetricsCollector<VariableType> privateAccessMetrics;
+    private final MetricsCollector<VariableType, EventType> immutabilityMetrics;
+    private final MetricsCollector<VariableType, EventType> privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
@@ -21,8 +21,8 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     private DiagnosticsReport(
-        MetricsCollector<VariableType> immutabilityMetrics,
-        MetricsCollector<VariableType> privateAccessMetrics,
+        MetricsCollector<VariableType, EventType> immutabilityMetrics,
+        MetricsCollector<VariableType, EventType> privateAccessMetrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
@@ -42,12 +42,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
 
     @Override
     public void finalModifierAdded(DefaultImmutabilityRule.VariableScope scope) {
-        immutabilityMetrics.finalModifierAdded(toVariableType(scope));
+        immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
     public void finalModifierAlreadyPresent(VariableTree variable, DefaultImmutabilityRule.VariableScope scope) {
-        immutabilityMetrics.finalModifierAlreadyPresent(toVariableType(scope));
+        immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ALREADY_PRESENT);
 
         logger.diagnostic(
             String.format(
@@ -74,7 +74,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
 
     @Override
     public void annotatedAsMutable(DefaultImmutabilityRule.VariableScope scope) {
-        immutabilityMetrics.annotatedAsMutable(toVariableType(scope));
+        immutabilityMetrics.count(toVariableType(scope), EventType.ANNOTATED_AS_MUTABLE);
     }
 
     void pluginFinished() {
@@ -92,13 +92,19 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
                     type.name().toLowerCase(),
-                    metricsForScope.inspectedCount,
-                    metricsForScope.finalModifierAddedPercentage,
-                    metricsForScope.finalModifierAlreadyPresentPercentage,
-                    metricsForScope.annotatedAsMutablePercentage
+                    metricsForScope.getTotal(),
+                    metricsForScope.percentage(EventType.FINAL_MODIFIER_ADDED),
+                    metricsForScope.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
+                    metricsForScope.percentage(EventType.ANNOTATED_AS_MUTABLE)
                 )
             )
             .orElse("| %-9s |           0 |       - |       - |         - |");
+    }
+
+    private enum EventType {
+        FINAL_MODIFIER_ADDED,
+        FINAL_MODIFIER_ALREADY_PRESENT,
+        ANNOTATED_AS_MUTABLE
     }
 
     private enum VariableType {
