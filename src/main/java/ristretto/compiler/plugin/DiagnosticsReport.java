@@ -11,8 +11,8 @@ import java.util.Optional;
 
 final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultPrivateAccessRule.Observer {
 
-    private final MetricsCollector<VariableType, EventType> immutabilityMetrics;
-    private final MetricsCollector<VariableType, EventType> privateAccessMetrics;
+    private final MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics;
+    private final MetricsCollector<DefaultPrivateAccessRule.EventSource, EventType> privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
@@ -21,8 +21,8 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     private DiagnosticsReport(
-        MetricsCollector<VariableType, EventType> immutabilityMetrics,
-        MetricsCollector<VariableType, EventType> privateAccessMetrics,
+        MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics,
+        MetricsCollector<DefaultPrivateAccessRule.EventSource, EventType> privateAccessMetrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
@@ -41,13 +41,13 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void finalModifierAdded(VariableScope scope) {
-        immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ADDED);
+    public void markedAsFinal(DefaultImmutabilityRule.EventSource eventSource) {
+        immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
-    public void finalModifierAlreadyPresent(VariableTree variable, VariableScope scope) {
-        immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ALREADY_PRESENT);
+    public void alreadyMarkedAsFinal(VariableTree variable, DefaultImmutabilityRule.EventSource eventSource) {
+        immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ALREADY_PRESENT);
 
         logger.diagnostic(
             String.format(
@@ -73,25 +73,35 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void annotatedAsMutable(VariableScope scope) {
-        immutabilityMetrics.count(toVariableType(scope), EventType.ANNOTATED_AS_MUTABLE);
+    public void annotatedAsMutable(DefaultImmutabilityRule.EventSource eventSource) {
+        immutabilityMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
+    }
+
+    @Override
+    public void markedAsPrivate(DefaultPrivateAccessRule.EventSource eventSource) {
+
+    }
+
+    @Override
+    public void annotatedAsPackagePrivate(DefaultPrivateAccessRule.EventSource eventSource) {
+
     }
 
     void pluginFinished() {
         logger.summary("immutable by default summary:");
         logger.summary("| var type  | inspected   | final   | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(VariableType.FIELD));
-        logger.summary(formatMetrics(VariableType.LOCAL));
-        logger.summary(formatMetrics(VariableType.PARAMETER));
+        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.FIELD));
+        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.LOCAL));
+        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.PARAMETER));
     }
 
-    private String formatMetrics(VariableType type) {
-        return immutabilityMetrics.calculate(type)
+    private String formatMetrics(DefaultImmutabilityRule.EventSource eventSource) {
+        return immutabilityMetrics.calculate(eventSource)
             .map(metricsForScope ->
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
-                    type.name().toLowerCase(),
+                    eventSource.name().toLowerCase(),
                     metricsForScope.getTotal(),
                     metricsForScope.percentage(EventType.FINAL_MODIFIER_ADDED),
                     metricsForScope.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
@@ -105,53 +115,5 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         FINAL_MODIFIER_ADDED,
         FINAL_MODIFIER_ALREADY_PRESENT,
         ANNOTATED_AS_MUTABLE
-    }
-
-    private enum VariableType {
-        LOCAL, FIELD, PARAMETER
-    }
-
-    private static VariableType toVariableType(VariableScope scope) {
-        switch (scope) {
-            case BLOCK:
-                return VariableType.LOCAL;
-            case CLASS:
-            case ENUM:
-                return VariableType.FIELD;
-            case METHOD:
-                return VariableType.PARAMETER;
-            default:
-                throw new AssertionError("cannot handle variable scope " + scope);
-        }
-    }
-
-    @Override
-    public void fieldMarkedAsPrivate() {
-
-    }
-
-    @Override
-    public void fieldAnnotatedAsPackagePrivate() {
-
-    }
-
-    @Override
-    public void methodMarkedAsPrivate() {
-
-    }
-
-    @Override
-    public void methodAnnotatedAsPackagePrivate() {
-
-    }
-
-    @Override
-    public void typeMarkedAsPrivate() {
-
-    }
-
-    @Override
-    public void typeAnnotatedAsPackagePrivate() {
-
     }
 }

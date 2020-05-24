@@ -32,12 +32,12 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(aClass, resolver)) {
-            observer.typeAnnotatedAsPackagePrivate();
+            observer.annotatedAsPackagePrivate(EventSource.TYPE);
             return super.visitClass(aClass, VariableScope.CLASS);
         }
 
         JCTreeCatalog.setPrivateModifier(aClass);
-        observer.typeMarkedAsPrivate();
+        observer.markedAsPrivate(EventSource.TYPE);
         return super.visitClass(aClass, VariableScope.CLASS);
     }
 
@@ -48,12 +48,12 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(method, resolver)) {
-            observer.methodAnnotatedAsPackagePrivate();
+            observer.annotatedAsPackagePrivate(EventSource.METHOD);
             return super.visitMethod(method, VariableScope.METHOD);
         }
 
         JCTreeCatalog.setPrivateModifier(method);
-        observer.methodMarkedAsPrivate();
+        observer.markedAsPrivate(EventSource.METHOD);
         return super.visitMethod(method, VariableScope.METHOD);
     }
 
@@ -73,23 +73,21 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(variable, resolver)) {
-            observer.fieldAnnotatedAsPackagePrivate();
+            observer.annotatedAsPackagePrivate(EventSource.FIELD);
             return super.visitVariable(variable, scope);
         }
 
         JCTreeCatalog.setPrivateModifier(variable);
-        observer.fieldMarkedAsPrivate();
+        observer.markedAsPrivate(EventSource.FIELD);
         return super.visitVariable(variable, scope);
     }
 
+    enum EventSource {
+        FIELD, METHOD, TYPE
+    }
+
     interface Observer {
-        void fieldMarkedAsPrivate();
-        void fieldAnnotatedAsPackagePrivate();
-
-        void methodMarkedAsPrivate();
-        void methodAnnotatedAsPackagePrivate();
-
-        void typeMarkedAsPrivate();
-        void typeAnnotatedAsPackagePrivate();
+        void markedAsPrivate(EventSource eventSource);
+        void annotatedAsPackagePrivate(EventSource eventSource);
     }
 }

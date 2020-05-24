@@ -54,25 +54,43 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
         }
 
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
-            observer.annotatedAsMutable(scope);
+            observer.annotatedAsMutable(EventSource.from(scope));
             return super.visitVariable(variable, scope);
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
             if (!VariableScope.ENUM.equals(scope) || !JCTreeCatalog.hasStaticModifier(variable)) {
-                observer.finalModifierAlreadyPresent(variable, scope);
+                observer.alreadyMarkedAsFinal(variable, EventSource.from(scope));
             }
             return super.visitVariable(variable, scope);
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        observer.finalModifierAdded(scope);
+        observer.markedAsFinal(EventSource.from(scope));
         return super.visitVariable(variable, scope);
     }
 
+    enum EventSource {
+        LOCAL, FIELD, PARAMETER;
+
+        private static EventSource from(VariableScope scope) {
+            switch (scope) {
+                case BLOCK:
+                    return EventSource.LOCAL;
+                case CLASS:
+                case ENUM:
+                    return EventSource.FIELD;
+                case METHOD:
+                    return EventSource.PARAMETER;
+                default:
+                    throw new AssertionError("cannot handle variable scope " + scope);
+            }
+        }
+    }
+
     interface Observer {
-        void finalModifierAdded(VariableScope scope);
-        void finalModifierAlreadyPresent(VariableTree variable, VariableScope scope);
-        void annotatedAsMutable(VariableScope scope);
+        void markedAsFinal(EventSource eventSource);
+        void alreadyMarkedAsFinal(VariableTree variable, EventSource eventSource);
+        void annotatedAsMutable(EventSource eventSource);
     }
 }
