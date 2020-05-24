@@ -9,10 +9,10 @@ import javax.tools.JavaFileObject;
 import java.net.URI;
 import java.util.Optional;
 
-final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultPrivateAccessRule.Observer {
+final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultFieldAccessRule.Observer {
 
     private final MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics;
-    private final MetricsCollector<DefaultPrivateAccessRule.EventSource, EventType> privateAccessMetrics;
+    private final MetricsCollector<DefaultFieldAccessRule.EventSource, EventType> privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
@@ -22,7 +22,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
 
     private DiagnosticsReport(
         MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics,
-        MetricsCollector<DefaultPrivateAccessRule.EventSource, EventType> privateAccessMetrics,
+        MetricsCollector<DefaultFieldAccessRule.EventSource, EventType> privateAccessMetrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
@@ -78,12 +78,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void markedAsPrivate(DefaultPrivateAccessRule.EventSource eventSource) {
+    public void markedAsPrivate(DefaultFieldAccessRule.EventSource eventSource) {
         privateAccessMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
-    public void annotatedAsPackagePrivate(DefaultPrivateAccessRule.EventSource eventSource) {
+    public void annotatedAsPackagePrivate(DefaultFieldAccessRule.EventSource eventSource) {
         privateAccessMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
     }
 
@@ -95,12 +95,10 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.LOCAL));
         logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.PARAMETER));
 
-        logger.summary("default private access rule summary:");
+        logger.summary("default field access rule summary:");
         logger.summary("| member    | inspected   | marked  | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.FIELD));
-        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.METHOD));
-        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.TYPE));
+        logger.summary(formatMetrics(DefaultFieldAccessRule.EventSource.FIELD));
     }
 
     private String formatMetrics(DefaultImmutabilityRule.EventSource eventSource) {
@@ -120,7 +118,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
             .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
     }
 
-    private String formatMetrics(DefaultPrivateAccessRule.EventSource eventSource) {
+    private String formatMetrics(DefaultFieldAccessRule.EventSource eventSource) {
         String eventSourceName = eventSource.name().toLowerCase();
 
         return privateAccessMetrics.calculate(eventSource)

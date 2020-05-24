@@ -39,7 +39,7 @@ public final class JavacPlugin implements Plugin {
                 var nameResolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
 
                 compilationUnit.accept(new DefaultImmutabilityRule(nameResolver, report), Scope.COMPILATION_UNIT);
-                compilationUnit.accept(new DefaultPrivateAccessRule(nameResolver, report), Scope.COMPILATION_UNIT);
+                compilationUnit.accept(new DefaultFieldAccessRule(nameResolver, report), Scope.COMPILATION_UNIT);
             }
         ));
 

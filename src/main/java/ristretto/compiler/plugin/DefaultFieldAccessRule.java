@@ -10,12 +10,12 @@ import com.sun.source.util.TreeScanner;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-final class DefaultPrivateAccessRule extends TreeScanner<Void, Scope> {
+final class DefaultFieldAccessRule extends TreeScanner<Void, Scope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
 
-    DefaultPrivateAccessRule(AnnotationNameResolver resolver, Observer observer) {
+    DefaultFieldAccessRule(AnnotationNameResolver resolver, Observer observer) {
         this.resolver = resolver;
         this.observer = observer;
     }
@@ -27,33 +27,11 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, Scope> {
 
     @Override
     public Void visitClass(ClassTree aClass, Scope scope) {
-        if (hasExplicitAccessModifier(aClass.getModifiers())) {
-            return super.visitClass(aClass, Scope.CLASS);
-        }
-
-        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(aClass, resolver)) {
-            observer.annotatedAsPackagePrivate(EventSource.TYPE);
-            return super.visitClass(aClass, Scope.CLASS);
-        }
-
-        JCTreeCatalog.setPrivateModifier(aClass);
-        observer.markedAsPrivate(EventSource.TYPE);
         return super.visitClass(aClass, Scope.CLASS);
     }
 
     @Override
     public Void visitMethod(MethodTree method, Scope scope) {
-        if (hasExplicitAccessModifier(method.getModifiers())) {
-            return super.visitMethod(method, Scope.METHOD);
-        }
-
-        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(method, resolver)) {
-            observer.annotatedAsPackagePrivate(EventSource.METHOD);
-            return super.visitMethod(method, Scope.METHOD);
-        }
-
-        JCTreeCatalog.setPrivateModifier(method);
-        observer.markedAsPrivate(EventSource.METHOD);
         return super.visitMethod(method, Scope.METHOD);
     }
 
@@ -83,7 +61,7 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, Scope> {
     }
 
     enum EventSource {
-        FIELD, METHOD, TYPE
+        FIELD
     }
 
     interface Observer {

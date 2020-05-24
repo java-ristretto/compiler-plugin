@@ -43,12 +43,10 @@ class JavacPluginTest extends JavacPluginBaseTest {
         assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |     0.00% |"));
         assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |     0.00% |"));
 
-        assertThat(result.additionalOutput, containsString("default private access rule summary:"));
+        assertThat(result.additionalOutput, containsString("default field access rule summary:"));
         assertThat(result.additionalOutput, containsString("| member    | inspected   | marked  | skipped | annotated |"));
         assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));
         assertThat(result.additionalOutput, containsString("| field     |           2 | 100.00% |   0.00% |     0.00% |"));
-        assertThat(result.additionalOutput, containsString("| method    |           1 |   0.00% |   0.00% |   100.00% |"));
-        assertThat(result.additionalOutput, containsString("| type      |           0 |       - |       - |         - |"));
     }
 
     @Test
