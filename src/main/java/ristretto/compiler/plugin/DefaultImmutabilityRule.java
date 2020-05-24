@@ -9,7 +9,7 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
+final class DefaultImmutabilityRule extends TreeScanner<Void, Scope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -20,36 +20,36 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
     }
 
     @Override
-    public Void visitClass(ClassTree aClass, VariableScope scope) {
+    public Void visitClass(ClassTree aClass, Scope scope) {
         if (aClass.getKind().equals(Tree.Kind.ENUM)) {
-            return super.visitClass(aClass, VariableScope.ENUM);
+            return super.visitClass(aClass, Scope.ENUM);
         }
-        return super.visitClass(aClass, VariableScope.CLASS);
+        return super.visitClass(aClass, Scope.CLASS);
     }
 
     @Override
-    public Void visitMethod(MethodTree method, VariableScope scope) {
-        return super.visitMethod(method, VariableScope.METHOD);
+    public Void visitMethod(MethodTree method, Scope scope) {
+        return super.visitMethod(method, Scope.METHOD);
     }
 
     @Override
-    public Void visitBlock(BlockTree block, VariableScope scope) {
-        return super.visitBlock(block, VariableScope.BLOCK);
+    public Void visitBlock(BlockTree block, Scope scope) {
+        return super.visitBlock(block, Scope.BLOCK);
     }
 
     @Override
-    public Void visitForLoop(ForLoopTree forLoop, VariableScope scope) {
-        return super.visitForLoop(forLoop, VariableScope.FOR_LOOP);
+    public Void visitForLoop(ForLoopTree forLoop, Scope scope) {
+        return super.visitForLoop(forLoop, Scope.FOR_LOOP);
     }
 
     @Override
-    public Void visitEnhancedForLoop(EnhancedForLoopTree forLoop, VariableScope scope) {
-        return super.visitEnhancedForLoop(forLoop, VariableScope.FOR_LOOP);
+    public Void visitEnhancedForLoop(EnhancedForLoopTree forLoop, Scope scope) {
+        return super.visitEnhancedForLoop(forLoop, Scope.FOR_LOOP);
     }
 
     @Override
-    public Void visitVariable(VariableTree variable, VariableScope scope) {
-        if (VariableScope.FOR_LOOP.equals(scope)) {
+    public Void visitVariable(VariableTree variable, Scope scope) {
+        if (Scope.FOR_LOOP.equals(scope)) {
             return super.visitVariable(variable, scope);
         }
 
@@ -59,7 +59,7 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            if (!VariableScope.ENUM.equals(scope) || !JCTreeCatalog.hasStaticModifier(variable)) {
+            if (!Scope.ENUM.equals(scope) || !JCTreeCatalog.hasStaticModifier(variable)) {
                 observer.alreadyMarkedAsFinal(variable, EventSource.from(scope));
             }
             return super.visitVariable(variable, scope);
@@ -73,7 +73,7 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
     enum EventSource {
         LOCAL, FIELD, PARAMETER;
 
-        private static EventSource from(VariableScope scope) {
+        private static EventSource from(Scope scope) {
             switch (scope) {
                 case BLOCK:
                     return EventSource.LOCAL;

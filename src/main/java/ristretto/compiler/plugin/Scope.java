@@ -1,5 +1,5 @@
 package ristretto.compiler.plugin;
 
-enum VariableScope {
+enum Scope {
     BLOCK, CLASS, METHOD, ENUM, FOR_LOOP
 }

@@ -10,7 +10,7 @@ import com.sun.source.util.TreeScanner;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
+final class DefaultPrivateAccessRule extends TreeScanner<Void, Scope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -26,45 +26,45 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
     }
 
     @Override
-    public Void visitClass(ClassTree aClass, VariableScope scope) {
+    public Void visitClass(ClassTree aClass, Scope scope) {
         if (hasExplicitAccessModifier(aClass.getModifiers())) {
-            return super.visitClass(aClass, VariableScope.CLASS);
+            return super.visitClass(aClass, Scope.CLASS);
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(aClass, resolver)) {
             observer.annotatedAsPackagePrivate(EventSource.TYPE);
-            return super.visitClass(aClass, VariableScope.CLASS);
+            return super.visitClass(aClass, Scope.CLASS);
         }
 
         JCTreeCatalog.setPrivateModifier(aClass);
         observer.markedAsPrivate(EventSource.TYPE);
-        return super.visitClass(aClass, VariableScope.CLASS);
+        return super.visitClass(aClass, Scope.CLASS);
     }
 
     @Override
-    public Void visitMethod(MethodTree method, VariableScope scope) {
+    public Void visitMethod(MethodTree method, Scope scope) {
         if (hasExplicitAccessModifier(method.getModifiers())) {
-            return super.visitMethod(method, VariableScope.METHOD);
+            return super.visitMethod(method, Scope.METHOD);
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(method, resolver)) {
             observer.annotatedAsPackagePrivate(EventSource.METHOD);
-            return super.visitMethod(method, VariableScope.METHOD);
+            return super.visitMethod(method, Scope.METHOD);
         }
 
         JCTreeCatalog.setPrivateModifier(method);
         observer.markedAsPrivate(EventSource.METHOD);
-        return super.visitMethod(method, VariableScope.METHOD);
+        return super.visitMethod(method, Scope.METHOD);
     }
 
     @Override
-    public Void visitBlock(BlockTree block, VariableScope scope) {
-        return super.visitBlock(block, VariableScope.BLOCK);
+    public Void visitBlock(BlockTree block, Scope scope) {
+        return super.visitBlock(block, Scope.BLOCK);
     }
 
     @Override
-    public Void visitVariable(VariableTree variable, VariableScope scope) {
-        if (!VariableScope.CLASS.equals(scope)) {
+    public Void visitVariable(VariableTree variable, Scope scope) {
+        if (!Scope.CLASS.equals(scope)) {
             return super.visitVariable(variable, scope);
         }
 
