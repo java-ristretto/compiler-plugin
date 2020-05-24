@@ -41,12 +41,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void finalModifierAdded(DefaultImmutabilityRule.VariableScope scope) {
+    public void finalModifierAdded(VariableScope scope) {
         immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
-    public void finalModifierAlreadyPresent(VariableTree variable, DefaultImmutabilityRule.VariableScope scope) {
+    public void finalModifierAlreadyPresent(VariableTree variable, VariableScope scope) {
         immutabilityMetrics.count(toVariableType(scope), EventType.FINAL_MODIFIER_ALREADY_PRESENT);
 
         logger.diagnostic(
@@ -73,7 +73,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void annotatedAsMutable(DefaultImmutabilityRule.VariableScope scope) {
+    public void annotatedAsMutable(VariableScope scope) {
         immutabilityMetrics.count(toVariableType(scope), EventType.ANNOTATED_AS_MUTABLE);
     }
 
@@ -111,7 +111,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         LOCAL, FIELD, PARAMETER
     }
 
-    private static VariableType toVariableType(DefaultImmutabilityRule.VariableScope scope) {
+    private static VariableType toVariableType(VariableScope scope) {
         switch (scope) {
             case BLOCK:
                 return VariableType.LOCAL;

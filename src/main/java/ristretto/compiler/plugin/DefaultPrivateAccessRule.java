@@ -10,7 +10,7 @@ import com.sun.source.util.TreeScanner;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAccessRule.VariableScope> {
+final class DefaultPrivateAccessRule extends TreeScanner<Void, VariableScope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -80,10 +80,6 @@ final class DefaultPrivateAccessRule extends TreeScanner<Void, DefaultPrivateAcc
         JCTreeCatalog.setPrivateModifier(variable);
         observer.fieldMarkedAsPrivate();
         return super.visitVariable(variable, scope);
-    }
-
-    enum VariableScope {
-        BLOCK, METHOD, CLASS
     }
 
     interface Observer {

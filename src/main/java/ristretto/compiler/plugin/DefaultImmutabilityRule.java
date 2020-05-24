@@ -9,7 +9,7 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
-final class DefaultImmutabilityRule extends TreeScanner<Void, DefaultImmutabilityRule.VariableScope> {
+final class DefaultImmutabilityRule extends TreeScanner<Void, VariableScope> {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -68,10 +68,6 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, DefaultImmutabilit
         JCTreeCatalog.addFinalModifier(variable);
         observer.finalModifierAdded(scope);
         return super.visitVariable(variable, scope);
-    }
-
-    enum VariableScope {
-        BLOCK, CLASS, METHOD, ENUM, FOR_LOOP
     }
 
     interface Observer {
