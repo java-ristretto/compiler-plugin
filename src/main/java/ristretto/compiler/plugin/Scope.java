@@ -1,5 +1,10 @@
 package ristretto.compiler.plugin;
 
 enum Scope {
-    BLOCK, CLASS, METHOD, ENUM, FOR_LOOP
+    BLOCK,
+    CLASS,
+    COMPILATION_UNIT,
+    ENUM,
+    FOR_LOOP,
+    METHOD
 }
