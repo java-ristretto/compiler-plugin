@@ -13,6 +13,8 @@ class JavacPluginTest extends JavacPluginBaseTest {
         var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
             "package ristretto.test;",
             "",
+            "import ristretto.PackagePrivate;",
+            "",
             "public class TestSample {",
             "",
             "  String field1;",
@@ -22,19 +24,31 @@ class JavacPluginTest extends JavacPluginBaseTest {
             "    String s = parameter;",
             "  }",
             "",
+            "  @PackagePrivate void anotherMethod() {",
+            "  }",
+            "",
             "}"
         );
 
         var result = compile(code);
 
         assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
-        assertThat(result.additionalOutput, containsString("/test/TestSample.java:7 variable field2 has unnecessary final modifier"));
+
+        assertThat(result.additionalOutput, containsString("/test/TestSample.java:9 variable field2 has unnecessary final modifier"));
+
         assertThat(result.additionalOutput, containsString("immutable by default summary:"));
         assertThat(result.additionalOutput, containsString("| var type  | inspected   | final   | skipped | annotated |"));
         assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));
         assertThat(result.additionalOutput, containsString("| field     |           2 |  50.00% |  50.00% |     0.00% |"));
         assertThat(result.additionalOutput, containsString("| local     |           1 | 100.00% |   0.00% |     0.00% |"));
         assertThat(result.additionalOutput, containsString("| parameter |           1 | 100.00% |   0.00% |     0.00% |"));
+
+        assertThat(result.additionalOutput, containsString("default private access rule summary:"));
+        assertThat(result.additionalOutput, containsString("| member    | inspected   | marked  | skipped | annotated |"));
+        assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));
+        assertThat(result.additionalOutput, containsString("| field     |           2 | 100.00% |   0.00% |     0.00% |"));
+        assertThat(result.additionalOutput, containsString("| method    |           1 |   0.00% |   0.00% |   100.00% |"));
+        assertThat(result.additionalOutput, containsString("| type      |           0 |       - |       - |         - |"));
     }
 
     @Test

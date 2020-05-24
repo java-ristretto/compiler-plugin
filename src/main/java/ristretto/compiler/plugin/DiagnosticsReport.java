@@ -79,12 +79,12 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
 
     @Override
     public void markedAsPrivate(DefaultPrivateAccessRule.EventSource eventSource) {
-
+        privateAccessMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
     public void annotatedAsPackagePrivate(DefaultPrivateAccessRule.EventSource eventSource) {
-
+        privateAccessMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
     }
 
     void pluginFinished() {
@@ -94,21 +94,47 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.FIELD));
         logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.LOCAL));
         logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.PARAMETER));
+
+        logger.summary("default private access rule summary:");
+        logger.summary("| member    | inspected   | marked  | skipped | annotated |");
+        logger.summary("|-----------|-------------|---------|---------|-----------|");
+        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.FIELD));
+        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.METHOD));
+        logger.summary(formatMetrics(DefaultPrivateAccessRule.EventSource.TYPE));
     }
 
     private String formatMetrics(DefaultImmutabilityRule.EventSource eventSource) {
+        String eventSourceName = eventSource.name().toLowerCase();
+
         return immutabilityMetrics.calculate(eventSource)
-            .map(metricsForScope ->
+            .map(percentages ->
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
-                    eventSource.name().toLowerCase(),
-                    metricsForScope.getTotal(),
-                    metricsForScope.percentage(EventType.FINAL_MODIFIER_ADDED),
-                    metricsForScope.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
-                    metricsForScope.percentage(EventType.ANNOTATED_AS_MUTABLE)
+                    eventSourceName,
+                    percentages.getTotal(),
+                    percentages.percentage(EventType.FINAL_MODIFIER_ADDED),
+                    percentages.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
+                    percentages.percentage(EventType.ANNOTATED_AS_MUTABLE)
                 )
             )
-            .orElse("| %-9s |           0 |       - |       - |         - |");
+            .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
+    }
+
+    private String formatMetrics(DefaultPrivateAccessRule.EventSource eventSource) {
+        String eventSourceName = eventSource.name().toLowerCase();
+
+        return privateAccessMetrics.calculate(eventSource)
+            .map(percentages ->
+                String.format(
+                    "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
+                    eventSourceName,
+                    percentages.getTotal(),
+                    percentages.percentage(EventType.FINAL_MODIFIER_ADDED),
+                    percentages.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
+                    percentages.percentage(EventType.ANNOTATED_AS_MUTABLE)
+                )
+            )
+            .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
     }
 
     private enum EventType {
