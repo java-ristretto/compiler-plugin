@@ -1,16 +1,12 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.TreeScanner;
 
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-final class DefaultFieldAccessRule extends TreeScanner<Void, Scope> {
+final class DefaultFieldAccessRule implements VariableScanner.Visitor {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -26,38 +22,18 @@ final class DefaultFieldAccessRule extends TreeScanner<Void, Scope> {
     }
 
     @Override
-    public Void visitClass(ClassTree aClass, Scope scope) {
-        return super.visitClass(aClass, Scope.CLASS);
-    }
-
-    @Override
-    public Void visitMethod(MethodTree method, Scope scope) {
-        return super.visitMethod(method, Scope.METHOD);
-    }
-
-    @Override
-    public Void visitBlock(BlockTree block, Scope scope) {
-        return super.visitBlock(block, Scope.BLOCK);
-    }
-
-    @Override
-    public Void visitVariable(VariableTree variable, Scope scope) {
-        if (!Scope.CLASS.equals(scope)) {
-            return super.visitVariable(variable, scope);
+    public void visitField(VariableTree field) {
+        if (hasExplicitAccessModifier(field.getModifiers())) {
+            return;
         }
 
-        if (hasExplicitAccessModifier(variable.getModifiers())) {
-            return super.visitVariable(variable, scope);
-        }
-
-        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(variable, resolver)) {
+        if (JCTreeCatalog.isAnnotatedAsPackagePrivate(field, resolver)) {
             observer.annotatedAsPackagePrivate(EventSource.FIELD);
-            return super.visitVariable(variable, scope);
+            return;
         }
 
-        JCTreeCatalog.setPrivateModifier(variable);
+        JCTreeCatalog.setPrivateModifier(field);
         observer.markedAsPrivate(EventSource.FIELD);
-        return super.visitVariable(variable, scope);
     }
 
     enum EventSource {

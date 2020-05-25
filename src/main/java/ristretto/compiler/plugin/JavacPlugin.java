@@ -38,8 +38,8 @@ public final class JavacPlugin implements Plugin {
                 var report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
                 var nameResolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
 
-                compilationUnit.accept(new DefaultImmutabilityRule(nameResolver, report), Scope.COMPILATION_UNIT);
-                compilationUnit.accept(new DefaultFieldAccessRule(nameResolver, report), Scope.COMPILATION_UNIT);
+                VariableScanner.scan(compilationUnit, new DefaultImmutabilityRule(nameResolver, report));
+                VariableScanner.scan(compilationUnit, new DefaultFieldAccessRule(nameResolver, report));
             }
         ));
 

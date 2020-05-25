@@ -1,15 +1,8 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.BlockTree;
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.EnhancedForLoopTree;
-import com.sun.source.tree.ForLoopTree;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.TreeScanner;
 
-final class DefaultImmutabilityRule extends TreeScanner<Void, Scope> {
+final class DefaultImmutabilityRule implements VariableScanner.Visitor {
 
     private final AnnotationNameResolver resolver;
     private final Observer observer;
@@ -20,72 +13,46 @@ final class DefaultImmutabilityRule extends TreeScanner<Void, Scope> {
     }
 
     @Override
-    public Void visitClass(ClassTree aClass, Scope scope) {
-        if (aClass.getKind().equals(Tree.Kind.ENUM)) {
-            return super.visitClass(aClass, Scope.ENUM);
-        }
-        return super.visitClass(aClass, Scope.CLASS);
+    public void visitLocalVariable(VariableTree localVariable) {
+        handleVariable(localVariable, EventSource.LOCAL);
     }
 
     @Override
-    public Void visitMethod(MethodTree method, Scope scope) {
-        return super.visitMethod(method, Scope.METHOD);
+    public void visitParameter(VariableTree parameter) {
+        handleVariable(parameter, EventSource.PARAMETER);
     }
 
     @Override
-    public Void visitBlock(BlockTree block, Scope scope) {
-        return super.visitBlock(block, Scope.BLOCK);
+    public void visitClassField(VariableTree field) {
+        handleVariable(field, EventSource.FIELD);
     }
 
     @Override
-    public Void visitForLoop(ForLoopTree forLoop, Scope scope) {
-        return super.visitForLoop(forLoop, Scope.FOR_LOOP);
-    }
-
-    @Override
-    public Void visitEnhancedForLoop(EnhancedForLoopTree forLoop, Scope scope) {
-        return super.visitEnhancedForLoop(forLoop, Scope.FOR_LOOP);
-    }
-
-    @Override
-    public Void visitVariable(VariableTree variable, Scope scope) {
-        if (Scope.FOR_LOOP.equals(scope)) {
-            return super.visitVariable(variable, scope);
+    public void visitEnumField(VariableTree field) {
+        if (JCTreeCatalog.hasStaticModifier(field)) {
+            return;
         }
 
+        handleVariable(field, EventSource.FIELD);
+    }
+
+    private void handleVariable(VariableTree variable, EventSource local) {
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
-            observer.annotatedAsMutable(EventSource.from(scope));
-            return super.visitVariable(variable, scope);
+            observer.annotatedAsMutable(local);
+            return;
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            if (!Scope.ENUM.equals(scope) || !JCTreeCatalog.hasStaticModifier(variable)) {
-                observer.alreadyMarkedAsFinal(variable, EventSource.from(scope));
-            }
-            return super.visitVariable(variable, scope);
+            observer.alreadyMarkedAsFinal(variable, local);
+            return;
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        observer.markedAsFinal(EventSource.from(scope));
-        return super.visitVariable(variable, scope);
+        observer.markedAsFinal(local);
     }
 
     enum EventSource {
         LOCAL, FIELD, PARAMETER;
-
-        private static EventSource from(Scope scope) {
-            switch (scope) {
-                case BLOCK:
-                    return EventSource.LOCAL;
-                case CLASS:
-                case ENUM:
-                    return EventSource.FIELD;
-                case METHOD:
-                    return EventSource.PARAMETER;
-                default:
-                    throw new AssertionError("cannot handle variable scope " + scope);
-            }
-        }
     }
 
     interface Observer {
