@@ -9,11 +9,11 @@ import java.util.Set;
 final class DefaultFieldAccessRule implements VariableScanner.Visitor {
 
     private final AnnotationNameResolver resolver;
-    private final Observer observer;
+    private final Listener listener;
 
-    DefaultFieldAccessRule(AnnotationNameResolver resolver, Observer observer) {
+    DefaultFieldAccessRule(AnnotationNameResolver resolver, Listener listener) {
         this.resolver = resolver;
-        this.observer = observer;
+        this.listener = listener;
     }
 
     private static boolean hasExplicitAccessModifier(ModifiersTree modifiers) {
@@ -28,19 +28,19 @@ final class DefaultFieldAccessRule implements VariableScanner.Visitor {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(field, resolver)) {
-            observer.annotatedAsPackagePrivate(EventSource.FIELD);
+            listener.annotatedAsPackagePrivate(EventSource.FIELD);
             return;
         }
 
         JCTreeCatalog.setPrivateModifier(field);
-        observer.markedAsPrivate(EventSource.FIELD);
+        listener.markedAsPrivate(EventSource.FIELD);
     }
 
     enum EventSource {
         FIELD
     }
 
-    interface Observer {
+    interface Listener {
         void markedAsPrivate(EventSource eventSource);
         void annotatedAsPackagePrivate(EventSource eventSource);
     }

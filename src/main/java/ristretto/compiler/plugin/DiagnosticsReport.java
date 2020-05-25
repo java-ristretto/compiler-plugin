@@ -9,7 +9,7 @@ import javax.tools.JavaFileObject;
 import java.net.URI;
 import java.util.Optional;
 
-final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultFieldAccessRule.Observer {
+final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultFieldAccessRule.Listener {
 
     private final MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics;
     private final MetricsCollector<DefaultFieldAccessRule.EventSource, EventType> privateAccessMetrics;
