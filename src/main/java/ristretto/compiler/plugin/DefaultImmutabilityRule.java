@@ -5,11 +5,11 @@ import com.sun.source.tree.VariableTree;
 final class DefaultImmutabilityRule implements VariableScanner.Visitor {
 
     private final AnnotationNameResolver resolver;
-    private final Observer observer;
+    private final Listener listener;
 
-    DefaultImmutabilityRule(AnnotationNameResolver resolver, Observer observer) {
+    DefaultImmutabilityRule(AnnotationNameResolver resolver, Listener listener) {
         this.resolver = resolver;
-        this.observer = observer;
+        this.listener = listener;
     }
 
     @Override
@@ -38,24 +38,24 @@ final class DefaultImmutabilityRule implements VariableScanner.Visitor {
 
     private void handleVariable(VariableTree variable, EventSource local) {
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
-            observer.annotatedAsMutable(local);
+            listener.annotatedAsMutable(local);
             return;
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            observer.alreadyMarkedAsFinal(variable, local);
+            listener.alreadyMarkedAsFinal(variable, local);
             return;
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        observer.markedAsFinal(local);
+        listener.markedAsFinal(local);
     }
 
     enum EventSource {
         LOCAL, FIELD, PARAMETER;
     }
 
-    interface Observer {
+    interface Listener {
         void markedAsFinal(EventSource eventSource);
         void alreadyMarkedAsFinal(VariableTree variable, EventSource eventSource);
         void annotatedAsMutable(EventSource eventSource);
