@@ -41,19 +41,19 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Listener, Defau
     }
 
     @Override
-    public void markedAsFinal(DefaultImmutabilityRule.EventSource eventSource) {
+    public void markedAsFinal(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
         immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
-    public void alreadyMarkedAsFinal(VariableTree variable, DefaultImmutabilityRule.EventSource eventSource) {
+    public void alreadyMarkedAsFinal(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
         immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ALREADY_PRESENT);
 
         logger.diagnostic(
             String.format(
                 "warning: %s variable %s has unnecessary final modifier",
-                positionOf(variable),
-                variable.getName()
+                positionOf(target),
+                target.getName()
             )
         );
     }
@@ -73,7 +73,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Listener, Defau
     }
 
     @Override
-    public void annotatedAsMutable(DefaultImmutabilityRule.EventSource eventSource) {
+    public void annotatedAsMutable(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
         immutabilityMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
     }
 

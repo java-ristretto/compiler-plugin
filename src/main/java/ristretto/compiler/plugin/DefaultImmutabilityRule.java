@@ -38,17 +38,17 @@ final class DefaultImmutabilityRule implements VariableScanner.Visitor {
 
     private void handleVariable(VariableTree variable, EventSource local) {
         if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
-            listener.annotatedAsMutable(local);
+            listener.annotatedAsMutable(this, variable, local);
             return;
         }
 
         if (JCTreeCatalog.hasFinalModifier(variable)) {
-            listener.alreadyMarkedAsFinal(variable, local);
+            listener.alreadyMarkedAsFinal(this, variable, local);
             return;
         }
 
         JCTreeCatalog.addFinalModifier(variable);
-        listener.markedAsFinal(local);
+        listener.markedAsFinal(this, variable, local);
     }
 
     enum EventSource {
@@ -56,8 +56,8 @@ final class DefaultImmutabilityRule implements VariableScanner.Visitor {
     }
 
     interface Listener {
-        void markedAsFinal(EventSource eventSource);
-        void alreadyMarkedAsFinal(VariableTree variable, EventSource eventSource);
-        void annotatedAsMutable(EventSource eventSource);
+        void markedAsFinal(DefaultImmutabilityRule source, VariableTree target, EventSource eventSource);
+        void alreadyMarkedAsFinal(DefaultImmutabilityRule source, VariableTree target, EventSource eventSource);
+        void annotatedAsMutable(DefaultImmutabilityRule source, VariableTree target, EventSource eventSource);
     }
 }
