@@ -6,7 +6,7 @@ import com.sun.source.tree.VariableTree;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-final class DefaultFieldAccessRule implements VariableScanner.Visitor {
+final class DefaultFieldAccessRule implements VariableScanner.Visitor, DefaultModifierRule {
 
     private final AnnotationNameResolver resolver;
     private final Listener listener;
@@ -28,16 +28,11 @@ final class DefaultFieldAccessRule implements VariableScanner.Visitor {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(field, resolver)) {
-            listener.annotatedAsPackagePrivate(this, field);
+            listener.modifierNotAdded(this, field);
             return;
         }
 
         JCTreeCatalog.setPrivateModifier(field);
-        listener.markedAsPrivate(this, field);
-    }
-
-    interface Listener {
-        void markedAsPrivate(DefaultFieldAccessRule source, VariableTree target);
-        void annotatedAsPackagePrivate(DefaultFieldAccessRule source, VariableTree target);
+        listener.modifierAdded(this, field);
     }
 }

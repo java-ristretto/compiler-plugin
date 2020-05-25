@@ -9,31 +9,28 @@ import javax.tools.JavaFileObject;
 import java.net.URI;
 import java.util.Optional;
 
-final class DiagnosticsReport implements DefaultImmutabilityRule.Listener, DefaultFieldAccessRule.Listener {
+final class DiagnosticsReport implements DefaultModifierRule.Listener {
 
-    private final MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics;
-    private final MetricsCollector<String, EventType> privateAccessMetrics;
+    private final MetricsCollector<Class<? extends DefaultModifierRule>, EventType> metrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
     DiagnosticsReport(RistrettoLogger logger) {
-        this(new MetricsCollector<>(), new MetricsCollector<>(), logger, null);
+        this(new MetricsCollector<>(), logger, null);
     }
 
     private DiagnosticsReport(
-        MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics,
-        MetricsCollector<String, EventType> privateAccessMetrics,
+        MetricsCollector<Class<? extends DefaultModifierRule>, EventType> metrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
-        this.immutabilityMetrics = immutabilityMetrics;
-        this.privateAccessMetrics = privateAccessMetrics;
+        this.metrics = metrics;
         this.logger = logger;
         this.javaFile = Optional.ofNullable(javaFile);
     }
 
     DiagnosticsReport withJavaFile(JavaFileObject javaFile) {
-        return new DiagnosticsReport(immutabilityMetrics, privateAccessMetrics, logger, javaFile);
+        return new DiagnosticsReport(metrics, logger, javaFile);
     }
 
     void pluginLoaded() {
@@ -41,13 +38,18 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Listener, Defau
     }
 
     @Override
-    public void markedAsFinal(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
-        immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
+    public void modifierAdded(DefaultModifierRule source, VariableTree target) {
+        metrics.count(source.getClass(), EventType.MODIFIER_ADDED);
     }
 
     @Override
-    public void alreadyMarkedAsFinal(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
-        immutabilityMetrics.count(eventSource, EventType.FINAL_MODIFIER_ALREADY_PRESENT);
+    public void modifierNotAdded(DefaultModifierRule source, VariableTree target) {
+        metrics.count(source.getClass(), EventType.MODIFIER_NOT_ADDED);
+    }
+
+    @Override
+    public void modifierAlreadyPresent(DefaultModifierRule source, VariableTree target) {
+        metrics.count(source.getClass(), EventType.MODIFIER_ALREADY_PRESENT);
 
         logger.diagnostic(
             String.format(
@@ -72,72 +74,36 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Listener, Defau
         return filePath + ":" + lineNumber;
     }
 
-    @Override
-    public void annotatedAsMutable(DefaultImmutabilityRule source, VariableTree target, DefaultImmutabilityRule.EventSource eventSource) {
-        immutabilityMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
-    }
-
-    @Override
-    public void markedAsPrivate(DefaultFieldAccessRule source, VariableTree target) {
-        privateAccessMetrics.count(source.getClass().getSimpleName(), EventType.FINAL_MODIFIER_ADDED);
-    }
-
-    @Override
-    public void annotatedAsPackagePrivate(DefaultFieldAccessRule source, VariableTree target) {
-        privateAccessMetrics.count(source.getClass().getSimpleName(), EventType.ANNOTATED_AS_MUTABLE);
-    }
-
     void pluginFinished() {
-        logger.summary("immutable by default summary:");
-        logger.summary("| var type  | inspected   | final   | skipped | annotated |");
-        logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.FIELD));
-        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.LOCAL));
-        logger.summary(formatMetrics(DefaultImmutabilityRule.EventSource.PARAMETER));
-
-        logger.summary("default field access rule summary:");
-        logger.summary("| member    | inspected   | marked  | skipped | annotated |");
-        logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics());
+        logger.summary("summary:");
+        logger.summary("| rule                                     | inspected   | final   | skipped | annotated |");
+        logger.summary("|------------------------------------------|-------------|---------|---------|-----------|");
+        logger.summary(formatMetrics(DefaultFieldImmutabilityRule.class));
+        logger.summary(formatMetrics(DefaultParameterImmutabilityRule.class));
+        logger.summary(formatMetrics(DefaultLocalVariableImmutabilityRule.class));
+        logger.summary(formatMetrics(DefaultFieldAccessRule.class));
     }
 
-    private String formatMetrics(DefaultImmutabilityRule.EventSource eventSource) {
-        String eventSourceName = eventSource.name().toLowerCase();
+    private String formatMetrics(Class<? extends DefaultModifierRule> rule) {
+        String eventSourceName = rule.getSimpleName();
 
-        return immutabilityMetrics.calculate(eventSource)
+        return metrics.calculate(rule)
             .map(percentages ->
                 String.format(
-                    "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
+                    "| %-40s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
                     eventSourceName,
                     percentages.getTotal(),
-                    percentages.percentage(EventType.FINAL_MODIFIER_ADDED),
-                    percentages.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
-                    percentages.percentage(EventType.ANNOTATED_AS_MUTABLE)
+                    percentages.percentage(EventType.MODIFIER_ADDED),
+                    percentages.percentage(EventType.MODIFIER_ALREADY_PRESENT),
+                    percentages.percentage(EventType.MODIFIER_NOT_ADDED)
                 )
             )
-            .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
-    }
-
-    private String formatMetrics() {
-        String eventSourceName = DefaultFieldAccessRule.class.getSimpleName();
-
-        return privateAccessMetrics.calculate(eventSourceName)
-            .map(percentages ->
-                String.format(
-                    "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",
-                    eventSourceName,
-                    percentages.getTotal(),
-                    percentages.percentage(EventType.FINAL_MODIFIER_ADDED),
-                    percentages.percentage(EventType.FINAL_MODIFIER_ALREADY_PRESENT),
-                    percentages.percentage(EventType.ANNOTATED_AS_MUTABLE)
-                )
-            )
-            .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
+            .orElse(String.format("| %-40s |           0 |       - |       - |         - |", eventSourceName));
     }
 
     private enum EventType {
-        FINAL_MODIFIER_ADDED,
-        FINAL_MODIFIER_ALREADY_PRESENT,
-        ANNOTATED_AS_MUTABLE
+        MODIFIER_ADDED,
+        MODIFIER_ALREADY_PRESENT,
+        MODIFIER_NOT_ADDED
     }
 }
