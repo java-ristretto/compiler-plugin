@@ -12,7 +12,7 @@ import java.util.Optional;
 final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, DefaultFieldAccessRule.Listener {
 
     private final MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics;
-    private final MetricsCollector<DefaultFieldAccessRule.EventSource, EventType> privateAccessMetrics;
+    private final MetricsCollector<String, EventType> privateAccessMetrics;
     private final RistrettoLogger logger;
     private final Optional<JavaFileObject> javaFile;
 
@@ -22,7 +22,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
 
     private DiagnosticsReport(
         MetricsCollector<DefaultImmutabilityRule.EventSource, EventType> immutabilityMetrics,
-        MetricsCollector<DefaultFieldAccessRule.EventSource, EventType> privateAccessMetrics,
+        MetricsCollector<String, EventType> privateAccessMetrics,
         RistrettoLogger logger,
         JavaFileObject javaFile
     ) {
@@ -78,13 +78,13 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
     }
 
     @Override
-    public void markedAsPrivate(DefaultFieldAccessRule.EventSource eventSource) {
-        privateAccessMetrics.count(eventSource, EventType.FINAL_MODIFIER_ADDED);
+    public void markedAsPrivate(DefaultFieldAccessRule source, VariableTree target) {
+        privateAccessMetrics.count(source.getClass().getSimpleName(), EventType.FINAL_MODIFIER_ADDED);
     }
 
     @Override
-    public void annotatedAsPackagePrivate(DefaultFieldAccessRule.EventSource eventSource) {
-        privateAccessMetrics.count(eventSource, EventType.ANNOTATED_AS_MUTABLE);
+    public void annotatedAsPackagePrivate(DefaultFieldAccessRule source, VariableTree target) {
+        privateAccessMetrics.count(source.getClass().getSimpleName(), EventType.ANNOTATED_AS_MUTABLE);
     }
 
     void pluginFinished() {
@@ -98,7 +98,7 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
         logger.summary("default field access rule summary:");
         logger.summary("| member    | inspected   | marked  | skipped | annotated |");
         logger.summary("|-----------|-------------|---------|---------|-----------|");
-        logger.summary(formatMetrics(DefaultFieldAccessRule.EventSource.FIELD));
+        logger.summary(formatMetrics());
     }
 
     private String formatMetrics(DefaultImmutabilityRule.EventSource eventSource) {
@@ -118,10 +118,10 @@ final class DiagnosticsReport implements DefaultImmutabilityRule.Observer, Defau
             .orElse(String.format("| %-9s |           0 |       - |       - |         - |", eventSourceName));
     }
 
-    private String formatMetrics(DefaultFieldAccessRule.EventSource eventSource) {
-        String eventSourceName = eventSource.name().toLowerCase();
+    private String formatMetrics() {
+        String eventSourceName = DefaultFieldAccessRule.class.getSimpleName();
 
-        return privateAccessMetrics.calculate(eventSource)
+        return privateAccessMetrics.calculate(eventSourceName)
             .map(percentages ->
                 String.format(
                     "| %-9s | %,11d | %6.2f%% | %6.2f%% |   %6.2f%% |",

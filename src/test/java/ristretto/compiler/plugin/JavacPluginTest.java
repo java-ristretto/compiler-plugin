@@ -46,7 +46,7 @@ class JavacPluginTest extends JavacPluginBaseTest {
         assertThat(result.additionalOutput, containsString("default field access rule summary:"));
         assertThat(result.additionalOutput, containsString("| member    | inspected   | marked  | skipped | annotated |"));
         assertThat(result.additionalOutput, containsString("|-----------|-------------|---------|---------|-----------|"));
-        assertThat(result.additionalOutput, containsString("| field     |           2 | 100.00% |   0.00% |     0.00% |"));
+        assertThat(result.additionalOutput, containsString("| DefaultFieldAccessRule |           2 | 100.00% |   0.00% |     0.00% |"));
     }
 
     @Test

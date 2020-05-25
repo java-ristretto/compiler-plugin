@@ -28,20 +28,16 @@ final class DefaultFieldAccessRule implements VariableScanner.Visitor {
         }
 
         if (JCTreeCatalog.isAnnotatedAsPackagePrivate(field, resolver)) {
-            listener.annotatedAsPackagePrivate(EventSource.FIELD);
+            listener.annotatedAsPackagePrivate(this, field);
             return;
         }
 
         JCTreeCatalog.setPrivateModifier(field);
-        listener.markedAsPrivate(EventSource.FIELD);
-    }
-
-    enum EventSource {
-        FIELD
+        listener.markedAsPrivate(this, field);
     }
 
     interface Listener {
-        void markedAsPrivate(EventSource eventSource);
-        void annotatedAsPackagePrivate(EventSource eventSource);
+        void markedAsPrivate(DefaultFieldAccessRule source, VariableTree target);
+        void annotatedAsPackagePrivate(DefaultFieldAccessRule source, VariableTree target);
     }
 }
