@@ -8,7 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static ristretto.compiler.plugin.TestCompilerMatchers.hasOutput;
 
-class JavacPluginTest extends JavacPluginBaseTest {
+class DiagnosticsReportTest extends JavacPluginBaseTest {
 
     @Nested
     class output {
