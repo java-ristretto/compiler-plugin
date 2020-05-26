@@ -5,15 +5,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static ristretto.compiler.plugin.TestCompilerMatchers.hasOutput;
 
 class JavacPluginTest extends JavacPluginBaseTest {
 
     @Nested
     class output {
 
-        TestCompiler.Result result;
+        TestCompiler.Result compilerResult;
 
         @BeforeEach
         void beforeEach() {
@@ -37,22 +37,22 @@ class JavacPluginTest extends JavacPluginBaseTest {
                 "}"
             );
 
-            result = compile(code);
+            compilerResult = compile(code);
         }
 
         @Test
         void indicates_when_it_is_loaded() {
-            assertThat(result.additionalOutput, containsString("ristretto plugin loaded"));
+            assertThat(compilerResult, hasOutput("ristretto plugin loaded"));
         }
 
         @Test
         void prints_warn_messages() {
-            assertThat(result.additionalOutput, containsString("/test/TestSample.java:9 variable field2 has unnecessary final modifier"));
+            assertThat(compilerResult, hasOutput("/test/TestSample.java:9 variable field2 has unnecessary final modifier"));
         }
 
         @Test
         void prints_summary() {
-            assertThat(result.additionalOutput, containsString(String.join(System.lineSeparator(),
+            assertThat(compilerResult, hasOutput(
                 "summary:",
                 "| rule                                     | inspected   | final   | skipped | annotated |",
                 "|------------------------------------------|-------------|---------|---------|-----------|",
@@ -60,7 +60,7 @@ class JavacPluginTest extends JavacPluginBaseTest {
                 "| DefaultParameterImmutabilityRule         |           1 | 100.00% |   0.00% |     0.00% |",
                 "| DefaultLocalVariableImmutabilityRule     |           1 | 100.00% |   0.00% |     0.00% |",
                 "| DefaultFieldAccessRule                   |           2 | 100.00% |   0.00% |     0.00% |"
-            )));
+            ));
         }
     }
 
