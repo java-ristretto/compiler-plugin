@@ -7,7 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class ImmutableMethodParameterTest extends JavacPluginBaseTest {
+class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_method_parameters_to_be_final() {

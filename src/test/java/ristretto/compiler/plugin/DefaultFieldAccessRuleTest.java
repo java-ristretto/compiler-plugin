@@ -9,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class PrivateFieldTest extends JavacPluginBaseTest {
+class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
     TestCompiler.SourceCode anotherClass;
 

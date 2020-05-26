@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-class ImmutableFieldTest extends JavacPluginBaseTest {
+class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Nested
     class classes {

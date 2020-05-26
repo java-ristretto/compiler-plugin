@@ -7,7 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-class ImmutableLocalVariableTest extends JavacPluginBaseTest {
+class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_local_variable_to_be_final() {
