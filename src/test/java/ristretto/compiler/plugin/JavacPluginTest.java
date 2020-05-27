@@ -9,7 +9,7 @@ class JavacPluginTest extends JavacPluginBaseTest {
 
     @Test
     void ignores_specified_package() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",

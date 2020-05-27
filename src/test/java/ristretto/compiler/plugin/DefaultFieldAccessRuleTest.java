@@ -15,7 +15,7 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
     @BeforeEach
     void beforeEach() {
-        anotherClass = TestCompiler.SourceCode.of("ristretto.test", "AnotherClass", "",
+        anotherClass = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class AnotherClass {",
@@ -31,7 +31,7 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
     @Test
     void sets_field_as_private_when_no_access_modifier_is_present() {
-        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var classWithField = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -47,12 +47,12 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
         TestCompiler.Result result = compile(List.of(classWithField, anotherClass));
 
-        assertThat(result.diagnostics(), containsString("AnotherClass.java:8: error: msg has private access in ristretto.test.TestSample"));
+        assertThat(result.diagnostics(), containsString("AnotherClass.java:7: error: msg has private access in ristretto.test.TestSample"));
     }
 
     @Test
     void skips_public_fields() {
-        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var classWithField = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -73,7 +73,7 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
     @Test
     void skips_protected_fields() {
-        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var classWithField = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -94,7 +94,7 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
     @Test
     void skips_annotated_fields() {
-        var classWithField = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var classWithField = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "import ristretto.PackagePrivate;",

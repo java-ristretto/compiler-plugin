@@ -11,7 +11,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_method_parameters_to_be_final() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -24,7 +24,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
         var result = compile(code);
 
-        assertThat(result.diagnostics(), containsString("TestSample.java:6: error: final parameter name may not be assigned"));
+        assertThat(result.diagnostics(), containsString("TestSample.java:5: error: final parameter name may not be assigned"));
     }
 
     @Nested
@@ -32,7 +32,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_parameter() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -54,7 +54,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_parameter() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -78,7 +78,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_parameter() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -102,7 +102,7 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_parameter() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "import ristretto.*;",

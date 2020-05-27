@@ -12,7 +12,7 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
 
     @BeforeEach
     void beforeEach() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "import ristretto.PackagePrivate;",
@@ -42,7 +42,7 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
 
     @Test
     void prints_warn_messages() {
-        assertThat(compilerResult, hasOutput("/test/TestSample.java:9 variable field2 has unnecessary final modifier"));
+        assertThat(compilerResult, hasOutput("/test/TestSample.java:8 variable field2 has unnecessary final modifier"));
     }
 
     @Test

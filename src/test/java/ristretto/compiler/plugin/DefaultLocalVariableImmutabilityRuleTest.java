@@ -11,7 +11,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_local_variable_to_be_final() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -25,12 +25,12 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         var result = compile(code);
 
-        assertThat(result.diagnostics(), containsString("TestSample.java:7: error: cannot assign a value to final variable name"));
+        assertThat(result.diagnostics(), containsString("TestSample.java:6: error: cannot assign a value to final variable name"));
     }
 
     @Test
     void skips_annotated_local_variable_annotated() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "import ristretto.Mutable;",
@@ -51,7 +51,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
     @Test
     void enforces_local_variables_in_anonymous_blocks() {
-        var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+        var code = TestCompiler.SourceCode.of(
             "package ristretto.test;",
             "",
             "public class TestSample {",
@@ -69,7 +69,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         var result = compile(code);
 
-        assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable msg"));
+        assertThat(result.diagnostics(), containsString("TestSample.java:7: error: cannot assign a value to final variable msg"));
     }
 
     @Nested
@@ -77,7 +77,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_variable() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -98,7 +98,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void enforces_local_variable_initialized_but_not_defined() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -111,12 +111,12 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
             var result = compile(code);
 
-            assertThat(result.diagnostics(), containsString("TestSample.java:7: error: variable i might already have been assigned"));
+            assertThat(result.diagnostics(), containsString("TestSample.java:6: error: variable i might already have been assigned"));
         }
 
         @Test
         void enforces_local_variable_defined_in_the_block() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -131,7 +131,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
             var result = compile(code);
 
-            assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
+            assertThat(result.diagnostics(), containsString("TestSample.java:7: error: cannot assign a value to final variable name"));
         }
     }
 
@@ -140,7 +140,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_variable() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -161,7 +161,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void enforces_local_variable_defined_in_the_block() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -176,7 +176,7 @@ class DefaultLocalVariableImmutabilityRuleTest extends JavacPluginBaseTest {
 
             var result = compile(code);
 
-            assertThat(result.diagnostics(), containsString("TestSample.java:8: error: cannot assign a value to final variable name"));
+            assertThat(result.diagnostics(), containsString("TestSample.java:7: error: cannot assign a value to final variable name"));
         }
     }
 }

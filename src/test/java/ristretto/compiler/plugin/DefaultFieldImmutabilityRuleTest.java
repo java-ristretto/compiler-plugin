@@ -15,7 +15,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void enforces_fields_to_be_final() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("",
                 "package ristretto.test;",
                 "",
                 "public class TestSample {",
@@ -41,7 +41,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_annotated_fields() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("",
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -70,7 +70,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void skips_volatile_fields() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of("",
                 "package ristretto.test;",
                 "",
                 "import ristretto.Mutable;",
@@ -102,7 +102,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void enforces_fields_to_be_final() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public enum TestSample {",
@@ -116,12 +116,12 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
             var result = compile(code);
 
-            assertThat(result.diagnostics(), containsString("TestSample.java:8: error: variable value not initialized in the default constructor"));
+            assertThat(result.diagnostics(), containsString("TestSample.java:7: error: variable value not initialized in the default constructor"));
         }
 
         @Test
         void warns_about_final_fields() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public enum TestSample {",
@@ -139,7 +139,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
         @Test
         void does_not_warn_about_static_final_fields() {
-            var code = TestCompiler.SourceCode.of("ristretto.test", "TestSample", "",
+            var code = TestCompiler.SourceCode.of(
                 "package ristretto.test;",
                 "",
                 "public enum TestSample {",

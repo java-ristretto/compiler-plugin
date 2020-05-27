@@ -19,7 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.tools.JavaFileObject.Kind.SOURCE;
 
@@ -65,15 +68,51 @@ final class TestCompiler {
 
     static final class SourceCode extends SimpleJavaFileObject {
 
+        private static final Pattern PACKAGE_DECLARATION = Pattern.compile(
+            "\\s*package\\s*(?<name>[a-z0-9.]+);\\s*"
+        );
+
+        private static final Pattern PUBLIC_TYPE_DECLARATION = Pattern.compile(
+            "\\s*public\\s+(final\\s+)?(class|enum)\\s+(?<name>[A-Za-z]+)\\s+\\{\\s*"
+        );
+
         final String content;
 
-        private SourceCode(String packageName, String publicClass, String content) {
-            super(URI.create(String.format("string://%s/%s%s", packageName.replace('.', '/'), publicClass, SOURCE.extension)), SOURCE);
+        private SourceCode(URI uri, String content) {
+            super(uri, SOURCE);
             this.content = content;
         }
 
-        static SourceCode of(String packageName, String publicClass, String... content) {
-            return new SourceCode(packageName, publicClass, String.join(System.lineSeparator(), content));
+        static SourceCode of(String... content) {
+            String packageName = extractPackageName(content);
+            String publicClass = extractPublicClassName(content);
+
+            URI uri = URI.create(String.format(
+                "string://%s/%s%s",
+                packageName.replace('.', '/'),
+                publicClass,
+                SOURCE.extension
+            ));
+
+            return new SourceCode(uri, String.join(System.lineSeparator(), content));
+        }
+
+        private static String extractPackageName(String[] content) {
+            return Stream.of(content)
+                .map(PACKAGE_DECLARATION::matcher)
+                .filter(Matcher::matches)
+                .map(matcher -> matcher.group("name"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no package declaration"));
+        }
+
+        private static String extractPublicClassName(String[] content) {
+            return Stream.of(content)
+                .map(PUBLIC_TYPE_DECLARATION::matcher)
+                .filter(Matcher::matches)
+                .map(matcher -> matcher.group("name"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("no public type declaration"));
         }
 
         @Override
