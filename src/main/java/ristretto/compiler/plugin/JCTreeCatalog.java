@@ -74,6 +74,10 @@ final class JCTreeCatalog {
         modifiers.flags |= Flags.FINAL;
     }
 
+    static boolean hasPrivateModifier(VariableTree variable) {
+        return variable.getModifiers().getFlags().contains(Modifier.PRIVATE);
+    }
+
     static void setPrivateModifier(VariableTree variable) {
         JCTree.JCModifiers modifiers = ((JCTree.JCVariableDecl) variable).mods;
         modifiers.flags |= Flags.PRIVATE;

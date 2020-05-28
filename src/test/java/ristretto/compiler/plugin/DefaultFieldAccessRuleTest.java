@@ -8,6 +8,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static ristretto.compiler.plugin.TestCompilerMatchers.hasOutput;
 
 class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
 
@@ -113,6 +114,29 @@ class DefaultFieldAccessRuleTest extends JavacPluginBaseTest {
         String result = compile(List.of(classWithField, anotherClass)).invoke("ristretto.test.AnotherClass", "test", "hello world");
 
         assertThat(result, is("hello world"));
+    }
+
+    @Test
+    void notifies_about_modifier_already_present() {
+        var classWithField = TestCompiler.SourceCode.of(
+            "package ristretto.test;",
+            "",
+            "import ristretto.PackagePrivate;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  private String msg;",
+            "  ",
+            "  public TestSample(String msg) {",
+            "    this.msg = msg;",
+            "  }",
+            "  ",
+            "}"
+        );
+
+        var result = compile(classWithField);
+
+        assertThat(result, hasOutput("DefaultFieldAccessRule /test/TestSample.java:7 MODIFIER_ALREADY_PRESENT"));
     }
 
 }

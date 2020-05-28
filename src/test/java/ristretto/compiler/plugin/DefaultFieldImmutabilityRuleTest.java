@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static ristretto.compiler.plugin.TestCompilerMatchers.hasOutput;
 
 class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
@@ -134,7 +135,7 @@ class DefaultFieldImmutabilityRuleTest extends JavacPluginBaseTest {
 
             var result = compile(code);
 
-            assertThat(result.additionalOutput, containsString("warn"));
+            assertThat(result, hasOutput("DefaultFieldImmutabilityRule /test/TestSample.java:7 MODIFIER_ALREADY_PRESENT"));
         }
 
         @Test

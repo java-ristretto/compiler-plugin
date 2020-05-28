@@ -32,6 +32,11 @@ final class DefaultFieldAccessRule implements VariableScanner.Visitor, DefaultMo
             return;
         }
 
+        if (JCTreeCatalog.hasPrivateModifier(field)) {
+            listener.modifierAlreadyPresent(this, field);
+            return;
+        }
+
         JCTreeCatalog.setPrivateModifier(field);
         listener.modifierAdded(this, field);
     }
