@@ -39,25 +39,22 @@ final class DiagnosticsReport implements DefaultModifierRule.Listener {
 
     @Override
     public void modifierAdded(DefaultModifierRule source, VariableTree target) {
-        metrics.count(source.getClass(), EventType.MODIFIER_ADDED);
+        handleEvent(source, target, EventType.MODIFIER_ADDED);
     }
 
     @Override
     public void modifierNotAdded(DefaultModifierRule source, VariableTree target) {
-        metrics.count(source.getClass(), EventType.MODIFIER_NOT_ADDED);
+        handleEvent(source, target, EventType.MODIFIER_NOT_ADDED);
     }
 
     @Override
     public void modifierAlreadyPresent(DefaultModifierRule source, VariableTree target) {
-        metrics.count(source.getClass(), EventType.MODIFIER_ALREADY_PRESENT);
+        handleEvent(source, target, EventType.MODIFIER_ALREADY_PRESENT);
+    }
 
-        logger.diagnostic(
-            String.format(
-                "warning: %s variable %s has unnecessary final modifier",
-                positionOf(target),
-                target.getName()
-            )
-        );
+    private void handleEvent(DefaultModifierRule source, VariableTree target, EventType eventType) {
+        metrics.count(source.getClass(), eventType);
+        logger.diagnostic(String.format("%s %s %s", source.getClass().getSimpleName(), positionOf(target), eventType));
     }
 
     private String positionOf(VariableTree variable) {
@@ -76,7 +73,7 @@ final class DiagnosticsReport implements DefaultModifierRule.Listener {
 
     void pluginFinished() {
         logger.summary("summary:");
-        logger.summary("| rule                                     | inspected   | final   | skipped | annotated |");
+        logger.summary("| rule                                     | inspected   | added   | present | not added |");
         logger.summary("|------------------------------------------|-------------|---------|---------|-----------|");
         logger.summary(formatMetrics(DefaultFieldImmutabilityRule.class));
         logger.summary(formatMetrics(DefaultParameterImmutabilityRule.class));

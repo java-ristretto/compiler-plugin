@@ -16,18 +16,13 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
             "package ristretto.test;",
             "",
             "import ristretto.PackagePrivate;",
+            "import ristretto.Mutable;",
             "",
             "public class TestSample {",
             "",
             "  String field1;",
             "  final String field2;",
-            "",
-            "  public void sampleMethod(String parameter) {",
-            "    String s = parameter;",
-            "  }",
-            "",
-            "  @PackagePrivate void anotherMethod() {",
-            "  }",
+            "  @Mutable String field3;",
             "",
             "}"
         );
@@ -36,25 +31,35 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
     }
 
     @Test
-    void indicates_when_it_is_loaded() {
+    void prints_when_the_plugin_is_loaded() {
         assertThat(compilerResult, hasOutput("ristretto plugin loaded"));
     }
 
     @Test
-    void prints_warn_messages() {
-        assertThat(compilerResult, hasOutput("/test/TestSample.java:8 variable field2 has unnecessary final modifier"));
+    void prints_message_when_modifier_is_added() {
+        assertThat(compilerResult, hasOutput("DefaultFieldImmutabilityRule /test/TestSample.java:8 MODIFIER_ADDED"));
+    }
+
+    @Test
+    void prints_message_when_modifier_is_already_present() {
+        assertThat(compilerResult, hasOutput("DefaultFieldImmutabilityRule /test/TestSample.java:9 MODIFIER_ALREADY_PRESENT"));
+    }
+
+    @Test
+    void prints_message_when_modifier_is_not_added() {
+        assertThat(compilerResult, hasOutput("DefaultFieldImmutabilityRule /test/TestSample.java:10 MODIFIER_NOT_ADDED"));
     }
 
     @Test
     void prints_summary() {
         assertThat(compilerResult, hasOutput(
             "summary:",
-            "| rule                                     | inspected   | final   | skipped | annotated |",
+            "| rule                                     | inspected   | added   | present | not added |",
             "|------------------------------------------|-------------|---------|---------|-----------|",
-            "| DefaultFieldImmutabilityRule             |           2 |  50.00% |  50.00% |     0.00% |",
-            "| DefaultParameterImmutabilityRule         |           1 | 100.00% |   0.00% |     0.00% |",
-            "| DefaultLocalVariableImmutabilityRule     |           1 | 100.00% |   0.00% |     0.00% |",
-            "| DefaultFieldAccessRule                   |           2 | 100.00% |   0.00% |     0.00% |"
+            "| DefaultFieldImmutabilityRule             |           3 |  33.33% |  33.33% |    33.33% |",
+            "| DefaultParameterImmutabilityRule         |           0 |       - |       - |         - |",
+            "| DefaultLocalVariableImmutabilityRule     |           0 |       - |       - |         - |",
+            "| DefaultFieldAccessRule                   |           3 | 100.00% |   0.00% |     0.00% |"
         ));
     }
 }
