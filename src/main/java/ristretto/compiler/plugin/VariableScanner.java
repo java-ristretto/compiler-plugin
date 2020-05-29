@@ -23,7 +23,9 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
         this.resolver = resolver;
     }
 
-    static void scan(CompilationUnitTree compilationUnit, AnnotationNameResolver resolver, Visitor visitor) {
+    static void scan(CompilationUnitTree compilationUnit, Visitor visitor) {
+        AnnotationNameResolver resolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
+
         compilationUnit.accept(
             new VariableScanner(compilationUnit.getSourceFile(), visitor, resolver),
             Scope.COMPILATION_UNIT

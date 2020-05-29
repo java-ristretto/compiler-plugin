@@ -20,7 +20,6 @@ final class DefaultLocalVariableImmutabilityRule implements VariableScanner.Visi
             return;
         }
 
-        localVariable.addFinalModifier();
         listener.modifierAdded(this, localVariable);
     }
 }
