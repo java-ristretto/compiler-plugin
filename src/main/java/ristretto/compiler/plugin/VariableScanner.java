@@ -9,16 +9,25 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 
+import javax.tools.JavaFileObject;
+
 final class VariableScanner extends TreeScanner<Void, Scope> {
 
+    private final JavaFileObject javaFile;
     private final Visitor visitor;
+    private final AnnotationNameResolver resolver;
 
-    private VariableScanner(Visitor visitor) {
+    private VariableScanner(JavaFileObject javaFile, Visitor visitor, AnnotationNameResolver resolver) {
+        this.javaFile = javaFile;
         this.visitor = visitor;
+        this.resolver = resolver;
     }
 
-    static void scan(CompilationUnitTree compilationUnit, Visitor visitor) {
-        compilationUnit.accept(new VariableScanner(visitor), Scope.COMPILATION_UNIT);
+    static void scan(CompilationUnitTree compilationUnit, AnnotationNameResolver resolver, Visitor visitor) {
+        compilationUnit.accept(
+            new VariableScanner(compilationUnit.getSourceFile(), visitor, resolver),
+            Scope.COMPILATION_UNIT
+        );
     }
 
     @Override
@@ -48,7 +57,7 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
     public Void visitVariable(VariableTree variable, Scope scope) {
         switch (scope) {
             case BLOCK:
-                visitor.visitLocalVariable(variable);
+                visitor.visitLocalVariable(new JCVariableDeclWrapper(javaFile, variable, resolver));
                 break;
             case CLASS:
                 visitor.visitField(variable);
@@ -67,7 +76,7 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
 
     interface Visitor {
 
-        default void visitLocalVariable(VariableTree localVariable) {
+        default void visitLocalVariable(LocalVariable localVariable) {
         }
 
         default void visitField(VariableTree field) {

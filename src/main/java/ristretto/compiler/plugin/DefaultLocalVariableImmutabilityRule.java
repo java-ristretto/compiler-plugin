@@ -1,30 +1,26 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.VariableTree;
-
 final class DefaultLocalVariableImmutabilityRule implements VariableScanner.Visitor, DefaultModifierRule {
 
-    private final AnnotationNameResolver resolver;
     private final Listener listener;
 
-    DefaultLocalVariableImmutabilityRule(AnnotationNameResolver resolver, Listener listener) {
-        this.resolver = resolver;
+    DefaultLocalVariableImmutabilityRule(Listener listener) {
         this.listener = listener;
     }
 
     @Override
-    public void visitLocalVariable(VariableTree localVariable) {
-        if (JCTreeCatalog.isAnnotatedAsMutable(localVariable, resolver)) {
+    public void visitLocalVariable(LocalVariable localVariable) {
+        if (localVariable.isAnnotatedAsMutable()) {
             listener.modifierNotAdded(this, localVariable);
             return;
         }
 
-        if (JCTreeCatalog.hasFinalModifier(localVariable)) {
+        if (localVariable.hasFinalModifier()) {
             listener.modifierAlreadyPresent(this, localVariable);
             return;
         }
 
-        JCTreeCatalog.addFinalModifier(localVariable);
+        localVariable.addFinalModifier();
         listener.modifierAdded(this, localVariable);
     }
 }
