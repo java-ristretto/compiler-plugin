@@ -9,7 +9,7 @@ final class DefaultParameterImmutabilityRule implements VariableScanner.Visitor,
     }
 
     @Override
-    public void visitParameter(Variable parameter) {
+    public void visitParameter(ModifierTarget parameter) {
         if (parameter.hasMutableAnnotation()) {
             listener.modifierNotAdded(this, parameter);
             return;

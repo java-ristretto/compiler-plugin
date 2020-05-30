@@ -80,19 +80,19 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
 
     interface Visitor {
 
-        default void visitLocalVariable(Variable localVariable) {
+        default void visitLocalVariable(ModifierTarget localVariable) {
         }
 
-        default void visitField(Variable field) {
+        default void visitField(ModifierTarget field) {
         }
 
-        default void visitClassField(Variable field) {
+        default void visitClassField(ModifierTarget field) {
         }
 
-        default void visitEnumField(Variable field) {
+        default void visitEnumField(ModifierTarget field) {
         }
 
-        default void visitParameter(Variable parameter) {
+        default void visitParameter(ModifierTarget parameter) {
         }
     }
 

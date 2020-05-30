@@ -9,7 +9,7 @@ final class DefaultLocalVariableImmutabilityRule implements VariableScanner.Visi
     }
 
     @Override
-    public void visitLocalVariable(Variable localVariable) {
+    public void visitLocalVariable(ModifierTarget localVariable) {
         if (localVariable.hasMutableAnnotation()) {
             listener.modifierNotAdded(this, localVariable);
             return;

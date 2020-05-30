@@ -9,7 +9,7 @@ final class DefaultFieldAccessRule implements VariableScanner.Visitor, DefaultMo
     }
 
     @Override
-    public void visitField(Variable field) {
+    public void visitField(ModifierTarget field) {
         if (field.hasPublicModifier() || field.hasProtectedModifier()) {
             return;
         }

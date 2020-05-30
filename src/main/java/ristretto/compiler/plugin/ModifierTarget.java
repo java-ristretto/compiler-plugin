@@ -1,6 +1,7 @@
 package ristretto.compiler.plugin;
 
-interface Variable {
+interface ModifierTarget {
+
     boolean hasFinalModifier();
     boolean hasPublicModifier();
     boolean hasProtectedModifier();
@@ -14,5 +15,4 @@ interface Variable {
     boolean hasPackagePrivateAnnotation();
 
     String position();
-
 }

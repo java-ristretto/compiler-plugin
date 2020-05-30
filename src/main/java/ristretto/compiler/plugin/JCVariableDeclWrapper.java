@@ -9,7 +9,7 @@ import com.sun.tools.javac.util.DiagnosticSource;
 import javax.lang.model.element.Modifier;
 import javax.tools.JavaFileObject;
 
-final class JCVariableDeclWrapper implements Variable {
+final class JCVariableDeclWrapper implements ModifierTarget {
 
     private final JCTree.JCVariableDecl variable;
     private final AnnotationNameResolver resolver;

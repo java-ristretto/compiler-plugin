@@ -9,12 +9,12 @@ final class DefaultFieldImmutabilityRule implements VariableScanner.Visitor, Def
     }
 
     @Override
-    public void visitClassField(Variable field) {
+    public void visitClassField(ModifierTarget field) {
         handleVariable(field);
     }
 
     @Override
-    public void visitEnumField(Variable field) {
+    public void visitEnumField(ModifierTarget field) {
         if (field.hasStaticModifier()) {
             return;
         }
@@ -22,7 +22,7 @@ final class DefaultFieldImmutabilityRule implements VariableScanner.Visitor, Def
         handleVariable(field);
     }
 
-    private void handleVariable(Variable variable) {
+    private void handleVariable(ModifierTarget variable) {
         if (variable.hasMutableAnnotation()) {
             listener.modifierNotAdded(this, variable);
             return;

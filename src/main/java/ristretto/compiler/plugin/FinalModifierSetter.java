@@ -8,7 +8,7 @@ final class FinalModifierSetter implements DefaultModifierRule.Listener {
     }
 
     @Override
-    public void modifierAdded(DefaultModifierRule source, Variable target) {
+    public void modifierAdded(DefaultModifierRule source, ModifierTarget target) {
         target.addFinalModifier();
     }
 }
