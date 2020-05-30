@@ -36,16 +36,14 @@ public final class JavacPlugin implements Plugin {
             event -> {
                 var compilationUnit = event.getCompilationUnit();
 
-                var immutabilityListeners = DefaultModifierRule.Listeners.of(diagnosticsReport, FinalModifierSetter.INSTANCE);
+                var immutabilityListeners = FinalModifierSetter.INSTANCE.andThen(diagnosticsReport);
                 VariableScanner.scan(compilationUnit, new DefaultFieldImmutabilityRule(immutabilityListeners));
                 VariableScanner.scan(compilationUnit, new DefaultParameterImmutabilityRule(immutabilityListeners));
                 VariableScanner.scan(compilationUnit, new DefaultLocalVariableImmutabilityRule(immutabilityListeners));
 
                 VariableScanner.scan(
                     compilationUnit,
-                    new DefaultFieldAccessRule(
-                        DefaultModifierRule.Listeners.of(diagnosticsReport, PublicModifierSetter.INSTANCE)
-                    )
+                    new DefaultFieldAccessRule(PublicModifierSetter.INSTANCE.andThen(diagnosticsReport))
                 );
             }
         ));

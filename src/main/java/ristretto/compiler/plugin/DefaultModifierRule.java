@@ -1,9 +1,5 @@
 package ristretto.compiler.plugin;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 interface DefaultModifierRule {
 
     interface Listener {
@@ -16,33 +12,28 @@ interface DefaultModifierRule {
 
         default void modifierNotAdded(DefaultModifierRule source, Variable target) {
         }
-    }
 
-    class Listeners implements Listener {
+        default Listener andThen(Listener next) {
+            return new Listener() {
 
-        private final Set<Listener> listeners;
+                @Override
+                public void modifierAdded(DefaultModifierRule source, Variable target) {
+                    Listener.this.modifierAdded(source, target);
+                    next.modifierAdded(source, target);
+                }
 
-        private Listeners(Set<Listener> listeners) {
-            this.listeners = listeners;
-        }
+                @Override
+                public void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
+                    Listener.this.modifierAlreadyPresent(source, target);
+                    next.modifierAlreadyPresent(source, target);
+                }
 
-        static Listeners of(Listener... listeners) {
-            return new Listeners(Stream.of(listeners).collect(Collectors.toUnmodifiableSet()));
-        }
-
-        @Override
-        public void modifierAdded(DefaultModifierRule source, Variable target) {
-            listeners.forEach(listener -> listener.modifierAdded(source, target));
-        }
-
-        @Override
-        public void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
-            listeners.forEach(listener -> listener.modifierAlreadyPresent(source, target));
-        }
-
-        @Override
-        public void modifierNotAdded(DefaultModifierRule source, Variable target) {
-            listeners.forEach(listener -> listener.modifierNotAdded(source, target));
+                @Override
+                public void modifierNotAdded(DefaultModifierRule source, Variable target) {
+                    Listener.this.modifierNotAdded(source, target);
+                    next.modifierNotAdded(source, target);
+                }
+            };
         }
     }
 }
