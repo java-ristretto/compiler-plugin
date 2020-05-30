@@ -46,7 +46,12 @@ public final class JavacPlugin implements Plugin {
                         DefaultModifierRule.Listeners.of(report, FinalModifierSetter.INSTANCE)
                     )
                 );
-                VariableScanner.scan(compilationUnit, new DefaultFieldAccessRule(nameResolver, report));
+                VariableScanner.scan(
+                    compilationUnit,
+                    new DefaultFieldAccessRule(
+                        DefaultModifierRule.Listeners.of(report, PublicModifierSetter.INSTANCE)
+                    )
+                );
             }
         ));
 

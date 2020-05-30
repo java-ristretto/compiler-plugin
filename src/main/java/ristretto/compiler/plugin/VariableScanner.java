@@ -62,11 +62,11 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
                 visitor.visitLocalVariable(new JCVariableDeclWrapper(javaFile, variable, resolver));
                 break;
             case CLASS:
-                visitor.visitField(variable);
+                visitor.visitField(new JCVariableDeclWrapper(javaFile, variable, resolver));
                 visitor.visitClassField(variable);
                 break;
             case ENUM:
-                visitor.visitField(variable);
+                visitor.visitField(new JCVariableDeclWrapper(javaFile, variable, resolver));
                 visitor.visitEnumField(variable);
                 break;
             case METHOD:
@@ -78,10 +78,10 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
 
     interface Visitor {
 
-        default void visitLocalVariable(LocalVariable localVariable) {
+        default void visitLocalVariable(Variable localVariable) {
         }
 
-        default void visitField(VariableTree field) {
+        default void visitField(Variable field) {
         }
 
         default void visitClassField(VariableTree field) {

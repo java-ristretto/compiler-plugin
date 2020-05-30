@@ -38,21 +38,21 @@ final class DiagnosticsReport implements DefaultModifierRule.Listener {
     }
 
     @Override
-    public void modifierAdded(DefaultModifierRule source, LocalVariable target) {
+    public void modifierAdded(DefaultModifierRule source, Variable target) {
         handleEvent(source, target, EventType.MODIFIER_ADDED);
     }
 
     @Override
-    public void modifierNotAdded(DefaultModifierRule source, LocalVariable target) {
+    public void modifierNotAdded(DefaultModifierRule source, Variable target) {
         handleEvent(source, target, EventType.MODIFIER_NOT_ADDED);
     }
 
     @Override
-    public void modifierAlreadyPresent(DefaultModifierRule source, LocalVariable target) {
+    public void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
         handleEvent(source, target, EventType.MODIFIER_ALREADY_PRESENT);
     }
 
-    private void handleEvent(DefaultModifierRule source, LocalVariable target, EventType eventType) {
+    private void handleEvent(DefaultModifierRule source, Variable target, EventType eventType) {
         metrics.count(source.getClass(), eventType);
         logger.diagnostic(String.format("%s %s %s", source.getClass().getSimpleName(), target.position(), eventType));
     }

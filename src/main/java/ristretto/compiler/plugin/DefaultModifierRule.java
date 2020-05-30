@@ -21,15 +21,15 @@ interface DefaultModifierRule {
 
         }
 
-        default void modifierAdded(DefaultModifierRule source, LocalVariable target) {
+        default void modifierAdded(DefaultModifierRule source, Variable target) {
 
         }
 
-        default void modifierAlreadyPresent(DefaultModifierRule source, LocalVariable target) {
+        default void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
 
         }
 
-        default void modifierNotAdded(DefaultModifierRule source, LocalVariable target) {
+        default void modifierNotAdded(DefaultModifierRule source, Variable target) {
 
         }
     }
@@ -47,17 +47,17 @@ interface DefaultModifierRule {
         }
 
         @Override
-        public void modifierAdded(DefaultModifierRule source, LocalVariable target) {
+        public void modifierAdded(DefaultModifierRule source, Variable target) {
             listeners.forEach(listener -> listener.modifierAdded(source, target));
         }
 
         @Override
-        public void modifierAlreadyPresent(DefaultModifierRule source, LocalVariable target) {
+        public void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
             listeners.forEach(listener -> listener.modifierAlreadyPresent(source, target));
         }
 
         @Override
-        public void modifierNotAdded(DefaultModifierRule source, LocalVariable target) {
+        public void modifierNotAdded(DefaultModifierRule source, Variable target) {
             listeners.forEach(listener -> listener.modifierNotAdded(source, target));
         }
     }
