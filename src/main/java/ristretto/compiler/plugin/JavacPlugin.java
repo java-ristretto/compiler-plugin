@@ -39,7 +39,12 @@ public final class JavacPlugin implements Plugin {
                 var nameResolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
 
                 VariableScanner.scan(compilationUnit, new DefaultFieldImmutabilityRule(nameResolver, report));
-                VariableScanner.scan(compilationUnit, new DefaultParameterImmutabilityRule(nameResolver, report));
+                VariableScanner.scan(
+                    compilationUnit,
+                    new DefaultParameterImmutabilityRule(
+                        DefaultModifierRule.Listeners.of(report, FinalModifierSetter.INSTANCE)
+                    )
+                );
                 VariableScanner.scan(
                     compilationUnit,
                     new DefaultLocalVariableImmutabilityRule(

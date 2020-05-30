@@ -1,30 +1,25 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.VariableTree;
-
 final class DefaultParameterImmutabilityRule implements VariableScanner.Visitor, DefaultModifierRule {
 
-    private final AnnotationNameResolver resolver;
     private final Listener listener;
 
-    DefaultParameterImmutabilityRule(AnnotationNameResolver resolver, Listener listener) {
-        this.resolver = resolver;
+    DefaultParameterImmutabilityRule(Listener listener) {
         this.listener = listener;
     }
 
     @Override
-    public void visitParameter(VariableTree parameter) {
-        if (JCTreeCatalog.isAnnotatedAsMutable(parameter, resolver)) {
+    public void visitParameter(Variable parameter) {
+        if (parameter.hasMutableAnnotation()) {
             listener.modifierNotAdded(this, parameter);
             return;
         }
 
-        if (JCTreeCatalog.hasFinalModifier(parameter)) {
+        if (parameter.hasFinalModifier()) {
             listener.modifierAlreadyPresent(this, parameter);
             return;
         }
 
-        JCTreeCatalog.addFinalModifier(parameter);
         listener.modifierAdded(this, parameter);
     }
 }

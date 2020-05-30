@@ -9,9 +9,8 @@ interface Variable {
     void addFinalModifier();
     void addPublicModifier();
 
-    boolean isAnnotatedAsMutable();
+    boolean hasMutableAnnotation();
     boolean hasPackagePrivateAnnotation();
 
     String position();
-
 }

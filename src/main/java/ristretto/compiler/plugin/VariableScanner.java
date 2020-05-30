@@ -70,7 +70,7 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
                 visitor.visitEnumField(variable);
                 break;
             case METHOD:
-                visitor.visitParameter(variable);
+                visitor.visitParameter(new JCVariableDeclWrapper(javaFile, variable, resolver));
                 break;
         }
         return super.visitVariable(variable, scope);
@@ -90,7 +90,7 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
         default void visitEnumField(VariableTree field) {
         }
 
-        default void visitParameter(VariableTree parameter) {
+        default void visitParameter(Variable parameter) {
         }
     }
 

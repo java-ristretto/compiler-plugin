@@ -49,7 +49,7 @@ final class JCVariableDeclWrapper implements Variable {
     }
 
     @Override
-    public boolean isAnnotatedAsMutable() {
+    public boolean hasMutableAnnotation() {
         return variable.getModifiers()
             .getAnnotations()
             .stream()
