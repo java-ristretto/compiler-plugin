@@ -1,43 +1,38 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.VariableTree;
-
 final class DefaultFieldImmutabilityRule implements VariableScanner.Visitor, DefaultModifierRule {
 
-    private final AnnotationNameResolver resolver;
     private final Listener listener;
 
-    DefaultFieldImmutabilityRule(AnnotationNameResolver resolver, Listener listener) {
-        this.resolver = resolver;
+    DefaultFieldImmutabilityRule(Listener listener) {
         this.listener = listener;
     }
 
     @Override
-    public void visitClassField(VariableTree field) {
+    public void visitClassField(Variable field) {
         handleVariable(field);
     }
 
     @Override
-    public void visitEnumField(VariableTree field) {
-        if (JCTreeCatalog.hasStaticModifier(field)) {
+    public void visitEnumField(Variable field) {
+        if (field.hasStaticModifier()) {
             return;
         }
 
         handleVariable(field);
     }
 
-    private void handleVariable(VariableTree variable) {
-        if (JCTreeCatalog.isAnnotatedAsMutable(variable, resolver)) {
+    private void handleVariable(Variable variable) {
+        if (variable.hasMutableAnnotation()) {
             listener.modifierNotAdded(this, variable);
             return;
         }
 
-        if (JCTreeCatalog.hasFinalModifier(variable)) {
+        if (variable.hasFinalModifier()) {
             listener.modifierAlreadyPresent(this, variable);
             return;
         }
 
-        JCTreeCatalog.addFinalModifier(variable);
         listener.modifierAdded(this, variable);
     }
 }

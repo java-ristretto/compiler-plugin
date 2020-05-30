@@ -35,26 +35,16 @@ public final class JavacPlugin implements Plugin {
             whenEventKindIs(TaskEvent.Kind.PARSE).and(whenPackageName(options::isIncluded)),
             event -> {
                 var compilationUnit = event.getCompilationUnit();
-                var report = diagnosticsReport.withJavaFile(compilationUnit.getSourceFile());
-                var nameResolver = new AnnotationNameResolver(ImportDeclaration.of(compilationUnit.getImports()));
 
-                VariableScanner.scan(compilationUnit, new DefaultFieldImmutabilityRule(nameResolver, report));
-                VariableScanner.scan(
-                    compilationUnit,
-                    new DefaultParameterImmutabilityRule(
-                        DefaultModifierRule.Listeners.of(report, FinalModifierSetter.INSTANCE)
-                    )
-                );
-                VariableScanner.scan(
-                    compilationUnit,
-                    new DefaultLocalVariableImmutabilityRule(
-                        DefaultModifierRule.Listeners.of(report, FinalModifierSetter.INSTANCE)
-                    )
-                );
+                var immutabilityListeners = DefaultModifierRule.Listeners.of(diagnosticsReport, FinalModifierSetter.INSTANCE);
+                VariableScanner.scan(compilationUnit, new DefaultFieldImmutabilityRule(immutabilityListeners));
+                VariableScanner.scan(compilationUnit, new DefaultParameterImmutabilityRule(immutabilityListeners));
+                VariableScanner.scan(compilationUnit, new DefaultLocalVariableImmutabilityRule(immutabilityListeners));
+
                 VariableScanner.scan(
                     compilationUnit,
                     new DefaultFieldAccessRule(
-                        DefaultModifierRule.Listeners.of(report, PublicModifierSetter.INSTANCE)
+                        DefaultModifierRule.Listeners.of(diagnosticsReport, PublicModifierSetter.INSTANCE)
                     )
                 );
             }

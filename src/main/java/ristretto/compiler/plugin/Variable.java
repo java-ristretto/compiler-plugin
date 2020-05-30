@@ -5,6 +5,7 @@ interface Variable {
     boolean hasPublicModifier();
     boolean hasProtectedModifier();
     boolean hasPrivateModifier();
+    boolean hasStaticModifier();
 
     void addFinalModifier();
     void addPublicModifier();
@@ -13,4 +14,5 @@ interface Variable {
     boolean hasPackagePrivateAnnotation();
 
     String position();
+
 }

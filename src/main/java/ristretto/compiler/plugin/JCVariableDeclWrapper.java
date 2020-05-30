@@ -49,6 +49,11 @@ final class JCVariableDeclWrapper implements Variable {
     }
 
     @Override
+    public boolean hasStaticModifier() {
+        return variable.getModifiers().getFlags().contains(Modifier.STATIC);
+    }
+
+    @Override
     public boolean hasMutableAnnotation() {
         return variable.getModifiers()
             .getAnnotations()

@@ -1,36 +1,20 @@
 package ristretto.compiler.plugin;
 
-import com.sun.source.tree.VariableTree;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 interface DefaultModifierRule {
+
     interface Listener {
 
-        default void modifierAdded(DefaultModifierRule source, VariableTree target) {
-
-        }
-
-        default void modifierAlreadyPresent(DefaultModifierRule source, VariableTree target) {
-
-        }
-
-        default void modifierNotAdded(DefaultModifierRule source, VariableTree target) {
-
-        }
-
         default void modifierAdded(DefaultModifierRule source, Variable target) {
-
         }
 
         default void modifierAlreadyPresent(DefaultModifierRule source, Variable target) {
-
         }
 
         default void modifierNotAdded(DefaultModifierRule source, Variable target) {
-
         }
     }
 

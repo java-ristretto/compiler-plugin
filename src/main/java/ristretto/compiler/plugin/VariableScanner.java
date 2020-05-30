@@ -57,20 +57,22 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
 
     @Override
     public Void visitVariable(VariableTree variable, Scope scope) {
+        JCVariableDeclWrapper wrapper = new JCVariableDeclWrapper(javaFile, variable, resolver);
+
         switch (scope) {
             case BLOCK:
-                visitor.visitLocalVariable(new JCVariableDeclWrapper(javaFile, variable, resolver));
+                visitor.visitLocalVariable(wrapper);
                 break;
             case CLASS:
-                visitor.visitField(new JCVariableDeclWrapper(javaFile, variable, resolver));
-                visitor.visitClassField(variable);
+                visitor.visitField(wrapper);
+                visitor.visitClassField(wrapper);
                 break;
             case ENUM:
-                visitor.visitField(new JCVariableDeclWrapper(javaFile, variable, resolver));
-                visitor.visitEnumField(variable);
+                visitor.visitField(wrapper);
+                visitor.visitEnumField(wrapper);
                 break;
             case METHOD:
-                visitor.visitParameter(new JCVariableDeclWrapper(javaFile, variable, resolver));
+                visitor.visitParameter(wrapper);
                 break;
         }
         return super.visitVariable(variable, scope);
@@ -84,10 +86,10 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
         default void visitField(Variable field) {
         }
 
-        default void visitClassField(VariableTree field) {
+        default void visitClassField(Variable field) {
         }
 
-        default void visitEnumField(VariableTree field) {
+        default void visitEnumField(Variable field) {
         }
 
         default void visitParameter(Variable parameter) {
