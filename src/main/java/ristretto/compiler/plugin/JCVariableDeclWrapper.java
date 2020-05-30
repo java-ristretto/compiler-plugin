@@ -83,7 +83,7 @@ final class JCVariableDeclWrapper implements Variable {
     }
 
     @Override
-    public void addPublicModifier() {
+    public void addPrivateModifier() {
         JCTree.JCModifiers modifiers = variable.mods;
         modifiers.flags |= Flags.PRIVATE;
     }

@@ -43,7 +43,7 @@ public final class JavacPlugin implements Plugin {
 
                 VariableScanner.scan(
                     compilationUnit,
-                    new DefaultFieldAccessRule(PublicModifierSetter.INSTANCE.andThen(diagnosticsReport))
+                    new DefaultFieldAccessRule(PrivateModifierSetter.INSTANCE.andThen(diagnosticsReport))
                 );
             }
         ));

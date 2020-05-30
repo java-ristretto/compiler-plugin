@@ -8,7 +8,7 @@ interface Variable {
     boolean hasStaticModifier();
 
     void addFinalModifier();
-    void addPublicModifier();
+    void addPrivateModifier();
 
     boolean hasMutableAnnotation();
     boolean hasPackagePrivateAnnotation();
