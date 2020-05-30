@@ -11,7 +11,7 @@ import com.sun.source.util.TreeScanner;
 
 import javax.tools.JavaFileObject;
 
-final class VariableScanner extends TreeScanner<Void, Scope> {
+final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
 
     private final JavaFileObject javaFile;
     private final Visitor visitor;
@@ -96,4 +96,12 @@ final class VariableScanner extends TreeScanner<Void, Scope> {
         }
     }
 
+    enum Scope {
+        BLOCK,
+        CLASS,
+        COMPILATION_UNIT,
+        ENUM,
+        FOR_LOOP,
+        METHOD
+    }
 }
