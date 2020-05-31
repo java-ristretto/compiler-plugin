@@ -10,6 +10,7 @@ interface ModifierTarget {
 
     void addFinalModifier();
     void addPrivateModifier();
+    void addPublicModifier();
 
     boolean hasMutableAnnotation();
     boolean hasPackagePrivateAnnotation();

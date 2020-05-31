@@ -1,7 +1,7 @@
 package ristretto.compiler.plugin;
 
 import com.sun.source.tree.AnnotationTree;
-import com.sun.source.tree.VariableTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.DiagnosticSource;
@@ -9,53 +9,53 @@ import com.sun.tools.javac.util.DiagnosticSource;
 import javax.lang.model.element.Modifier;
 import javax.tools.JavaFileObject;
 
-final class JCVariableDeclWrapper implements ModifierTarget {
+final class JCMethodDeclWrapper implements ModifierTarget {
 
-    private final JCTree.JCVariableDecl variable;
+    private final JCTree.JCMethodDecl method;
     private final AnnotationNameResolver resolver;
     private final JavaFileObject javaFile;
 
-    JCVariableDeclWrapper(JavaFileObject javaFile, VariableTree variable, AnnotationNameResolver resolver) {
+    JCMethodDeclWrapper(JavaFileObject javaFile, MethodTree method, AnnotationNameResolver resolver) {
         this.javaFile = javaFile;
-        this.variable = (JCTree.JCVariableDecl) variable;
+        this.method = (JCTree.JCMethodDecl) method;
         this.resolver = resolver;
     }
 
     @Override
     public String position() {
         String filePath = javaFile.toUri().getPath();
-        int lineNumber = new DiagnosticSource(javaFile, null).getLineNumber(variable.getPreferredPosition());
+        int lineNumber = new DiagnosticSource(javaFile, null).getLineNumber(method.getPreferredPosition());
         return filePath + ":" + lineNumber;
     }
 
     @Override
     public boolean hasFinalModifier() {
-        return variable.getModifiers().getFlags().contains(Modifier.FINAL);
+        return method.getModifiers().getFlags().contains(Modifier.FINAL);
     }
 
     @Override
     public boolean hasPublicModifier() {
-        return variable.getModifiers().getFlags().contains(Modifier.PUBLIC);
+        return method.getModifiers().getFlags().contains(Modifier.PUBLIC);
     }
 
     @Override
     public boolean hasProtectedModifier() {
-        return variable.getModifiers().getFlags().contains(Modifier.PROTECTED);
+        return method.getModifiers().getFlags().contains(Modifier.PROTECTED);
     }
 
     @Override
     public boolean hasPrivateModifier() {
-        return variable.getModifiers().getFlags().contains(Modifier.PRIVATE);
+        return method.getModifiers().getFlags().contains(Modifier.PRIVATE);
     }
 
     @Override
     public boolean hasStaticModifier() {
-        return variable.getModifiers().getFlags().contains(Modifier.STATIC);
+        return method.getModifiers().getFlags().contains(Modifier.STATIC);
     }
 
     @Override
     public boolean hasMutableAnnotation() {
-        return variable.getModifiers()
+        return method.getModifiers()
             .getAnnotations()
             .stream()
             .map(AnnotationTree::getAnnotationType)
@@ -65,7 +65,7 @@ final class JCVariableDeclWrapper implements ModifierTarget {
 
     @Override
     public boolean hasPackagePrivateAnnotation() {
-        return variable.getModifiers()
+        return method.getModifiers()
             .getAnnotations()
             .stream()
             .map(AnnotationTree::getAnnotationType)
@@ -75,7 +75,7 @@ final class JCVariableDeclWrapper implements ModifierTarget {
 
     @Override
     public void addFinalModifier() {
-        JCTree.JCModifiers modifiers = variable.mods;
+        JCTree.JCModifiers modifiers = method.mods;
         if ((modifiers.flags & Flags.VOLATILE) != 0) {
             return;
         }
@@ -84,14 +84,13 @@ final class JCVariableDeclWrapper implements ModifierTarget {
 
     @Override
     public void addPrivateModifier() {
-        JCTree.JCModifiers modifiers = variable.mods;
+        JCTree.JCModifiers modifiers = method.mods;
         modifiers.flags |= Flags.PRIVATE;
     }
 
     @Override
     public void addPublicModifier() {
-        JCTree.JCModifiers modifiers = variable.mods;
+        JCTree.JCModifiers modifiers = method.mods;
         modifiers.flags |= Flags.PUBLIC;
     }
-
 }

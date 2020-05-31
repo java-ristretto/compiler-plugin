@@ -42,6 +42,7 @@ final class DiagnosticsReport implements DefaultModifierRule.Listener {
         logger.summary(formatMetrics(DefaultParameterImmutabilityRule.class));
         logger.summary(formatMetrics(DefaultLocalVariableImmutabilityRule.class));
         logger.summary(formatMetrics(DefaultFieldAccessRule.class));
+        logger.summary(formatMetrics(DefaultMethodAccessRule.class));
     }
 
     private String formatMetrics(Class<? extends DefaultModifierRule> rule) {

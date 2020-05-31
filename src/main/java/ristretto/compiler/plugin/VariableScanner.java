@@ -42,6 +42,23 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
 
     @Override
     public Void visitMethod(MethodTree method, Scope scope) {
+        JCMethodDeclWrapper wrapper = new JCMethodDeclWrapper(javaFile, method, resolver);
+
+        switch (scope) {
+            case CLASS:
+                if (method.getReturnType() == null) {
+                    visitor.visitClassConstructor(wrapper);
+                } else {
+                    visitor.visitClassMethod(wrapper);
+                }
+                break;
+            case ENUM:
+                if (method.getReturnType() != null) {
+                    visitor.visitEnumMethod(wrapper);
+                }
+                break;
+        }
+
         return super.visitMethod(method, Scope.METHOD);
     }
 
@@ -93,6 +110,15 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
         }
 
         default void visitParameter(ModifierTarget parameter) {
+        }
+
+        default void visitClassConstructor(ModifierTarget constructor) {
+        }
+
+        default void visitClassMethod(ModifierTarget method) {
+        }
+
+        default void visitEnumMethod(ModifierTarget method) {
         }
     }
 

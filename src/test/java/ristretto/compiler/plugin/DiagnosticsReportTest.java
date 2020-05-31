@@ -24,6 +24,9 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
             "  final String field2;",
             "  @Mutable String field3;",
             "",
+            "  void someMethod() {",
+            "  }",
+            "",
             "}"
         );
 
@@ -59,7 +62,8 @@ class DiagnosticsReportTest extends JavacPluginBaseTest {
             "| DefaultFieldImmutabilityRule             |           3 |  33.33% |  33.33% |    33.33% |",
             "| DefaultParameterImmutabilityRule         |           0 |       - |       - |         - |",
             "| DefaultLocalVariableImmutabilityRule     |           0 |       - |       - |         - |",
-            "| DefaultFieldAccessRule                   |           3 | 100.00% |   0.00% |     0.00% |"
+            "| DefaultFieldAccessRule                   |           3 | 100.00% |   0.00% |     0.00% |",
+            "| DefaultMethodAccessRule                  |           1 | 100.00% |   0.00% |     0.00% |"
         ));
     }
 }

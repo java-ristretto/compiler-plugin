@@ -45,6 +45,12 @@ public final class JavacPlugin implements Plugin {
                     compilationUnit,
                     new DefaultFieldAccessRule(PrivateModifierSetter.INSTANCE.andThen(diagnosticsReport))
                 );
+
+                VariableScanner.scan(
+                    compilationUnit,
+                    new DefaultMethodAccessRule(PublicModifierSetter.INSTANCE.andThen(diagnosticsReport))
+                );
+
             }
         ));
 
