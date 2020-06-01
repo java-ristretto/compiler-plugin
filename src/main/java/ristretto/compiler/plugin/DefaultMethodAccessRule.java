@@ -1,6 +1,5 @@
 package ristretto.compiler.plugin;
 
-// TODO: skip interface methods
 final class DefaultMethodAccessRule implements VariableScanner.Visitor, DefaultModifierRule {
 
     private final Listener listener;

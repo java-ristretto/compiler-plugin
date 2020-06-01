@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 
 import static javax.tools.JavaFileObject.Kind.SOURCE;
 
+// TODO: parse events from plugin instead of matching console output string in tests assertions
+// TODO: enable each rule individually for each test scenario
 final class TestCompiler {
 
     private final JavaCompiler compiler;
@@ -73,7 +75,7 @@ final class TestCompiler {
         );
 
         private static final Pattern PUBLIC_TYPE_DECLARATION = Pattern.compile(
-            "\\s*public\\s+(final\\s+)?(class|enum)\\s+(?<name>[A-Za-z]+)\\s+\\{\\s*"
+            "\\s*public\\s+((final|abstract)\\s+)?(class|enum|interface)\\s+(?<name>[A-Za-z]+)\\s+(extends\\s+[A-Za-z]+\\s+)?\\{\\s*"
         );
 
         final String content;

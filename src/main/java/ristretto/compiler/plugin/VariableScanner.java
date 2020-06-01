@@ -37,6 +37,11 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
         if (aClass.getKind().equals(Tree.Kind.ENUM)) {
             return super.visitClass(aClass, Scope.ENUM);
         }
+
+        if (aClass.getKind().equals(Tree.Kind.INTERFACE)) {
+            return super.visitClass(aClass, Scope.INTERFACE);
+        }
+
         return super.visitClass(aClass, Scope.CLASS);
     }
 
@@ -133,6 +138,7 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
         COMPILATION_UNIT,
         ENUM,
         FOR_LOOP,
+        INTERFACE,
         METHOD
     }
 }

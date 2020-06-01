@@ -8,6 +8,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static ristretto.compiler.plugin.TestCompilerMatchers.hasOutput;
 
 class DefaultMethodAccessRuleTest extends JavacPluginBaseTest {
@@ -126,6 +127,21 @@ class DefaultMethodAccessRuleTest extends JavacPluginBaseTest {
         String result = compile(code).invoke("ristretto.test.TestSample", "test", "hello");
 
         assertThat(result, is("INSTANCE-hello"));
+    }
+
+    @Test
+    void skips_interface_methods() {
+        var code = TestCompiler.SourceCode.of(
+            "package ristretto.test;",
+            "",
+            "public interface TestSample {",
+            "  String test(String value);",
+            "}"
+        );
+
+        var result = compile(code);
+
+        assertThat(result.additionalOutput, not(containsString("DefaultMethodAccessRule /test/TestSample.java:4 MODIFIER_ADDED")));
     }
 
     @Test
