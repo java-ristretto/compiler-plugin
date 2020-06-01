@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
 
@@ -25,6 +26,44 @@ class DefaultParameterImmutabilityRuleTest extends JavacPluginBaseTest {
         var result = compile(code);
 
         assertThat(result.diagnostics(), containsString("TestSample.java:5: error: final parameter name may not be assigned"));
+    }
+
+    @Test
+    void skips_abstract_method_parameters_in_interfaces() {
+        var code = TestCompiler.SourceCode.of(
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  interface SomeInterface {",
+            "    String hello(String name);",
+            "  }",
+            "  ",
+            "}"
+        );
+
+        var result = compile(code);
+
+        assertThat(result.additionalOutput, not(containsString("DefaultParameterImmutabilityRule /test/TestSample.java:6 MODIFIER_ADDED")));
+    }
+
+    @Test
+    void skips_abstract_method_parameters_in_abstract_classes() {
+        var code = TestCompiler.SourceCode.of(
+            "package ristretto.test;",
+            "",
+            "public class TestSample {",
+            "  ",
+            "  abstract class SomeInterface {",
+            "    abstract String hello(String name);",
+            "  }",
+            "  ",
+            "}"
+        );
+
+        var result = compile(code);
+
+        assertThat(result.additionalOutput, not(containsString("DefaultParameterImmutabilityRule /test/TestSample.java:6 MODIFIER_ADDED")));
     }
 
     @Nested

@@ -59,6 +59,10 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
                 break;
         }
 
+        if (method.getBody() == null) {
+            return super.visitMethod(method, Scope.ABSTRACT_METHOD);
+        }
+
         return super.visitMethod(method, Scope.METHOD);
     }
 
@@ -123,6 +127,7 @@ final class VariableScanner extends TreeScanner<Void, VariableScanner.Scope> {
     }
 
     enum Scope {
+        ABSTRACT_METHOD,
         BLOCK,
         CLASS,
         COMPILATION_UNIT,
