@@ -12,79 +12,79 @@ import java.util.logging.Logger;
 
 abstract class RistrettoLogger {
 
-    abstract void summary(String msg);
+  abstract void summary(String msg);
 
-    abstract void diagnostic(String msg);
+  abstract void diagnostic(String msg);
 
-    static RistrettoLogger stderr(Log log) {
-        return new StdErrLogger(log);
+  static RistrettoLogger stderr(Log log) {
+    return new StdErrLogger(log);
+  }
+
+  static RistrettoLogger javaUtilLogging() {
+    return new JavaUtilLogger();
+  }
+
+  private static final class JavaUtilLogger extends RistrettoLogger {
+
+    final Logger logger;
+
+    JavaUtilLogger() {
+      try {
+        FileHandler fileHandler = new FileHandler("ristretto.log");
+        fileHandler.setFormatter(new MessageOnlyFormatter());
+        fileHandler.setLevel(Level.ALL);
+
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(new MessageOnlyFormatter());
+        consoleHandler.setLevel(Level.INFO);
+
+        Logger logger = Logger.getLogger("ristretto");
+        logger.setUseParentHandlers(false);
+        logger.addHandler(consoleHandler);
+        logger.addHandler(fileHandler);
+        logger.setLevel(Level.ALL);
+        this.logger = logger;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
-    static RistrettoLogger javaUtilLogging() {
-        return new JavaUtilLogger();
+    @Override
+    public void summary(String msg) {
+      logger.info(msg);
     }
 
-    private static final class JavaUtilLogger extends RistrettoLogger {
+    @Override
+    public void diagnostic(String msg) {
+      logger.fine(msg);
+    }
+  }
 
-        final Logger logger;
+  private static final class MessageOnlyFormatter extends Formatter {
 
-        JavaUtilLogger() {
-            try {
-                FileHandler fileHandler = new FileHandler("ristretto.log");
-                fileHandler.setFormatter(new MessageOnlyFormatter());
-                fileHandler.setLevel(Level.ALL);
+    @Override
+    public String format(LogRecord record) {
+      return String.format("%s%n", record.getMessage());
+    }
+  }
 
-                ConsoleHandler consoleHandler = new ConsoleHandler();
-                consoleHandler.setFormatter(new MessageOnlyFormatter());
-                consoleHandler.setLevel(Level.INFO);
+  private static final class StdErrLogger extends RistrettoLogger {
 
-                Logger logger = Logger.getLogger("ristretto");
-                logger.setUseParentHandlers(false);
-                logger.addHandler(consoleHandler);
-                logger.addHandler(fileHandler);
-                logger.setLevel(Level.ALL);
-                this.logger = logger;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    final Log log;
 
-        @Override
-        public void summary(String msg) {
-            logger.info(msg);
-        }
-
-        @Override
-        public void diagnostic(String msg) {
-            logger.fine(msg);
-        }
+    StdErrLogger(Log log) {
+      this.log = log;
     }
 
-    private static final class MessageOnlyFormatter extends Formatter {
-
-        @Override
-        public String format(LogRecord record) {
-            return String.format("%s%n", record.getMessage());
-        }
+    @Override
+    public void summary(String msg) {
+      log.printRawLines(msg);
     }
 
-    private static final class StdErrLogger extends RistrettoLogger {
-
-        final Log log;
-
-        StdErrLogger(Log log) {
-            this.log = log;
-        }
-
-        @Override
-        public void summary(String msg) {
-            log.printRawLines(msg);
-        }
-
-        @Override
-        public void diagnostic(String msg) {
-            log.printRawLines(msg);
-        }
+    @Override
+    public void diagnostic(String msg) {
+      log.printRawLines(msg);
     }
+  }
 
 }

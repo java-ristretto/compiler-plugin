@@ -2,42 +2,42 @@ package ristretto.compiler.plugin;
 
 final class DefaultMethodAccessRule implements VariableScanner.Visitor, DefaultModifierRule {
 
-    private final Listener listener;
+  private final Listener listener;
 
-    DefaultMethodAccessRule(Listener listener) {
-        this.listener = listener;
+  DefaultMethodAccessRule(Listener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public void visitEnumMethod(ModifierTarget method) {
+    handle(method);
+  }
+
+  @Override
+  public void visitClassConstructor(ModifierTarget constructor) {
+    handle(constructor);
+  }
+
+  @Override
+  public void visitClassMethod(ModifierTarget method) {
+    handle(method);
+  }
+
+  private void handle(ModifierTarget method) {
+    if (method.hasProtectedModifier() || method.hasPrivateModifier()) {
+      return;
     }
 
-    @Override
-    public void visitEnumMethod(ModifierTarget method) {
-        handle(method);
+    if (method.hasPackagePrivateAnnotation()) {
+      listener.modifierNotAdded(this, method);
+      return;
     }
 
-    @Override
-    public void visitClassConstructor(ModifierTarget constructor) {
-        handle(constructor);
+    if (method.hasPublicModifier()) {
+      listener.modifierAlreadyPresent(this, method);
+      return;
     }
 
-    @Override
-    public void visitClassMethod(ModifierTarget method) {
-        handle(method);
-    }
-
-    private void handle(ModifierTarget method) {
-        if (method.hasProtectedModifier() || method.hasPrivateModifier()) {
-            return;
-        }
-
-        if (method.hasPackagePrivateAnnotation()) {
-            listener.modifierNotAdded(this, method);
-            return;
-        }
-
-        if (method.hasPublicModifier()) {
-            listener.modifierAlreadyPresent(this, method);
-            return;
-        }
-
-        listener.modifierAdded(this, method);
-    }
+    listener.modifierAdded(this, method);
+  }
 }

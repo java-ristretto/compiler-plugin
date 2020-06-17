@@ -10,15 +10,15 @@ import static org.hamcrest.Matchers.not;
 
 class QualifiedNameTest {
 
-    @Test
-    void can_be_used_as_key() {
-        var packageName = new PackageName("some.package");
-        var simpleName = new SimpleName("ClassName");
-        var anotherSimpleName = new SimpleName("AnotherClassName");
+  @Test
+  void can_be_used_as_key() {
+    var packageName = new PackageName("some.package");
+    var simpleName = new SimpleName("ClassName");
+    var anotherSimpleName = new SimpleName("AnotherClassName");
 
-        Map<QualifiedName, String> map = Map.of(packageName.qualify(simpleName), "value");
+    Map<QualifiedName, String> map = Map.of(packageName.qualify(simpleName), "value");
 
-        assertThat(map, hasKey(packageName.qualify(simpleName)));
-        assertThat(map, not(hasKey(packageName.qualify(anotherSimpleName))));
-    }
+    assertThat(map, hasKey(packageName.qualify(simpleName)));
+    assertThat(map, not(hasKey(packageName.qualify(anotherSimpleName))));
+  }
 }

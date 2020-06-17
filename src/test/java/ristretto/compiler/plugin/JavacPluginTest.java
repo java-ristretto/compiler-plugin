@@ -7,23 +7,23 @@ import static org.hamcrest.Matchers.is;
 
 class JavacPluginTest extends JavacPluginBaseTest {
 
-    @Test
-    void ignores_specified_package() {
-        var code = TestCompiler.SourceCode.of(
-            "package ristretto.test;",
-            "",
-            "public class TestSample {",
-            "",
-            "  public static String test(String parameter) {",
-            "    parameter += \":value\";",
-            "    return parameter;",
-            "  }",
-            "",
-            "}"
-        );
+  @Test
+  void ignores_specified_package() {
+    var code = TestCompiler.SourceCode.of(
+      "package ristretto.test;",
+      "",
+      "public class TestSample {",
+      "",
+      "  public static String test(String parameter) {",
+      "    parameter += \":value\";",
+      "    return parameter;",
+      "  }",
+      "",
+      "}"
+    );
 
-        var result = compile(code, "--ignore-packages=ristretto.test").invoke("ristretto.test.TestSample", "test", "value");
+    var result = compile(code, "--ignore-packages=ristretto.test").invoke("ristretto.test.TestSample", "test", "value");
 
-        assertThat(result, is("value:value"));
-    }
+    assertThat(result, is("value:value"));
+  }
 }

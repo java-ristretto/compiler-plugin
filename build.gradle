@@ -1,7 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'maven-publish'
-    id 'signing'
+  id 'java-library'
+  id 'maven-publish'
+  id 'signing'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -11,94 +11,94 @@ group = 'io.github.tprado'
 version = '0.1.0-SNAPSHOT'
 
 repositories {
-    jcenter()
+  jcenter()
 }
 
 compileJava {
-    options.compilerArgs = [
-        '--add-exports', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
-        '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-        '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
-        '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
-    ]
+  options.compilerArgs = [
+    '--add-exports', 'jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+    '--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+    '--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+    '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+  ]
 }
 
 
 java {
-    withSourcesJar()
+  withSourcesJar()
 }
 
 jar {
-    manifest {
-        attributes(
-            'Name': 'ristretto',
-            'Sealed': true
-        )
-    }
+  manifest {
+    attributes(
+      'Name': 'ristretto',
+      'Sealed': true
+    )
+  }
 }
 
 dependencies {
-    testImplementation(
-        'org.junit.jupiter:junit-jupiter-api:5.6.0',
-        'org.hamcrest:hamcrest:2.2',
-    )
+  testImplementation(
+    'org.junit.jupiter:junit-jupiter-api:5.6.0',
+    'org.hamcrest:hamcrest:2.2',
+  )
 
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
 }
 
 test {
-    useJUnitPlatform()
+  useJUnitPlatform()
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'ristretto-compiler-plugin'
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
-                name = 'Ristretto Java Compiler Plugin'
-                description = 'Ristretto Java Compiler Plugin'
-                url = 'https://github.com/tprado/ristretto'
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://github.com/tprado/ristretto/blob/master/LICENSE'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'tprado'
-                        name = 'Thiago Prado'
-                        email = 'thiago.gozzi.prado@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:https://github.com/tprado/ristrettro.git'
-                    developerConnection = 'scm:git:git@github.com:tprado/ristretto.git'
-                    url = 'https://github.com/tprado/ristretto'
-                }
-            }
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = 'ristretto-compiler-plugin'
+      from components.java
+      versionMapping {
+        usage('java-api') {
+          fromResolutionOf('runtimeClasspath')
         }
-    }
-
-    repositories {
-        maven {
-            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            credentials {
-                username = ossrhUserName
-                password = ossrhPassword
-            }
+        usage('java-runtime') {
+          fromResolutionResult()
         }
+      }
+      pom {
+        name = 'Ristretto Java Compiler Plugin'
+        description = 'Ristretto Java Compiler Plugin'
+        url = 'https://github.com/tprado/ristretto'
+        licenses {
+          license {
+            name = 'MIT License'
+            url = 'https://github.com/tprado/ristretto/blob/master/LICENSE'
+          }
+        }
+        developers {
+          developer {
+            id = 'tprado'
+            name = 'Thiago Prado'
+            email = 'thiago.gozzi.prado@gmail.com'
+          }
+        }
+        scm {
+          connection = 'scm:git:https://github.com/tprado/ristrettro.git'
+          developerConnection = 'scm:git:git@github.com:tprado/ristretto.git'
+          url = 'https://github.com/tprado/ristretto'
+        }
+      }
     }
+  }
+
+  repositories {
+    maven {
+      def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+      def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+      credentials {
+        username = ossrhUserName
+        password = ossrhPassword
+      }
+    }
+  }
 }

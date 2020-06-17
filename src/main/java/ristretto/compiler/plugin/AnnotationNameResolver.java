@@ -15,54 +15,54 @@ import static java.util.stream.Collectors.groupingBy;
 
 final class AnnotationNameResolver {
 
-    private static final QualifiedName MUTABLE = QualifiedName.of(Mutable.class);
-    private static final QualifiedName PACKAGE_PRIVATE = QualifiedName.of(PackagePrivate.class);
+  private static final QualifiedName MUTABLE = QualifiedName.of(Mutable.class);
+  private static final QualifiedName PACKAGE_PRIVATE = QualifiedName.of(PackagePrivate.class);
 
-    private static final Map<PackageName, List<QualifiedName>> KNOWN_ANNOTATIONS =
-        Stream.of(MUTABLE, PACKAGE_PRIVATE).collect(groupingBy(QualifiedName::packageName));
+  private static final Map<PackageName, List<QualifiedName>> KNOWN_ANNOTATIONS =
+    Stream.of(MUTABLE, PACKAGE_PRIVATE).collect(groupingBy(QualifiedName::packageName));
 
-    private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
+  private final Map<ClassReference, ClassReference> importedClasses = new HashMap<>();
 
-    AnnotationNameResolver(Set<ImportDeclaration> importDeclarations) {
-        importDeclarations.forEach(this::importClass);
+  AnnotationNameResolver(Set<ImportDeclaration> importDeclarations) {
+    importDeclarations.forEach(this::importClass);
+  }
+
+  // TODO: remove
+  AnnotationNameResolver() {
+  }
+
+  // TODO: remove
+  void importClass(String importDeclaration) {
+    importClass(ImportDeclaration.parse(importDeclaration));
+  }
+
+  private void importClass(ImportDeclaration importDeclaration) {
+    Optional<QualifiedName> qualifiedName = importDeclaration.qualifiedName();
+    if (qualifiedName.isPresent()) {
+      importClass(qualifiedName.get());
+      return;
     }
 
-    // TODO: remove
-    AnnotationNameResolver() {
-    }
+    KNOWN_ANNOTATIONS.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
+  }
 
-    // TODO: remove
-    void importClass(String importDeclaration) {
-        importClass(ImportDeclaration.parse(importDeclaration));
-    }
+  private void importClass(QualifiedName qualifiedName) {
+    importedClasses.put(qualifiedName.simpleName(), qualifiedName);
+  }
 
-    private void importClass(ImportDeclaration importDeclaration) {
-        Optional<QualifiedName> qualifiedName = importDeclaration.qualifiedName();
-        if (qualifiedName.isPresent()) {
-            importClass(qualifiedName.get());
-            return;
-        }
+  boolean isMutable(String annotationName) {
+    return MUTABLE.equals(resolve(annotationName));
+  }
 
-        KNOWN_ANNOTATIONS.getOrDefault(importDeclaration.packageName(), emptyList()).forEach(this::importClass);
-    }
+  boolean isPackagePrivate(String annotationName) {
+    return PACKAGE_PRIVATE.equals(resolve(annotationName));
+  }
 
-    private void importClass(QualifiedName qualifiedName) {
-        importedClasses.put(qualifiedName.simpleName(), qualifiedName);
-    }
+  private ClassReference resolve(String classReference) {
+    return resolve(ClassReference.parse(classReference));
+  }
 
-    boolean isMutable(String annotationName) {
-        return MUTABLE.equals(resolve(annotationName));
-    }
-
-    boolean isPackagePrivate(String annotationName) {
-        return PACKAGE_PRIVATE.equals(resolve(annotationName));
-    }
-
-    private ClassReference resolve(String classReference) {
-        return resolve(ClassReference.parse(classReference));
-    }
-
-    private ClassReference resolve(ClassReference classReference) {
-        return importedClasses.getOrDefault(classReference, classReference);
-    }
+  private ClassReference resolve(ClassReference classReference) {
+    return importedClasses.getOrDefault(classReference, classReference);
+  }
 }

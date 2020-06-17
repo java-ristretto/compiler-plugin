@@ -9,45 +9,45 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 
 final class Percentages<K> {
 
-    private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
+  private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
-    private final int total;
-    private final Map<K, BigDecimal> percentages;
+  private final int total;
+  private final Map<K, BigDecimal> percentages;
 
-    private Percentages(int total, Map<K, BigDecimal> percentages) {
-        this.total = total;
-        this.percentages = percentages;
+  private Percentages(int total, Map<K, BigDecimal> percentages) {
+    this.total = total;
+    this.percentages = percentages;
+  }
+
+  static <K> Optional<Percentages<K>> calculate(Map<K, Integer> stats) {
+    int total = stats.values()
+      .stream()
+      .mapToInt(Integer::intValue)
+      .sum();
+
+    if (total == 0) {
+      return Optional.empty();
     }
 
-    static <K> Optional<Percentages<K>> calculate(Map<K, Integer> stats) {
-        int total = stats.values()
-            .stream()
-            .mapToInt(Integer::intValue)
-            .sum();
+    Map<K, BigDecimal> percentages = stats.entrySet()
+      .stream()
+      .collect(toUnmodifiableMap(Map.Entry::getKey, entry -> percentage(entry.getValue(), total)));
 
-        if (total == 0) {
-            return Optional.empty();
-        }
+    return Optional.of(new Percentages<>(total, percentages));
+  }
 
-        Map<K, BigDecimal> percentages = stats.entrySet()
-            .stream()
-            .collect(toUnmodifiableMap(Map.Entry::getKey, entry -> percentage(entry.getValue(), total)));
+  private static BigDecimal percentage(int count, int total) {
+    return BigDecimal.valueOf(count)
+      .divide(BigDecimal.valueOf(total), 4, RoundingMode.FLOOR)
+      .multiply(HUNDRED)
+      .setScale(2, RoundingMode.FLOOR);
+  }
 
-        return Optional.of(new Percentages<>(total, percentages));
-    }
+  int getTotal() {
+    return total;
+  }
 
-    private static BigDecimal percentage(int count, int total) {
-        return BigDecimal.valueOf(count)
-            .divide(BigDecimal.valueOf(total), 4, RoundingMode.FLOOR)
-            .multiply(HUNDRED)
-            .setScale(2, RoundingMode.FLOOR);
-    }
-
-    int getTotal() {
-        return total;
-    }
-
-    BigDecimal percentage(K key) {
-        return percentages.getOrDefault(key, BigDecimal.ZERO);
-    }
+  BigDecimal percentage(K key) {
+    return percentages.getOrDefault(key, BigDecimal.ZERO);
+  }
 }

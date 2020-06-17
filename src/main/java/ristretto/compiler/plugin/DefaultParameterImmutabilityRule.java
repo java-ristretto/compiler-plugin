@@ -2,24 +2,24 @@ package ristretto.compiler.plugin;
 
 final class DefaultParameterImmutabilityRule implements VariableScanner.Visitor, DefaultModifierRule {
 
-    private final Listener listener;
+  private final Listener listener;
 
-    DefaultParameterImmutabilityRule(Listener listener) {
-        this.listener = listener;
+  DefaultParameterImmutabilityRule(Listener listener) {
+    this.listener = listener;
+  }
+
+  @Override
+  public void visitParameter(ModifierTarget parameter) {
+    if (parameter.hasMutableAnnotation()) {
+      listener.modifierNotAdded(this, parameter);
+      return;
     }
 
-    @Override
-    public void visitParameter(ModifierTarget parameter) {
-        if (parameter.hasMutableAnnotation()) {
-            listener.modifierNotAdded(this, parameter);
-            return;
-        }
-
-        if (parameter.hasFinalModifier()) {
-            listener.modifierAlreadyPresent(this, parameter);
-            return;
-        }
-
-        listener.modifierAdded(this, parameter);
+    if (parameter.hasFinalModifier()) {
+      listener.modifierAlreadyPresent(this, parameter);
+      return;
     }
+
+    listener.modifierAdded(this, parameter);
+  }
 }

@@ -6,18 +6,18 @@ import java.util.List;
 
 abstract class JavacPluginBaseTest {
 
-    private TestCompiler compiler;
+  private TestCompiler compiler;
 
-    @BeforeEach
-    final void newCompiler() {
-        compiler = new TestCompiler();
-    }
+  @BeforeEach
+  final void newCompiler() {
+    compiler = new TestCompiler();
+  }
 
-    final TestCompiler.Result compile(List<TestCompiler.SourceCode> sourceCode, String... pluginArgs) {
-        return compiler.compile(sourceCode, pluginArgs);
-    }
+  final TestCompiler.Result compile(List<TestCompiler.SourceCode> sourceCode, String... pluginArgs) {
+    return compiler.compile(sourceCode, pluginArgs);
+  }
 
-    final TestCompiler.Result compile(TestCompiler.SourceCode sourceCode, String... pluginArgs) {
-        return compiler.compile(sourceCode, pluginArgs);
-    }
+  final TestCompiler.Result compile(TestCompiler.SourceCode sourceCode, String... pluginArgs) {
+    return compiler.compile(sourceCode, pluginArgs);
+  }
 }

@@ -2,18 +2,25 @@ package ristretto.compiler.plugin;
 
 interface ModifierTarget {
 
-    boolean hasFinalModifier();
-    boolean hasPublicModifier();
-    boolean hasProtectedModifier();
-    boolean hasPrivateModifier();
-    boolean hasStaticModifier();
+  boolean hasFinalModifier();
 
-    void addFinalModifier();
-    void addPrivateModifier();
-    void addPublicModifier();
+  boolean hasPublicModifier();
 
-    boolean hasMutableAnnotation();
-    boolean hasPackagePrivateAnnotation();
+  boolean hasProtectedModifier();
 
-    String position();
+  boolean hasPrivateModifier();
+
+  boolean hasStaticModifier();
+
+  void addFinalModifier();
+
+  void addPrivateModifier();
+
+  void addPublicModifier();
+
+  boolean hasMutableAnnotation();
+
+  boolean hasPackagePrivateAnnotation();
+
+  String position();
 }
