@@ -1,0 +1,3 @@
+rootProject.name = 'ristretto'
+include 'libs:annotations'
+include 'plugins:javac'
