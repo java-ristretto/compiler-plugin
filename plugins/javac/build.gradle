@@ -53,7 +53,7 @@ test {
 publishing {
   publications {
     mavenJava(MavenPublication) {
-      artifactId = 'ristretto-compiler-plugin'
+      artifactId = 'ristretto-javac-plugin'
       from components.java
       versionMapping {
         usage('java-api') {
