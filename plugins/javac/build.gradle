@@ -28,16 +28,11 @@ java {
   withSourcesJar()
 }
 
-jar {
-  manifest {
-    attributes(
-      'Name': 'ristretto',
-      'Sealed': true
-    )
-  }
-}
-
 dependencies {
+  implementation(
+    project(':libs:annotations')
+  )
+
   testImplementation(
     'org.junit.jupiter:junit-jupiter-api:5.6.0',
     'org.hamcrest:hamcrest:2.2',
@@ -53,7 +48,7 @@ test {
 publishing {
   publications {
     mavenJava(MavenPublication) {
-      artifactId = 'ristretto-compiler-plugin'
+      artifactId = 'ristretto-javac-plugin'
       from components.java
       versionMapping {
         usage('java-api') {
