@@ -1,19 +1,19 @@
 <idea-plugin>
-    <id>org.example.first-intellij-plugin</id>
-    <name>Ristretto</name>
-    <vendor email="thiago.gozzi.prado@gmail.com" url="https://github.com/tprado/ristretto">Thiago Prado</vendor>
+  <id>io.github.tprado.ristretto</id>
+  <name>Ristretto</name>
+  <vendor email="thiago.gozzi.prado@gmail.com" url="https://github.com/tprado/ristretto">Thiago Prado</vendor>
 
-    <description>Ristretto provides better defaults for the Java Language.</description>
+  <description>Ristretto provides better defaults for the Java Language.</description>
 
-    <depends>com.intellij.modules.lang</depends>
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.java</depends>
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <lang.psiAugmentProvider implementation="ristretto.intellij.plugin.RistrettoAugmentProvider"/>
-    </extensions>
+  <extensions defaultExtensionNs="com.intellij">
+    <lang.psiAugmentProvider implementation="io.github.tprado.ristretto.plugins.intellij.RistrettoAugmentProvider"/>
+  </extensions>
 
-    <actions>
-        <!-- Add your actions here -->
-    </actions>
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
 </idea-plugin>

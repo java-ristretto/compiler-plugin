@@ -23,7 +23,6 @@ compileJava {
   ]
 }
 
-
 java {
   withSourcesJar()
 }
