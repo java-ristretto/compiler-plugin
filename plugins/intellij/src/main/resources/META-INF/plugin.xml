@@ -11,6 +11,20 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <lang.psiAugmentProvider implementation="io.github.tprado.ristretto.plugins.intellij.RistrettoAugmentProvider"/>
+
+    <localInspection
+      groupPath="Ristretto"
+      language="JAVA"
+      shortName="UnnecessaryFinalModifier"
+      bundle="messages.RistrettoInspectionGadgetsBundle"
+      key="unnecessary.final.modifier.display.name"
+      groupBundle="messages.InspectionsBundle"
+      groupKey="group.names.code.style.issues"
+      enabledByDefault="true"
+      level="WARNING"
+      cleanupTool="true"
+      implementationClass="io.github.tprado.ristretto.plugins.intellij.UnnecessaryFinalModifierInspection"/>
+
   </extensions>
 
   <actions>
