@@ -18,7 +18,7 @@ dependencies {
 }
 
 intellij {
-  localPath "${projectDir}/distributions/idea-IC-2020.1.2"
+  localPath intellij2020LocalPath
   plugins 'java'
 }
 
