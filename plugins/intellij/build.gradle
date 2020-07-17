@@ -19,7 +19,7 @@ dependencies {
 
 intellij {
   localPath intellij2020LocalPath
-  plugins 'java'
+  plugins 'java', 'gradle'
 }
 
 patchPluginXml {

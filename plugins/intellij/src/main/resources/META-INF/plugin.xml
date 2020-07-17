@@ -8,8 +8,15 @@
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.java</depends>
+  <depends>com.intellij.gradle</depends>
+
+  <extensions defaultExtensionNs="org.jetbrains.plugins.gradle">
+    <projectResolve implementation="io.github.tprado.ristretto.plugins.intellij.RistrettoGradleProjectResolver"/>
+  </extensions>
 
   <extensions defaultExtensionNs="com.intellij">
+    <postStartupActivity implementation="io.github.tprado.ristretto.plugins.intellij.RistrettoStartupActivity"/>
+
     <lang.psiAugmentProvider implementation="io.github.tprado.ristretto.plugins.intellij.RistrettoAugmentProvider"/>
 
     <localInspection
