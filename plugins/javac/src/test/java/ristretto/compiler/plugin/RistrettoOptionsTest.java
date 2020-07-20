@@ -2,6 +2,9 @@ package ristretto.compiler.plugin;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.Optional;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -28,5 +31,12 @@ class RistrettoOptionsTest {
     assertThat(options.isIncluded(new PackageName("some.package.name1")), is(false));
     assertThat(options.isIncluded(new PackageName("some.package.name2")), is(false));
     assertThat(options.isIncluded(new PackageName("some.package.name3")), is(true));
+  }
+
+  @Test
+  void has_the_configuration_file_path() {
+    RistrettoOptions options = RistrettoOptions.parse("--config-file=./ristretto.properties");
+
+    assertThat(options.configFile(), is(Optional.of(new File("./ristretto.properties"))));
   }
 }
